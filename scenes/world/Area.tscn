@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://area_scene"]
+
+[ext_resource type="Script" path="res://scripts/world/Area.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/monsters/SpawnManager.gd" id="2"]
+
+[node name="Area" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Terrain" type="Node3D" parent="."]
+
+[node name="ResourceZones" type="Node3D" parent="."]
+
+[node name="PrecursorSites" type="Node3D" parent="."]
+
+[node name="SpawnManager" type="Node3D" parent="."]
+script = ExtResource("2")
+
+[node name="AreaTrigger" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AreaTrigger"]

@@ -1,0 +1,59 @@
+{
+  "reagents": [
+    {
+      "id": "fire_herb",
+      "name": "Fire Herb",
+      "spell_association": "firebolt",
+      "weight": 0.1,
+      "tier": "common",
+      "sources": ["gathered_world", "purchased"],
+      "min_purchase_tier": "town",
+      "base_price": 8,
+      "description": "A red-leafed herb that burns with unnatural heat when crushed."
+    },
+    {
+      "id": "mineral_powder",
+      "name": "Mineral Powder",
+      "spell_association": "force_push, stone_shield",
+      "weight": 0.15,
+      "tier": "common",
+      "sources": ["gathered_world", "purchased"],
+      "min_purchase_tier": "town",
+      "base_price": 10,
+      "description": "Ground from a pale stone found near precursor ruins."
+    },
+    {
+      "id": "crystal_shard",
+      "name": "Crystal Shard",
+      "spell_association": "frost_snap",
+      "weight": 0.2,
+      "tier": "uncommon",
+      "sources": ["world_cache", "monster_drop", "occasional_city"],
+      "min_purchase_tier": "city",
+      "base_price": 45,
+      "description": "A cold, faceted mineral that maintains a temperature below freezing."
+    },
+    {
+      "id": "charged_filament",
+      "name": "Charged Filament",
+      "spell_association": "lightning_arc",
+      "weight": 0.1,
+      "tier": "uncommon",
+      "sources": ["monster_drop", "occasional_city"],
+      "min_purchase_tier": "city",
+      "base_price": 60,
+      "description": "A thin strand of material harvested from lightning-type monsters. Crackles constantly."
+    },
+    {
+      "id": "precursor_core_fragment",
+      "name": "Precursor Core Fragment",
+      "spell_association": "ruin",
+      "weight": 0.5,
+      "tier": "rare",
+      "sources": ["precursor_ruins", "deep_exploration", "city_shop"],
+      "min_purchase_tier": "city",
+      "base_price": 350,
+      "description": "A dense fragment from a precursor mechanism. Radiates immense latent energy."
+    }
+  ]
+}

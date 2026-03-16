@@ -1,0 +1,9 @@
+{
+  "name": "The Frontier",
+  "image": "nezhar/claude-container:latest",
+  "mounts": [
+    "source=${localEnv:USERPROFILE}\\.claude,target=/root/.claude,type=bind"
+  ],
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
+  "workspaceFolder": "/workspace"
+}

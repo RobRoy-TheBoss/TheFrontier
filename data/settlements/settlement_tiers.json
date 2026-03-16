@@ -1,0 +1,117 @@
+{
+  "tiers": [
+    {
+      "id": "trading_post",
+      "name": "Trading Post",
+      "tier_index": 0,
+      "trade_score_threshold": 0,
+      "required_resources": [],
+      "area_suppression_percent": 25,
+      "services": [
+        "buy_sell_basic_goods",
+        "buy_weapons_light",
+        "buy_armor_light",
+        "buy_flags",
+        "sleep",
+        "hireling_none",
+        "buy_spyglass"
+      ],
+      "safe_zone_radius": 40.0,
+      "visual_ref": "settlement_trading_post"
+    },
+    {
+      "id": "village",
+      "name": "Village",
+      "tier_index": 1,
+      "trade_score_threshold": 200,
+      "required_resources": ["food", "timber"],
+      "area_suppression_percent": 50,
+      "services": [
+        "buy_sell_goods",
+        "buy_weapons_medium",
+        "buy_armor_medium",
+        "buy_flags",
+        "sleep",
+        "hire_porter",
+        "hire_hunter",
+        "buy_home",
+        "settlement_meals",
+        "injury_treatment_village"
+      ],
+      "safe_zone_radius": 70.0,
+      "visual_ref": "settlement_village"
+    },
+    {
+      "id": "town",
+      "name": "Town",
+      "tier_index": 2,
+      "trade_score_threshold": 800,
+      "required_resources": ["food", "timber", "iron"],
+      "area_suppression_percent": 75,
+      "services": [
+        "buy_sell_goods",
+        "buy_weapons_heavy",
+        "buy_armor_heavy",
+        "buy_flags",
+        "sleep",
+        "hire_porter",
+        "hire_hunter",
+        "hire_guide",
+        "hire_surveyor",
+        "hire_cartographer",
+        "hire_healer",
+        "buy_home",
+        "settlement_meals",
+        "town_alchemist",
+        "buy_theodolite",
+        "buy_reagents_common",
+        "injury_treatment_town",
+        "discipline_enhancement"
+      ],
+      "safe_zone_radius": 100.0,
+      "visual_ref": "settlement_town"
+    },
+    {
+      "id": "city",
+      "name": "City",
+      "tier_index": 3,
+      "trade_score_threshold": 2500,
+      "required_resources": ["food", "timber", "iron", "luxury"],
+      "area_suppression_percent": 100,
+      "services": [
+        "buy_sell_all_goods",
+        "buy_all_weapons",
+        "buy_all_armor",
+        "buy_flags",
+        "sleep",
+        "hire_all",
+        "buy_home",
+        "settlement_meals",
+        "town_alchemist",
+        "buy_theodolite",
+        "buy_reagents_all",
+        "buy_maps",
+        "injury_treatment_city",
+        "discipline_enhancement",
+        "manufactured_goods"
+      ],
+      "safe_zone_radius": 150.0,
+      "visual_ref": "settlement_city"
+    }
+  ],
+  "trade_score_weights": {
+    "local_resource_output": 1.0,
+    "pass_through_traffic": 0.6,
+    "resource_diversity_multiplier": 1.3,
+    "connection_count_bonus": 0.2
+  },
+  "road_quality": {
+    "trading_post_trading_post": { "name": "Game Trail", "speed_multiplier": 1.1, "visual_ref": "road_game_trail" },
+    "trading_post_village": { "name": "Dirt Track", "speed_multiplier": 1.2, "visual_ref": "road_dirt" },
+    "village_village": { "name": "Dirt Road", "speed_multiplier": 1.3, "visual_ref": "road_dirt" },
+    "village_town": { "name": "Packed Road", "speed_multiplier": 1.5, "visual_ref": "road_packed" },
+    "town_town": { "name": "Packed Road", "speed_multiplier": 1.5, "visual_ref": "road_packed" },
+    "town_city": { "name": "Cobblestone Road", "speed_multiplier": 1.8, "visual_ref": "road_cobblestone" },
+    "city_city": { "name": "King's Road", "speed_multiplier": 2.0, "visual_ref": "road_kings" }
+  }
+}

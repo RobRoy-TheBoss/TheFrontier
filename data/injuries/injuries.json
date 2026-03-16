@@ -1,0 +1,91 @@
+{
+  "injuries": [
+    {
+      "id": "reduced_health_pool",
+      "name": "Grievous Wound",
+      "description": "A deep wound reduces your maximum health until treated.",
+      "debuffs": {
+        "max_health_reduction_percent": 25
+      },
+      "treatment_tier": "town",
+      "partial_stabilization_tier": "camp",
+      "partial_stabilization_effect": "Bleeding stopped. Health pool reduction remains.",
+      "probability_weight": 1.0
+    },
+    {
+      "id": "increased_attack_cooldown",
+      "name": "Arm Injury",
+      "description": "Damaged arm slows your strikes and draw speed.",
+      "debuffs": {
+        "attack_cooldown_multiplier": 1.5,
+        "bow_draw_speed_multiplier": 1.6
+      },
+      "treatment_tier": "village",
+      "partial_stabilization_tier": "field",
+      "partial_stabilization_effect": "Splinted. Cooldown penalty reduced by half.",
+      "probability_weight": 1.2
+    },
+    {
+      "id": "increased_stamina_cost",
+      "name": "Bruised Ribs",
+      "description": "Cracked ribs make every exertion costly.",
+      "debuffs": {
+        "stamina_cost_multiplier": 1.4
+      },
+      "treatment_tier": "village",
+      "partial_stabilization_tier": "field",
+      "partial_stabilization_effect": "Bound. Stamina penalty reduced.",
+      "probability_weight": 1.3
+    },
+    {
+      "id": "bleeding",
+      "name": "Bleeding",
+      "description": "You are losing blood. Will kill if untreated.",
+      "debuffs": {
+        "health_drain_per_second": 0.8
+      },
+      "treatment_tier": "field",
+      "partial_stabilization_tier": "field",
+      "partial_stabilization_effect": "Wound bound. Bleeding stopped.",
+      "probability_weight": 1.5
+    },
+    {
+      "id": "poisoning",
+      "name": "Poisoning",
+      "description": "Venom courses through you, draining health and stamina.",
+      "debuffs": {
+        "health_drain_per_second": 0.4,
+        "stamina_regen_multiplier": 0.5
+      },
+      "treatment_tier": "camp",
+      "partial_stabilization_tier": "field",
+      "partial_stabilization_effect": "Purged some toxin. Drain reduced.",
+      "probability_weight": 0.8
+    },
+    {
+      "id": "slowed_movement",
+      "name": "Leg Injury",
+      "description": "Damaged leg reduces movement speed and dodge effectiveness.",
+      "debuffs": {
+        "movement_speed_multiplier": 0.6,
+        "dodge_distance_multiplier": 0.5
+      },
+      "treatment_tier": "village",
+      "partial_stabilization_tier": "field",
+      "partial_stabilization_effect": "Splinted. Speed penalty reduced.",
+      "probability_weight": 1.1
+    },
+    {
+      "id": "temperature_sensitivity",
+      "name": "Exposure",
+      "description": "Prolonged exposure has weakened your resilience to temperature extremes.",
+      "debuffs": {
+        "temperature_comfort_range_reduction": 10.0
+      },
+      "treatment_tier": "camp",
+      "partial_stabilization_tier": "field",
+      "partial_stabilization_effect": "Warmed/cooled. Sensitivity reduced.",
+      "probability_weight": 0.7
+    }
+  ]
+}

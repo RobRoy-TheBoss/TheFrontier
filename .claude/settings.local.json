@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm /workspace/hello_world.py && git init /workspace)",
+      "Bash(ls /workspace && git init /workspace)",
+      "Bash(which godot || which godot4 || godot --version 2>/dev/null || echo \"Godot not found\")",
+      "Bash(apt-get install -y godot3 2>/dev/null || echo \"Not in apt\"; snap install godot-4 2>/dev/null || echo \"snap not available\")",
+      "Bash(curl -s https://api.github.com/repos/godotengine/godot-builds/releases/latest | grep -o '\"tag_name\": \"[^\"]*\"' | head -1)",
+      "Bash(wget --version 2>/dev/null | head -1; python3 --version; pip3 --version)",
+      "Bash(apt-get update -qq && apt-get install -y wget python3 python3-pip unzip 2>&1 | tail -5)",
+      "Read(//usr/lib/**)",
+      "Read(//etc/**)",
+      "Bash(apk update -q && apk add --no-cache wget unzip python3 py3-pip 2>&1 | tail -5)",
+      "Bash(wget -q \"https://github.com/godotengine/godot-builds/releases/download/4.4-stable/Godot_v4.4-stable_linux.x86_64.zip\" -O /tmp/godot.zip && echo \"Downloaded\" || echo \"Failed\")",
+      "Bash(unzip -q /tmp/godot.zip -d /tmp/godot_extract)",
+      "Read(//tmp/**)",
+      "Bash(mv /tmp/godot_extract/Godot_v4.4-stable_linux.x86_64 /usr/local/bin/godot && chmod +x /usr/local/bin/godot && godot --version)",
+      "Read(//usr/local/bin/**)",
+      "Bash(ldd /usr/local/bin/godot)",
+      "Bash(apk add --no-cache gcompat libc6-compat 2>&1 | tail -5)",
+      "Bash(godot --version 2>&1)",
+      "Bash(apk add --no-cache py3-docx 2>/dev/null; python3 -c \"import docx\" 2>/dev/null && echo \"docx available\" || pip3 install python-docx -q && echo \"installed\")",
+      "Bash(pip3 install python-docx -q --break-system-packages)",
+      "Bash(python3 -c \"\nfrom docx import Document\n\nfor fname in ['the-frontier-gdd-v7.docx', 'the-frontier-hlr-v0.4.0.docx']:\n    print\\(f'\\\\n===== {fname} =====\\\\n'\\)\n    doc = Document\\(f'/workspace/doc/{fname}'\\)\n    for para in doc.paragraphs:\n        if para.text.strip\\(\\):\n            print\\(para.text\\)\n\")"
+    ]
+  }
+}

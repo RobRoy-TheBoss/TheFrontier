@@ -1,0 +1,36 @@
+{
+  "ammo": [
+    {
+      "id": "arrow",
+      "name": "Arrow",
+      "compatible_weapons": ["hunting_bow", "longbow"],
+      "weight_per_unit": 0.1,
+      "stack_size": 30,
+      "value": 1,
+      "craftable": false,
+      "description": "Wooden shaft, iron tip. Purchased in bundles."
+    },
+    {
+      "id": "pistol_ball",
+      "name": "Pistol Ball",
+      "compatible_weapons": ["pistol"],
+      "weight_per_unit": 0.15,
+      "stack_size": 20,
+      "value": 2,
+      "craftable": true,
+      "craft_recipe": "ammo_pistol_ball",
+      "description": "Lead ball and powder charge for a flintlock pistol."
+    },
+    {
+      "id": "musket_ball",
+      "name": "Musket Ball",
+      "compatible_weapons": ["musket"],
+      "weight_per_unit": 0.25,
+      "stack_size": 15,
+      "value": 3,
+      "craftable": true,
+      "craft_recipe": "ammo_musket_ball",
+      "description": "Large lead ball and powder charge for a musket."
+    }
+  ]
+}
