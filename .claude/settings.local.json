@@ -52,7 +52,10 @@
       "Bash(git add -A && git status --short | head -40)",
       "Bash(python3 -m pytest tests/test_game_logic.py tests/test_data_schemas.py tests/test_project_structure.py -x -q 2>&1 | tail -20)",
       "Bash(python3 -m pytest tests/ -x -q 2>&1 | tail -10)",
-      "Bash(git add -A && git status --short | head -20)"
+      "Bash(git add -A && git status --short | head -20)",
+      "Bash(git commit -m \"$\\(cat <<'EOF'\nImplement 19-step sleep batch processor and supporting systems\n\n- BatchProcessor: expand from 9 to 19 steps \\(LSLEEP-003..021\\) with\n  founding_completion, all economy steps, hireling costs, injury healing,\n  fatigue reset, hunger/thirst deduct, day/season advance, weather roll,\n  surveyor discovery, cartographer map, auto-save\n- FoundingManager: add try_complete_founding\\(\\) called by batch step 0\n- SpawnManager: change extends to Node; add recalculate_all_suppression\\(\\)\n- Player: add spend_gold\\(\\); simplify _do_sleep\\(\\) \\(batch manages sleeping flag\\)\n- PlayerSurvival: add reset_fatigue\\(\\) and apply_sleep_hunger_thirst\\(\\) for\n  batch steps 12-13; on_sleep_start/end delegate to those methods\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(python3 -m pytest tests/ -q 2>&1 | tail -5)",
+      "Bash(git add -A && git diff --cached --stat)"
     ]
   }
 }

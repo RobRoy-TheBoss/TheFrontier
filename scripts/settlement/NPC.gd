@@ -51,7 +51,17 @@ func _interact_boss(player: Node) -> void:
 
 
 func _interact_mayor(player: Node) -> void:
-	# Village+ mayor sells flags and manages settlement info
+	# If surveyor has returned, player can report to complete founding (LFOUND-008)
+	if FoundingManager.founding_pending and FoundingManager.surveyor_complete \
+			and not FoundingManager.reported_to_mayor \
+			and FoundingManager.origin_settlement_id == settlement_id:
+		FoundingManager.report_to_mayor()
+		var hud := get_tree().get_first_node_in_group("hud")
+		if hud and hud.has_method("show_message"):
+			hud.show_message("Survey reported. A new settlement will be established tonight.")
+		return
+
+	# Village+ mayor shows settlement overview and sells flags
 	var ui := get_tree().get_first_node_in_group("settlement_ui")
 	if ui and ui.has_method("show_settlement"):
 		ui.show_settlement(settlement_id)

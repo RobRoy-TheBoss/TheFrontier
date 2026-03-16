@@ -24,6 +24,7 @@ func _ready() -> void:
 	add_to_group("player")
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	_give_starting_items()
+	health.player_died.connect(_on_player_died)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -174,6 +175,24 @@ func spend_gold(amount: int) -> bool:
 		return false
 	inventory.currency -= amount
 	return true
+
+
+func _on_player_died() -> void:
+	# Cancel founding if pending (LFOUND-011)
+	FoundingManager.cancel_founding()
+	# Destroy any planted flags
+	var flags := get_tree().get_nodes_in_group("settlement_flag")
+	for flag in flags:
+		if flag.has_method("destroy_on_player_death"):
+			flag.destroy_on_player_death()
+	# Show death UI
+	var death_ui := get_tree().get_first_node_in_group("death_ui")
+	if death_ui and death_ui.has_method("show_death"):
+		death_ui.show_death()
+	else:
+		var ui := get_tree().get_first_node_in_group("hud")
+		if ui and ui.has_method("show_message"):
+			ui.show_message("You have fallen.")
 
 
 func get_save_data() -> Dictionary:

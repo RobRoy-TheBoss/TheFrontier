@@ -24,6 +24,11 @@ func _on_player_died() -> void:
 	_handle_death()
 
 
+## Called directly by Player._on_player_died() as an alternative entry point.
+func show_death() -> void:
+	_handle_death()
+
+
 func _handle_death() -> void:
 	var player := get_tree().get_first_node_in_group("player")
 	if player == null:
