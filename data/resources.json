@@ -1,0 +1,86 @@
+[
+  {
+    "id": "fish",
+    "name": "Fish",
+    "richness_base": 60,
+    "tags": ["food", "aquatic", "renewable"],
+    "biomes": ["coastal", "river", "lake"]
+  },
+  {
+    "id": "timber",
+    "name": "Timber",
+    "richness_base": 70,
+    "tags": ["material", "construction", "renewable"],
+    "biomes": ["forest", "dense_canopy", "taiga"]
+  },
+  {
+    "id": "iron",
+    "name": "Iron",
+    "richness_base": 40,
+    "tags": ["material", "metal", "non_renewable"],
+    "biomes": ["mountain", "rocky", "highland"]
+  },
+  {
+    "id": "stone",
+    "name": "Stone",
+    "richness_base": 80,
+    "tags": ["material", "construction", "non_renewable"],
+    "biomes": ["mountain", "rocky", "highland", "coastal_cliff"]
+  },
+  {
+    "id": "game",
+    "name": "Game",
+    "richness_base": 55,
+    "tags": ["food", "hunting", "renewable"],
+    "biomes": ["forest", "grassland", "highland", "taiga"]
+  },
+  {
+    "id": "fire_herb",
+    "name": "Fire Herb",
+    "richness_base": 25,
+    "tags": ["reagent", "plant", "rare"],
+    "biomes": ["swamp", "volcanic", "highland"]
+  },
+  {
+    "id": "red_heartleaf",
+    "name": "Red Heartleaf",
+    "richness_base": 30,
+    "tags": ["reagent", "plant", "medicinal"],
+    "biomes": ["forest", "grassland", "river_bank"]
+  },
+  {
+    "id": "salt",
+    "name": "Salt",
+    "richness_base": 35,
+    "tags": ["material", "food_preservation", "non_renewable"],
+    "biomes": ["coastal", "salt_flat", "cave"]
+  },
+  {
+    "id": "coal",
+    "name": "Coal",
+    "richness_base": 45,
+    "tags": ["material", "fuel", "non_renewable"],
+    "biomes": ["mountain", "highland", "underground"]
+  },
+  {
+    "id": "furs",
+    "name": "Furs",
+    "richness_base": 40,
+    "tags": ["material", "clothing", "hunting", "renewable"],
+    "biomes": ["taiga", "mountain", "tundra", "highland"]
+  },
+  {
+    "id": "clay",
+    "name": "Clay",
+    "richness_base": 50,
+    "tags": ["material", "construction", "non_renewable"],
+    "biomes": ["swamp", "river_bank", "coastal", "wetland"]
+  },
+  {
+    "id": "sulfur",
+    "name": "Sulfur",
+    "richness_base": 20,
+    "tags": ["material", "mineral", "non_renewable"],
+    "biomes": ["volcanic", "highland", "cave", "mountain"]
+  }
+]

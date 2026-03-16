@@ -1,0 +1,77 @@
+{
+  "base_health_regen": 0.5,
+  "base_stamina_regen": 15.0,
+  "max_carry": 50.0,
+  "sprint_stamina_drain": 12.0,
+  "rest_multiplier": 4.0,
+  "injury_threshold": 0.35,
+
+  "health": {
+    "base_max": 100,
+    "regen_rate_per_second": 0.5,
+    "regen_rate_resting": 2.0,
+    "injury_threshold_percent": 0.35,
+    "low_health_threshold_percent": 0.25
+  },
+  "stamina": {
+    "base_max": 100,
+    "regen_rate_idle": 15.0,
+    "regen_rate_moving": 5.0,
+    "regen_rate_sprinting": 0.0,
+    "sprint_drain_per_second": 12.0,
+    "dodge_cost": 20.0,
+    "block_drain_per_second": 8.0,
+    "attack_cost_one_handed": 15.0,
+    "attack_cost_two_handed": 25.0,
+    "attack_cost_blunt": 20.0,
+    "exhausted_threshold": 10.0
+  },
+  "hunger": {
+    "max": 100.0,
+    "drain_per_second": 0.002,
+    "low_threshold": 30.0,
+    "critical_threshold": 10.0,
+    "low_stamina_regen_multiplier": 0.5,
+    "critical_health_drain_per_second": 0.5
+  },
+  "thirst": {
+    "max": 100.0,
+    "drain_per_second": 0.004,
+    "low_threshold": 30.0,
+    "critical_threshold": 10.0,
+    "low_fatigue_acceleration": 1.5,
+    "low_carry_reduction_percent": 20.0
+  },
+  "temperature": {
+    "comfortable_min": 10.0,
+    "comfortable_max": 30.0,
+    "danger_cold": -5.0,
+    "danger_hot": 40.0,
+    "debuff_onset_delay_seconds": 30.0,
+    "injury_risk_per_second_outside_danger": 0.001,
+    "warn_threshold_cold": 5.0,
+    "warn_threshold_hot": 35.0,
+    "crit_threshold_cold": -10.0,
+    "crit_threshold_hot": 45.0
+  },
+  "fatigue": {
+    "max": 100.0,
+    "gain_per_second_active": 0.003,
+    "gain_per_second_idle": 0.001,
+    "sleep_recovery_per_second": 10.0,
+    "high_threshold": 70.0,
+    "critical_threshold": 90.0,
+    "high_stamina_regen_multiplier": 0.6,
+    "critical_passout_risk_per_second": 0.005,
+    "aim_impairment_threshold": 60.0
+  },
+  "encumbrance": {
+    "base_carry_weight": 50.0,
+    "over_encumbered_speed_multiplier": 0.4,
+    "over_encumbered_no_sprint": true
+  },
+  "fall_damage": {
+    "safe_fall_height": 3.0,
+    "damage_per_meter_above_safe": 10.0
+  }
+}

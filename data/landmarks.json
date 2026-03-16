@@ -1,0 +1,65 @@
+[
+  {
+    "id": "old_lighthouse",
+    "name": "Old Lighthouse",
+    "position": { "x": 120.0, "y": 5.0, "z": -340.0 },
+    "area_id": "crestport_bay",
+    "type": "ruins",
+    "description": "A crumbling lighthouse on the bay headland. No longer lit.",
+    "discoverable": true
+  },
+  {
+    "id": "collapsed_bridge",
+    "name": "Collapsed Bridge",
+    "position": { "x": 45.0, "y": 2.0, "z": 120.0 },
+    "area_id": "marshfen_crossing",
+    "type": "structure",
+    "description": "An old stone bridge, half-collapsed into the murky river below.",
+    "discoverable": true
+  },
+  {
+    "id": "ironpeak_summit",
+    "name": "Ironpeak Summit",
+    "position": { "x": 800.0, "y": 620.0, "z": -200.0 },
+    "area_id": "ironpeak_ridge",
+    "type": "natural",
+    "description": "The highest point in the eastern frontier. Commanding view of three regions.",
+    "discoverable": true
+  },
+  {
+    "id": "precursor_monolith",
+    "name": "Precursor Monolith",
+    "position": { "x": 380.0, "y": 45.0, "z": 60.0 },
+    "area_id": "greenwood_vale",
+    "type": "precursor",
+    "description": "A massive carved stone of unknown origin. Inscribed with precursor glyphs.",
+    "discoverable": true
+  },
+  {
+    "id": "sunken_waystation",
+    "name": "Sunken Waystation",
+    "position": { "x": -80.0, "y": 0.5, "z": 280.0 },
+    "area_id": "marshfen_crossing",
+    "type": "ruins",
+    "description": "An old trading waystation, now half-submerged in swamp water.",
+    "discoverable": true
+  },
+  {
+    "id": "stonehill_shrine",
+    "name": "Stonehill Shrine",
+    "position": { "x": 560.0, "y": 210.0, "z": -90.0 },
+    "area_id": "stonehill_pass",
+    "type": "shrine",
+    "description": "A small cairn shrine erected by early settlers. Offerings still visible.",
+    "discoverable": true
+  },
+  {
+    "id": "verdant_grove",
+    "name": "Verdant Grove",
+    "position": { "x": 200.0, "y": 12.0, "z": 400.0 },
+    "area_id": "verdant_reach",
+    "type": "natural",
+    "description": "A perfectly circular grove of ancient trees. Unnaturally quiet inside.",
+    "discoverable": true
+  }
+]

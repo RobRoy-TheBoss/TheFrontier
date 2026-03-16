@@ -1,0 +1,96 @@
+[
+  {
+    "id": "porter",
+    "name": "Porter",
+    "type": "porter",
+    "description": "Carries your excess. Stays at camp.",
+    "min_settlement_tier": "village",
+    "hire_cost": 80,
+    "cost_per_day": 5,
+    "daily_wage": 5,
+    "capabilities": {
+      "carry_weight_bonus": 30.0,
+      "stays_at_camp": true,
+      "travels_with_player": false
+    }
+  },
+  {
+    "id": "hunter",
+    "name": "Hunter",
+    "type": "hunter",
+    "description": "Provides a daily supply of food while at camp.",
+    "min_settlement_tier": "village",
+    "hire_cost": 100,
+    "cost_per_day": 6,
+    "daily_wage": 6,
+    "capabilities": {
+      "food_per_sleep": 5,
+      "food_type": "raw_game",
+      "stays_at_camp": true,
+      "travels_with_player": false
+    }
+  },
+  {
+    "id": "guide",
+    "name": "Guide",
+    "type": "guide",
+    "description": "Highlights nearby points of interest in journal on your return.",
+    "min_settlement_tier": "town",
+    "hire_cost": 150,
+    "cost_per_day": 8,
+    "daily_wage": 8,
+    "capabilities": {
+      "reveals_nearby_pois": true,
+      "poi_types": ["precursor_site", "resource_cache", "abandoned_camp"],
+      "reveal_radius_km": 2.0,
+      "stays_at_camp": true,
+      "travels_with_player": false
+    }
+  },
+  {
+    "id": "surveyor",
+    "name": "Surveyor",
+    "type": "surveyor",
+    "description": "Fully assesses an Area's resources without manual proximity exploration.",
+    "min_settlement_tier": "town",
+    "hire_cost": 200,
+    "cost_per_day": 10,
+    "daily_wage": 10,
+    "capabilities": {
+      "auto_survey_area_on_sleep": true,
+      "stays_at_camp": true,
+      "travels_with_player": false
+    }
+  },
+  {
+    "id": "cartographer",
+    "name": "Cartographer",
+    "type": "cartographer",
+    "description": "Produces maps of explored areas. Cheaper than purchasing at City.",
+    "min_settlement_tier": "town",
+    "hire_cost": 175,
+    "cost_per_day": 8,
+    "daily_wage": 8,
+    "capabilities": {
+      "produces_maps": true,
+      "map_cost_reduction_percent": 0.60,
+      "stays_at_camp": true,
+      "travels_with_player": false
+    }
+  },
+  {
+    "id": "healer",
+    "name": "Healer",
+    "type": "healer",
+    "description": "Treats injuries at camp as if you were at a Town.",
+    "min_settlement_tier": "town",
+    "hire_cost": 220,
+    "cost_per_day": 12,
+    "daily_wage": 12,
+    "capabilities": {
+      "camp_treatment_tier": "town",
+      "stays_at_camp": true,
+      "travels_with_player": false
+    }
+  }
+]

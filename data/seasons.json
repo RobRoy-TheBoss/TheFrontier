@@ -1,0 +1,83 @@
+[
+  {
+    "id": "spring",
+    "name": "Spring",
+    "duration_days": 20,
+    "day_length_hours": 14,
+    "temperature_modifier": 5.0,
+    "spawn_rate_modifier": 1.0,
+    "extraction_modifier": 1.1,
+    "weather_table": [
+      { "type": "clear", "weight": 40 },
+      { "type": "overcast", "weight": 25 },
+      { "type": "rain", "weight": 25 },
+      { "type": "fog", "weight": 10 }
+    ],
+    "visuals": {
+      "sky_color": "7EC8E3",
+      "fog_density": 0.01,
+      "foliage_state": "budding"
+    }
+  },
+  {
+    "id": "summer",
+    "name": "Summer",
+    "duration_days": 25,
+    "day_length_hours": 16,
+    "temperature_modifier": 15.0,
+    "spawn_rate_modifier": 0.9,
+    "extraction_modifier": 1.2,
+    "weather_table": [
+      { "type": "clear", "weight": 55 },
+      { "type": "overcast", "weight": 15 },
+      { "type": "rain", "weight": 15 },
+      { "type": "thunderstorm", "weight": 10 },
+      { "type": "heat_haze", "weight": 5 }
+    ],
+    "visuals": {
+      "sky_color": "87CEEB",
+      "fog_density": 0.005,
+      "foliage_state": "full"
+    }
+  },
+  {
+    "id": "autumn",
+    "name": "Autumn",
+    "duration_days": 20,
+    "day_length_hours": 12,
+    "temperature_modifier": -5.0,
+    "spawn_rate_modifier": 1.2,
+    "extraction_modifier": 0.9,
+    "weather_table": [
+      { "type": "clear", "weight": 30 },
+      { "type": "overcast", "weight": 30 },
+      { "type": "rain", "weight": 25 },
+      { "type": "fog", "weight": 15 }
+    ],
+    "visuals": {
+      "sky_color": "B5B5A0",
+      "fog_density": 0.02,
+      "foliage_state": "autumn"
+    }
+  },
+  {
+    "id": "winter",
+    "name": "Winter",
+    "duration_days": 25,
+    "day_length_hours": 8,
+    "temperature_modifier": -20.0,
+    "spawn_rate_modifier": 1.4,
+    "extraction_modifier": 0.6,
+    "weather_table": [
+      { "type": "overcast", "weight": 30 },
+      { "type": "snow", "weight": 35 },
+      { "type": "blizzard", "weight": 15 },
+      { "type": "clear_cold", "weight": 20 }
+    ],
+    "visuals": {
+      "sky_color": "C8D8E8",
+      "fog_density": 0.03,
+      "foliage_state": "bare"
+    }
+  }
+]

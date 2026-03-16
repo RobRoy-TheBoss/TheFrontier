@@ -1,0 +1,8 @@
+{
+  "local_weight": 1.0,
+  "passthrough_weight": 0.6,
+  "connection_bonus": 0.2,
+  "diversity_curve": [1.0, 1.1, 1.2, 1.35, 1.5, 1.7, 2.0],
+  "resource_diversity_multiplier": 1.3,
+  "connection_count_bonus": 0.2
+}

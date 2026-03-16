@@ -1,0 +1,266 @@
+[
+  {
+    "id": "prowler",
+    "name": "Prowler",
+    "model_path": "res://assets/models/monsters/prowler.glb",
+    "hp": 60,
+    "damage": 12,
+    "speed": 6.0,
+    "description": "A lean, fast predator resembling an oversized wolf. Hunts in packs.",
+    "category": "eastern",
+    "behavior_type": "territorial",
+    "difficulty": 1,
+    "stats": {
+      "max_health": 60,
+      "damage": 12,
+      "attack_speed": 1.3,
+      "move_speed": 6.0,
+      "detection_range": 20.0,
+      "aggro_range": 15.0
+    },
+    "fire_reaction": "avoids",
+    "light_reaction": "neutral",
+    "is_apex": false,
+    "loot_table": [
+      { "item_id": "prowler_hide", "chance": 0.8, "count_range": [1, 2] },
+      { "item_id": "raw_meat", "chance": 0.9, "count_range": [1, 3] },
+      { "rune_id": "rune_swiftness", "chance": 0.04 }
+    ],
+    "xp_type": "bow_kill",
+    "audio_cue": "prowler_howl"
+  },
+  {
+    "id": "shelled_crawler",
+    "name": "Shelled Crawler",
+    "model_path": "res://assets/models/monsters/shelled_crawler.glb",
+    "hp": 120,
+    "damage": 22,
+    "speed": 4.5,
+    "description": "Armored insectoid that ambushes from underground. Shell provides heavy protection.",
+    "category": "eastern",
+    "behavior_type": "ambush",
+    "difficulty": 2,
+    "stats": {
+      "max_health": 120,
+      "damage": 22,
+      "attack_speed": 0.8,
+      "move_speed": 4.5,
+      "detection_range": 8.0,
+      "aggro_range": 5.0,
+      "armor": 15
+    },
+    "fire_reaction": "neutral",
+    "light_reaction": "neutral",
+    "is_apex": false,
+    "loot_table": [
+      { "item_id": "crawler_shell", "chance": 0.7, "count_range": [1, 2] },
+      { "item_id": "crawler_gland", "chance": 0.5, "count_range": [1, 1] },
+      { "rune_id": "rune_resilience", "chance": 0.06 }
+    ],
+    "xp_type": "melee_kill",
+    "audio_cue": "crawler_chittering"
+  },
+  {
+    "id": "bog_lurker",
+    "name": "Bog Lurker",
+    "model_path": "res://assets/models/monsters/bog_lurker.glb",
+    "hp": 180,
+    "damage": 30,
+    "speed": 5.0,
+    "description": "Amphibious ambush predator. Drags prey into water. Venomous bite.",
+    "category": "eastern",
+    "behavior_type": "ambush",
+    "difficulty": 3,
+    "stats": {
+      "max_health": 180,
+      "damage": 30,
+      "attack_speed": 0.9,
+      "move_speed": 5.0,
+      "detection_range": 12.0,
+      "aggro_range": 8.0
+    },
+    "fire_reaction": "avoids",
+    "light_reaction": "neutral",
+    "is_apex": false,
+    "special_attacks": [
+      { "name": "venom_bite", "inflicts_injury": "poisoning", "chance": 0.35 }
+    ],
+    "loot_table": [
+      { "item_id": "lurker_venom_sac", "chance": 0.6, "count_range": [1, 1] },
+      { "item_id": "lurker_hide", "chance": 0.75, "count_range": [1, 2] },
+      { "rune_id": "rune_fleet", "chance": 0.05 }
+    ],
+    "xp_type": "melee_kill",
+    "audio_cue": "lurker_gurgle"
+  },
+  {
+    "id": "plague_swarm",
+    "name": "Plague Swarm",
+    "model_path": "res://assets/models/monsters/plague_swarm.glb",
+    "hp": 80,
+    "damage": 8,
+    "speed": 7.0,
+    "description": "Dense cloud of biting insects. Impossible to target individually. Fire repels them.",
+    "category": "eastern",
+    "behavior_type": "swarm",
+    "difficulty": 2,
+    "stats": {
+      "max_health": 80,
+      "damage": 8,
+      "attack_speed": 3.0,
+      "move_speed": 7.0,
+      "detection_range": 15.0,
+      "aggro_range": 10.0
+    },
+    "fire_reaction": "strongly_avoids",
+    "light_reaction": "neutral",
+    "is_apex": false,
+    "swarm_behavior": {
+      "splits_at_health_percent": 0.5,
+      "min_split_size": 30
+    },
+    "loot_table": [
+      { "item_id": "insect_chitin", "chance": 0.6, "count_range": [2, 5] },
+      { "reagent_id": "charged_filament", "chance": 0.03 }
+    ],
+    "xp_type": "melee_kill",
+    "audio_cue": "swarm_buzzing"
+  },
+  {
+    "id": "stone_sentinel",
+    "name": "Stone Sentinel",
+    "model_path": "res://assets/models/monsters/stone_sentinel.glb",
+    "hp": 450,
+    "damage": 65,
+    "speed": 2.5,
+    "description": "Hulking construct of stone and ancient metal. Slow but nearly impervious. Patrols precursor sites.",
+    "category": "mid_continent",
+    "behavior_type": "territorial",
+    "difficulty": 5,
+    "stats": {
+      "max_health": 450,
+      "damage": 65,
+      "attack_speed": 0.5,
+      "move_speed": 2.5,
+      "detection_range": 18.0,
+      "aggro_range": 12.0,
+      "armor": 40
+    },
+    "fire_reaction": "attracted",
+    "light_reaction": "neutral",
+    "is_apex": false,
+    "loot_table": [
+      { "item_id": "sentinel_core", "chance": 0.4, "count_range": [1, 1] },
+      { "item_id": "ancient_metal", "chance": 0.7, "count_range": [1, 3] },
+      { "reagent_id": "precursor_core_fragment", "chance": 0.08 },
+      { "rune_id": "rune_fortitude", "chance": 0.07 }
+    ],
+    "xp_type": "melee_kill",
+    "audio_cue": "sentinel_grinding"
+  },
+  {
+    "id": "bonewalker",
+    "name": "Bonewalker",
+    "model_path": "res://assets/models/monsters/bonewalker.glb",
+    "hp": 240,
+    "damage": 40,
+    "speed": 5.5,
+    "description": "Gaunt bipedal creature with elongated limbs. Unnatural gait. Attracted to sound.",
+    "category": "mid_continent",
+    "behavior_type": "ambush",
+    "difficulty": 4,
+    "stats": {
+      "max_health": 240,
+      "damage": 40,
+      "attack_speed": 1.1,
+      "move_speed": 5.5,
+      "detection_range": 6.0,
+      "aggro_range": 4.0,
+      "hearing_range": 35.0
+    },
+    "fire_reaction": "avoids",
+    "light_reaction": "attracted",
+    "is_apex": false,
+    "attracted_to_sound": true,
+    "loot_table": [
+      { "item_id": "bonewalker_membrane", "chance": 0.65, "count_range": [1, 2] },
+      { "rune_id": "rune_silence", "chance": 0.06 },
+      { "rune_id": "rune_precursor_ward", "chance": 0.04 }
+    ],
+    "xp_type": "stealth_kill",
+    "audio_cue": "bonewalker_clicking"
+  },
+  {
+    "id": "deep_horror",
+    "name": "Deep Horror",
+    "model_path": "res://assets/models/monsters/deep_horror.glb",
+    "hp": 1200,
+    "damage": 120,
+    "speed": 4.0,
+    "description": "Something that should not exist. Vast. Alien geometry. Seen in the deep west only.",
+    "category": "western",
+    "behavior_type": "apex",
+    "difficulty": 10,
+    "stats": {
+      "max_health": 1200,
+      "damage": 120,
+      "attack_speed": 0.8,
+      "move_speed": 4.0,
+      "detection_range": 40.0,
+      "aggro_range": 30.0,
+      "armor": 25
+    },
+    "fire_reaction": "neutral",
+    "light_reaction": "neutral",
+    "is_apex": true,
+    "immune_to": ["banish", "calm", "stagger", "warcry"],
+    "special_attacks": [
+      { "name": "crushing_blow", "inflicts_injury": "reduced_health_pool", "chance": 0.25 },
+      { "name": "ground_tremor", "aoe_radius": 8.0, "damage": 50 }
+    ],
+    "loot_table": [
+      { "item_id": "horror_hide", "chance": 0.9, "count_range": [2, 4] },
+      { "item_id": "horror_eye", "chance": 0.5, "count_range": [1, 1] },
+      { "reagent_id": "precursor_core_fragment", "chance": 0.15 },
+      { "rune_id": "rune_wrath", "chance": 0.10 },
+      { "rune_id": "rune_mending", "chance": 0.08 }
+    ],
+    "xp_type": "melee_kill",
+    "audio_cue": "horror_ambient"
+  },
+  {
+    "id": "ridge_stalker",
+    "name": "Ridge Stalker",
+    "model_path": "res://assets/models/monsters/ridge_stalker.glb",
+    "hp": 650,
+    "damage": 85,
+    "speed": 9.0,
+    "description": "Massive feline apex predator. Pounces from elevation. Rare. Terrifying.",
+    "category": "mid_continent",
+    "behavior_type": "apex",
+    "difficulty": 7,
+    "stats": {
+      "max_health": 650,
+      "damage": 85,
+      "attack_speed": 1.2,
+      "move_speed": 9.0,
+      "detection_range": 30.0,
+      "aggro_range": 25.0
+    },
+    "fire_reaction": "avoids",
+    "light_reaction": "neutral",
+    "is_apex": true,
+    "immune_to": ["banish", "calm"],
+    "special_attacks": [
+      { "name": "pounce", "damage_multiplier": 2.5, "inflicts_injury": "slowed_movement", "chance": 0.40 }
+    ],
+    "loot_table": [
+      { "item_id": "stalker_pelt", "chance": 0.85, "count_range": [1, 1] },
+      { "item_id": "stalker_fang", "chance": 0.6, "count_range": [1, 3] },
+      { "rune_id": "rune_piercing", "chance": 0.09 },
+      { "rune_id": "rune_impact", "chance": 0.07 }
+    ],
+    "xp_type": "melee_kill",
+    "audio_cue": "stalker_roar"
+  }
+]

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "fire_herb",
+    "name": "Fire Herb",
+    "spell_id": "firebolt",
+    "spell_association": "firebolt",
+    "weight": 0.1,
+    "tier": "common",
+    "source": "gathered_world",
+    "sources": ["gathered_world", "purchased"],
+    "min_purchase_tier": "town",
+    "buy_price": 8,
+    "base_price": 8,
+    "description": "A red-leafed herb that burns with unnatural heat when crushed."
+  },
+  {
+    "id": "mineral_powder",
+    "name": "Mineral Powder",
+    "spell_id": "force_push",
+    "spell_association": "force_push, stone_shield",
+    "weight": 0.15,
+    "tier": "common",
+    "source": "gathered_world",
+    "sources": ["gathered_world", "purchased"],
+    "min_purchase_tier": "town",
+    "buy_price": 10,
+    "base_price": 10,
+    "description": "Ground from a pale stone found near precursor ruins."
+  },
+  {
+    "id": "crystal_shard",
+    "name": "Crystal Shard",
+    "spell_id": "frost_snap",
+    "spell_association": "frost_snap",
+    "weight": 0.2,
+    "tier": "uncommon",
+    "source": "world_cache",
+    "sources": ["world_cache", "monster_drop", "occasional_city"],
+    "min_purchase_tier": "city",
+    "buy_price": 45,
+    "base_price": 45,
+    "description": "A cold, faceted mineral that maintains a temperature below freezing."
+  },
+  {
+    "id": "charged_filament",
+    "name": "Charged Filament",
+    "spell_id": "lightning_arc",
+    "spell_association": "lightning_arc",
+    "weight": 0.1,
+    "tier": "uncommon",
+    "source": "monster_drop",
+    "sources": ["monster_drop", "occasional_city"],
+    "min_purchase_tier": "city",
+    "buy_price": 60,
+    "base_price": 60,
+    "description": "A thin strand of material harvested from lightning-type monsters. Crackles constantly."
+  },
+  {
+    "id": "precursor_core_fragment",
+    "name": "Precursor Core Fragment",
+    "spell_id": "ruin",
+    "spell_association": "ruin",
+    "weight": 0.5,
+    "tier": "rare",
+    "source": "precursor_ruins",
+    "sources": ["precursor_ruins", "deep_exploration", "city_shop"],
+    "min_purchase_tier": "city",
+    "buy_price": 350,
+    "base_price": 350,
+    "description": "A dense fragment from a precursor mechanism. Radiates immense latent energy."
+  }
+]

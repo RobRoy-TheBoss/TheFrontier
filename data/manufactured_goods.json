@@ -1,0 +1,65 @@
+[
+  {
+    "id": "steel_tools",
+    "name": "Steel Tools",
+    "export_threshold_tier": "low",
+    "weight": 2.0,
+    "base_price": 80,
+    "min_settlement_tier": "town",
+    "effect": "Improves resource extraction richness by 10%."
+  },
+  {
+    "id": "fine_clothing",
+    "name": "Fine Clothing",
+    "export_threshold_tier": "moderate",
+    "weight": 1.0,
+    "base_price": 120,
+    "min_settlement_tier": "village",
+    "effect": "Widens temperature comfort range +3 degrees."
+  },
+  {
+    "id": "refined_steel_weapons",
+    "name": "Refined Steel Weapons",
+    "export_threshold_tier": "moderate",
+    "weight": 3.0,
+    "base_price": 200,
+    "min_settlement_tier": "town",
+    "effect": "+15% weapon damage. Replaces standard purchased weapons."
+  },
+  {
+    "id": "alchemical_apparatus",
+    "name": "Alchemical Apparatus",
+    "export_threshold_tier": "high",
+    "weight": 4.0,
+    "base_price": 350,
+    "min_settlement_tier": "town",
+    "effect": "Portable advanced alchemy set. Enables town-tier brewing at camp."
+  },
+  {
+    "id": "precision_firearms",
+    "name": "Precision Firearms",
+    "export_threshold_tier": "high",
+    "weight": 3.5,
+    "base_price": 500,
+    "min_settlement_tier": "town",
+    "effect": "Reduced aim sway. +20% firearm damage."
+  },
+  {
+    "id": "master_steel_armor",
+    "name": "Master Steel Armor",
+    "export_threshold_tier": "very_high",
+    "weight": 15.0,
+    "base_price": 800,
+    "min_settlement_tier": "city",
+    "effect": "+25% armor DR. Reduced encumbrance penalty."
+  },
+  {
+    "id": "cartographic_instruments",
+    "name": "Cartographic Instruments",
+    "export_threshold_tier": "very_high",
+    "weight": 1.5,
+    "base_price": 400,
+    "min_settlement_tier": "town",
+    "effect": "Surveyor range +50%. Landmark naming radius extended."
+  }
+]

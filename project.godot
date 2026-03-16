@@ -11,17 +11,31 @@ config/version="0.1.0"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://assets/icon/icon.svg"
 run/main_scene="res://scenes/main/Main.tscn"
+run/target_fps=60
 
 [autoload]
 
+DataLoader="*res://scripts/autoloads/DataLoader.gd"
+HexGrid="*res://scripts/autoloads/HexGrid.gd"
+TimeManager="*res://scripts/autoloads/TimeManager.gd"
+SeasonManager="*res://scripts/autoloads/SeasonManager.gd"
+WeatherManager="*res://scripts/autoloads/WeatherManager.gd"
+AreaManager="*res://scripts/autoloads/AreaManager.gd"
+PlayerStats="*res://scripts/autoloads/PlayerStats.gd"
+SettlementManager="*res://scripts/autoloads/SettlementManager.gd"
+TradeGraph="*res://scripts/autoloads/TradeGraph.gd"
+EconomyManager="*res://scripts/autoloads/EconomyManager.gd"
+FoundingManager="*res://scripts/autoloads/FoundingManager.gd"
+DisciplineManager="*res://scripts/autoloads/DisciplineManager.gd"
+SpawnManager="*res://scripts/autoloads/SpawnManager.gd"
+AudioManager="*res://scripts/autoloads/AudioManager.gd"
+MusicManager="*res://scripts/autoloads/MusicManager.gd"
+InputManager="*res://scripts/autoloads/InputManager.gd"
+BatchProcessor="*res://scripts/autoloads/BatchProcessor.gd"
+SaveManager="*res://scripts/autoloads/SaveManager.gd"
 GameData="*res://scripts/autoloads/GameData.gd"
 GameState="*res://scripts/autoloads/GameState.gd"
 WorldManager="*res://scripts/autoloads/WorldManager.gd"
-SettlementManager="*res://scripts/autoloads/SettlementManager.gd"
-EconomyManager="*res://scripts/autoloads/EconomyManager.gd"
-DisciplineManager="*res://scripts/autoloads/DisciplineManager.gd"
-BatchProcessor="*res://scripts/autoloads/BatchProcessor.gd"
-SaveManager="*res://scripts/autoloads/SaveManager.gd"
 
 [display]
 

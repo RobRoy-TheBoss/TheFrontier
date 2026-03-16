@@ -1,0 +1,136 @@
+[
+  {
+    "tier": 1,
+    "id": "trading_post",
+    "name": "Trading Post",
+    "score_threshold": 0,
+    "trade_score_threshold": 0,
+    "required_resources": [],
+    "suppression_pct": 0.25,
+    "area_suppression_percent": 25,
+    "safe_zone_radius": 40.0,
+    "consumption_rate": 0.5,
+    "exploitation": {
+      "own_pct": 1.0,
+      "adjacent_pct": 0.0,
+      "ring2_pct": 0.0
+    },
+    "services": [
+      "buy_sell_basic_goods",
+      "buy_weapons_light",
+      "buy_armor_light",
+      "buy_flags",
+      "sleep",
+      "hireling_none",
+      "buy_spyglass"
+    ],
+    "road_budget": 9,
+    "visual_ref": "settlement_trading_post"
+  },
+  {
+    "tier": 2,
+    "id": "village",
+    "name": "Village",
+    "score_threshold": 200,
+    "trade_score_threshold": 200,
+    "required_resources": ["food", "timber"],
+    "suppression_pct": 0.50,
+    "area_suppression_percent": 50,
+    "safe_zone_radius": 70.0,
+    "consumption_rate": 1.0,
+    "exploitation": {
+      "own_pct": 1.0,
+      "adjacent_pct": 0.5,
+      "ring2_pct": 0.0
+    },
+    "services": [
+      "buy_sell_goods",
+      "buy_weapons_medium",
+      "buy_armor_medium",
+      "buy_flags",
+      "sleep",
+      "hire_porter",
+      "hire_hunter",
+      "buy_home",
+      "settlement_meals",
+      "injury_treatment_village"
+    ],
+    "road_budget": 9,
+    "visual_ref": "settlement_village"
+  },
+  {
+    "tier": 3,
+    "id": "town",
+    "name": "Town",
+    "score_threshold": 800,
+    "trade_score_threshold": 800,
+    "required_resources": ["food", "timber", "iron"],
+    "suppression_pct": 0.75,
+    "area_suppression_percent": 75,
+    "safe_zone_radius": 100.0,
+    "consumption_rate": 2.0,
+    "exploitation": {
+      "own_pct": 1.0,
+      "adjacent_pct": 1.0,
+      "ring2_pct": 0.0
+    },
+    "services": [
+      "buy_sell_goods",
+      "buy_weapons_heavy",
+      "buy_armor_heavy",
+      "buy_flags",
+      "sleep",
+      "hire_porter",
+      "hire_hunter",
+      "hire_guide",
+      "hire_surveyor",
+      "hire_cartographer",
+      "hire_healer",
+      "buy_home",
+      "settlement_meals",
+      "town_alchemist",
+      "buy_theodolite",
+      "buy_reagents_common",
+      "injury_treatment_town",
+      "discipline_enhancement"
+    ],
+    "road_budget": 9,
+    "visual_ref": "settlement_town"
+  },
+  {
+    "tier": 4,
+    "id": "city",
+    "name": "City",
+    "score_threshold": 2500,
+    "trade_score_threshold": 2500,
+    "required_resources": ["food", "timber", "iron", "luxury"],
+    "suppression_pct": 1.0,
+    "area_suppression_percent": 100,
+    "safe_zone_radius": 150.0,
+    "consumption_rate": 4.0,
+    "exploitation": {
+      "own_pct": 1.0,
+      "adjacent_pct": 1.0,
+      "ring2_pct": 0.25
+    },
+    "services": [
+      "buy_sell_all_goods",
+      "buy_all_weapons",
+      "buy_all_armor",
+      "buy_flags",
+      "sleep",
+      "hire_all",
+      "buy_home",
+      "settlement_meals",
+      "town_alchemist",
+      "buy_theodolite",
+      "buy_reagents_all",
+      "buy_maps",
+      "injury_treatment_city",
+      "discipline_enhancement",
+      "manufactured_goods"
+    ],
+    "road_budget": 9,
+    "visual_ref": "settlement_city"
+  }
+]

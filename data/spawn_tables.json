@@ -1,0 +1,111 @@
+[
+  {
+    "id": "crestport_coast",
+    "description": "Coastal area near Crestport. Low-difficulty eastern creatures.",
+    "entries": [
+      {
+        "monster_id": "prowler",
+        "weight": 40,
+        "time_modifier": { "day": 1.0, "night": 1.5 }
+      },
+      {
+        "monster_id": "plague_swarm",
+        "weight": 25,
+        "time_modifier": { "day": 1.2, "night": 0.8 }
+      },
+      {
+        "monster_id": "shelled_crawler",
+        "weight": 20,
+        "time_modifier": { "day": 1.0, "night": 1.0 }
+      },
+      {
+        "monster_id": "bog_lurker",
+        "weight": 15,
+        "time_modifier": { "day": 0.5, "night": 1.5 }
+      }
+    ]
+  },
+  {
+    "id": "greenwood_forest",
+    "description": "Dense forest. Medium difficulty. Ambush predators common.",
+    "entries": [
+      {
+        "monster_id": "prowler",
+        "weight": 35,
+        "time_modifier": { "day": 1.0, "night": 2.0 }
+      },
+      {
+        "monster_id": "shelled_crawler",
+        "weight": 30,
+        "time_modifier": { "day": 1.2, "night": 0.8 }
+      },
+      {
+        "monster_id": "bog_lurker",
+        "weight": 20,
+        "time_modifier": { "day": 0.7, "night": 1.3 }
+      },
+      {
+        "monster_id": "bonewalker",
+        "weight": 10,
+        "time_modifier": { "day": 0.2, "night": 2.5 }
+      },
+      {
+        "monster_id": "ridge_stalker",
+        "weight": 5,
+        "time_modifier": { "day": 0.5, "night": 1.0 }
+      }
+    ]
+  },
+  {
+    "id": "ironpeak_mountain",
+    "description": "Rocky highlands and mountain passes. High difficulty. Apex threats possible.",
+    "entries": [
+      {
+        "monster_id": "ridge_stalker",
+        "weight": 30,
+        "time_modifier": { "day": 0.8, "night": 1.5 }
+      },
+      {
+        "monster_id": "stone_sentinel",
+        "weight": 25,
+        "time_modifier": { "day": 1.0, "night": 1.0 }
+      },
+      {
+        "monster_id": "bonewalker",
+        "weight": 25,
+        "time_modifier": { "day": 0.3, "night": 3.0 }
+      },
+      {
+        "monster_id": "shelled_crawler",
+        "weight": 20,
+        "time_modifier": { "day": 1.0, "night": 0.9 }
+      }
+    ]
+  },
+  {
+    "id": "marshfen_swamp",
+    "description": "Boggy lowlands. Venomous creatures. Ambush danger from water.",
+    "entries": [
+      {
+        "monster_id": "bog_lurker",
+        "weight": 45,
+        "time_modifier": { "day": 1.0, "night": 1.8 }
+      },
+      {
+        "monster_id": "plague_swarm",
+        "weight": 30,
+        "time_modifier": { "day": 1.5, "night": 0.7 }
+      },
+      {
+        "monster_id": "prowler",
+        "weight": 15,
+        "time_modifier": { "day": 1.0, "night": 1.2 }
+      },
+      {
+        "monster_id": "bonewalker",
+        "weight": 10,
+        "time_modifier": { "day": 0.2, "night": 2.0 }
+      }
+    ]
+  }
+]

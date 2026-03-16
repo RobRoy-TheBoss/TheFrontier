@@ -1,0 +1,38 @@
+[
+  {
+    "quality": 1,
+    "name": "Game Trail",
+    "mesh_path": "res://assets/meshes/roads/game_trail.mesh",
+    "material_path": "res://assets/materials/roads/dirt_trail.tres",
+    "speed_multiplier": 1.1,
+    "description": "A barely visible path worn by animals and occasional travellers.",
+    "min_settlement_tier": "trading_post"
+  },
+  {
+    "quality": 2,
+    "name": "Dirt Road",
+    "mesh_path": "res://assets/meshes/roads/dirt_road.mesh",
+    "material_path": "res://assets/materials/roads/dirt_road.tres",
+    "speed_multiplier": 1.3,
+    "description": "A cleared dirt path. Passable in most weather.",
+    "min_settlement_tier": "village"
+  },
+  {
+    "quality": 3,
+    "name": "Packed Road",
+    "mesh_path": "res://assets/meshes/roads/packed_road.mesh",
+    "material_path": "res://assets/materials/roads/packed_gravel.tres",
+    "speed_multiplier": 1.5,
+    "description": "Gravel-packed road. Reliable even in rain.",
+    "min_settlement_tier": "town"
+  },
+  {
+    "quality": 4,
+    "name": "Cobblestone Road",
+    "mesh_path": "res://assets/meshes/roads/cobblestone_road.mesh",
+    "material_path": "res://assets/materials/roads/cobblestone.tres",
+    "speed_multiplier": 1.8,
+    "description": "Well-maintained cobblestone. Fast travel regardless of season.",
+    "min_settlement_tier": "city"
+  }
+]

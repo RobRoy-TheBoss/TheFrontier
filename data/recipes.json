@@ -1,0 +1,172 @@
+[
+  {
+    "id": "cooked_meat",
+    "name": "Cook Meat",
+    "output_item": "cooked_meat",
+    "output_count": 1,
+    "station": "campfire",
+    "discipline_required": null,
+    "ingredients": [
+      { "item_id": "raw_meat", "count": 1 }
+    ]
+  },
+  {
+    "id": "bandage_craft",
+    "name": "Craft Bandage",
+    "output_item": "bandage",
+    "output_count": 3,
+    "station": "campfire",
+    "discipline_required": null,
+    "ingredients": [
+      { "item_id": "cloth_scrap", "count": 2 }
+    ]
+  },
+  {
+    "id": "snare_trap",
+    "name": "Craft Snare Trap",
+    "output_item": "snare_trap",
+    "output_count": 2,
+    "station": "campfire",
+    "discipline_required": null,
+    "ingredients": [
+      { "item_id": "wood_scraps", "count": 2 },
+      { "item_id": "leather_scraps", "count": 1 }
+    ]
+  },
+  {
+    "id": "healing_potion",
+    "name": "Brew Healing Potion",
+    "output_item": "healing_potion",
+    "output_count": 2,
+    "station": "alchemy_set",
+    "discipline_required": null,
+    "ingredients": [
+      { "item_id": "red_heartleaf", "count": 2 },
+      { "item_id": "purified_water", "count": 1 }
+    ]
+  },
+  {
+    "id": "stamina_potion",
+    "name": "Brew Stamina Draft",
+    "output_item": "stamina_potion",
+    "output_count": 2,
+    "station": "alchemy_set",
+    "discipline_required": null,
+    "ingredients": [
+      { "item_id": "quickvine_root", "count": 2 },
+      { "item_id": "purified_water", "count": 1 }
+    ]
+  },
+  {
+    "id": "antidote",
+    "name": "Brew Antidote",
+    "output_item": "antidote",
+    "output_count": 2,
+    "station": "alchemy_set",
+    "discipline_required": null,
+    "ingredients": [
+      { "item_id": "bitter_moss", "count": 3 },
+      { "item_id": "purified_water", "count": 1 }
+    ]
+  },
+  {
+    "id": "temp_resist_potion",
+    "name": "Brew Thermal Tonic",
+    "output_item": "temp_resist_potion",
+    "output_count": 1,
+    "station": "alchemy_set",
+    "discipline_required": null,
+    "ingredients": [
+      { "item_id": "frostbark", "count": 2 },
+      { "item_id": "ember_sap", "count": 1 },
+      { "item_id": "purified_water", "count": 1 }
+    ]
+  },
+  {
+    "id": "repellent",
+    "name": "Brew Monster Repellent",
+    "output_item": "repellent",
+    "output_count": 2,
+    "station": "alchemy_set",
+    "discipline_required": null,
+    "ingredients": [
+      { "item_id": "stinkweed", "count": 3 },
+      { "item_id": "lurker_venom_sac", "count": 1 }
+    ]
+  },
+  {
+    "id": "ammo_pistol_ball",
+    "name": "Craft Pistol Balls",
+    "output_item": "pistol_ball",
+    "output_count": 10,
+    "station": "camp",
+    "discipline_required": "artificer_ammo_smith",
+    "ingredients": [
+      { "item_id": "iron_scraps", "count": 2 },
+      { "item_id": "sulfur", "count": 1 }
+    ]
+  },
+  {
+    "id": "ammo_musket_ball",
+    "name": "Craft Musket Balls",
+    "output_item": "musket_ball",
+    "output_count": 8,
+    "station": "camp",
+    "discipline_required": "artificer_ammo_smith",
+    "ingredients": [
+      { "item_id": "iron_scraps", "count": 3 },
+      { "item_id": "sulfur", "count": 2 }
+    ]
+  },
+  {
+    "id": "spike_trap",
+    "name": "Craft Spike Trap",
+    "output_item": "spike_trap",
+    "output_count": 1,
+    "station": "camp",
+    "discipline_required": "artificer_spike_trap",
+    "ingredients": [
+      { "item_id": "iron_scraps", "count": 4 },
+      { "item_id": "wood_scraps", "count": 3 }
+    ]
+  },
+  {
+    "id": "mega_heal_potion",
+    "name": "Brew Mega-Heal Potion",
+    "output_item": "mega_heal_potion",
+    "output_count": 1,
+    "station": "alchemy_set",
+    "discipline_required": "alchemist_master_brewer",
+    "ingredients": [
+      { "item_id": "red_heartleaf", "count": 5 },
+      { "item_id": "rare_fungal_extract", "count": 1 },
+      { "item_id": "purified_water", "count": 2 }
+    ]
+  },
+  {
+    "id": "temp_immunity_potion",
+    "name": "Brew Temperature Immunity Tonic",
+    "output_item": "temp_immunity_potion",
+    "output_count": 1,
+    "station": "alchemy_set",
+    "discipline_required": "alchemist_master_brewer",
+    "ingredients": [
+      { "item_id": "frostbark", "count": 3 },
+      { "item_id": "ember_sap", "count": 3 },
+      { "item_id": "rare_fungal_extract", "count": 1 }
+    ]
+  },
+  {
+    "id": "powerful_repellent",
+    "name": "Brew Powerful Repellent",
+    "output_item": "powerful_repellent",
+    "output_count": 2,
+    "station": "alchemy_set",
+    "discipline_required": "alchemist_master_brewer",
+    "ingredients": [
+      { "item_id": "stinkweed", "count": 5 },
+      { "item_id": "horror_eye", "count": 1 },
+      { "item_id": "lurker_venom_sac", "count": 2 }
+    ]
+  }
+]
