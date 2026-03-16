@@ -1,0 +1,69 @@
+{
+  "_comment": "Reference format for Area data files. One file per region, containing all areas.",
+  "_format_version": 1,
+  "region_id": "region_01",
+  "region_name": "Crestport Coast",
+  "biome": "coast",
+  "areas": [
+    {
+      "area_id": "area_crestport",
+      "display_name": "Crestport Bay",
+      "east_west_position": 0.0,
+      "difficulty": 0.5,
+      "biome": "coast",
+      "is_deep_water_port": true,
+      "tags": ["deep_water_port"],
+      "settlement_site": {
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "rotation_degrees": 0.0,
+        "road_connection_points": [
+          { "x": 50, "y": 0, "z": 0 },
+          { "x": -50, "y": 0, "z": 0 }
+        ]
+      },
+      "resources": [
+        { "resource_id": "fish", "richness": 3.0, "hidden": false },
+        { "resource_id": "timber", "richness": 1.5, "hidden": false },
+        { "resource_id": "stone", "richness": 1.0, "hidden": false },
+        { "resource_id": "salt", "richness": 2.0, "hidden": true }
+      ],
+      "spawn_table": [
+        { "id": "prowler", "weight": 3, "time_modifier": { "night": 2.0 } },
+        { "id": "shelled_crawler", "weight": 2 },
+        { "id": "plague_swarm", "weight": 1, "time_modifier": { "dawn": 1.5 } }
+      ],
+      "precursor_sites": []
+    },
+    {
+      "area_id": "area_greenwood_vale",
+      "display_name": "Greenwood Vale",
+      "east_west_position": 0.1,
+      "difficulty": 1.0,
+      "biome": "forest",
+      "is_deep_water_port": false,
+      "tags": [],
+      "settlement_site": {
+        "position": { "x": 200, "y": 0, "z": 50 },
+        "rotation_degrees": 45.0,
+        "road_connection_points": [
+          { "x": 240, "y": 0, "z": 50 },
+          { "x": 160, "y": 0, "z": 50 }
+        ]
+      },
+      "resources": [
+        { "resource_id": "timber", "richness": 4.0, "hidden": false },
+        { "resource_id": "game", "richness": 2.5, "hidden": false },
+        { "resource_id": "fire_herb", "richness": 1.0, "hidden": true },
+        { "resource_id": "red_heartleaf", "richness": 1.5, "hidden": true }
+      ],
+      "spawn_table": [
+        { "id": "prowler", "weight": 4, "time_modifier": { "night": 3.0 } },
+        { "id": "shelled_crawler", "weight": 2 },
+        { "id": "bog_lurker", "weight": 1 }
+      ],
+      "precursor_sites": [
+        { "site_id": "precursor_site_00", "position": { "x": 220, "y": 0, "z": 80 } }
+      ]
+    }
+  ]
+}

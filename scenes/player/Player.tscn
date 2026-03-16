@@ -6,6 +6,10 @@
 [ext_resource type="Script" path="res://scripts/player/PlayerSurvival.gd" id="4"]
 [ext_resource type="Script" path="res://scripts/player/PlayerInventory.gd" id="5"]
 [ext_resource type="Script" path="res://scripts/player/PlayerCombat.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/disciplines/AbilitySystem.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/world/CampDeployer.gd" id="8"]
+[ext_resource type="Script" path="res://scripts/navigation/SurveyingTool.gd" id="9"]
+[ext_resource type="Script" path="res://scripts/navigation/FieldJournal.gd" id="10"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.4
@@ -43,3 +47,15 @@ script = ExtResource("5")
 
 [node name="PlayerCombat" type="Node" parent="."]
 script = ExtResource("6")
+
+[node name="AbilitySystem" type="Node" parent="."]
+script = ExtResource("7")
+
+[node name="CampDeployer" type="Node" parent="."]
+script = ExtResource("8")
+
+[node name="SurveyingTool" type="Node" parent="."]
+script = ExtResource("9")
+
+[node name="FieldJournal" type="Node" parent="."]
+script = ExtResource("10")

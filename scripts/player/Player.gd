@@ -12,6 +12,9 @@ const INTERACTION_DISTANCE := 2.5
 @onready var inventory: PlayerInventory = $PlayerInventory
 @onready var combat: PlayerCombat = $PlayerCombat
 @onready var interaction_ray: RayCast3D = $Head/Camera3D/InteractionRay
+@onready var ability_system: AbilitySystem = $AbilitySystem
+@onready var camp_deployer: CampDeployer = $CampDeployer
+@onready var surveying_tool: SurveyingTool = $SurveyingTool
 
 # Mouse sensitivity
 var mouse_sensitivity: float = 0.002
@@ -47,6 +50,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("plant_flag"):
 		_try_plant_flag()
 
+	if event.is_action_pressed("disciplines"):
+		_toggle_disciplines()
+
 
 func _process(delta: float) -> void:
 	pass
@@ -74,6 +80,13 @@ func _toggle_inventory() -> void:
 
 func _toggle_journal() -> void:
 	var ui := get_tree().get_first_node_in_group("journal_ui")
+	if ui and ui.has_method("toggle"):
+		ui.toggle()
+		_set_ui_mouse_mode(ui.visible)
+
+
+func _toggle_disciplines() -> void:
+	var ui := get_tree().get_first_node_in_group("discipline_ui")
 	if ui and ui.has_method("toggle"):
 		ui.toggle()
 		_set_ui_mouse_mode(ui.visible)

@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://player_camp"]
+
+[ext_resource type="Script" path="res://scripts/world/PlayerCamp.gd" id="1"]
+
+[node name="PlayerCamp" type="Node3D"]
+script = ExtResource("1")
+
+[node name="CampfireLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+light_color = Color(1, 0.6, 0.2, 1)
+light_energy = 3.0
+omni_range = 12.0
+visible = false
+
+[node name="CampfireMesh" type="MeshInstance3D" parent="."]
+visible = false
+
+[node name="CampArea" type="Area3D" parent="."]
+
+[node name="CampfireCollision" type="CollisionShape3D" parent="CampArea"]

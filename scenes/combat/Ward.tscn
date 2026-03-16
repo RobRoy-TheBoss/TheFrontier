@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://ward_scene"]
+
+[ext_resource type="Script" path="res://scripts/combat/Ward.gd" id="1"]
+
+[node name="Ward" type="Node3D"]
+script = ExtResource("1")
+
+[node name="WardMesh" type="MeshInstance3D" parent="."]
+
+[node name="BlockArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BlockArea"]

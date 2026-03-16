@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://spike_trap"]
+
+[ext_resource type="Script" path="res://scripts/combat/SpikeTrap.gd" id="1"]
+
+[node name="SpikeTrap" type="Node3D"]
+script = ExtResource("1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+
+[node name="TriggerArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TriggerArea"]

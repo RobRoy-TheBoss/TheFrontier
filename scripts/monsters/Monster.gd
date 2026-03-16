@@ -278,6 +278,42 @@ func _process_status_effects(delta: float) -> void:
 			_die()
 
 
+func apply_calm(duration: float) -> void:
+	_state = State.IDLE
+	_has_detected_player = false
+	_target = null
+	# Re-aggro after duration
+	await get_tree().create_timer(duration).timeout
+	# Monster resumes normal AI
+
+
+func apply_stagger(duration: float) -> void:
+	_state = State.ALERT
+	_attack_cooldown = duration
+	await get_tree().create_timer(duration).timeout
+
+
+func apply_flinch(duration: float) -> void:
+	_attack_cooldown = maxf(_attack_cooldown, duration)
+
+
+func apply_root(duration: float) -> void:
+	_cripple_timer = maxf(_cripple_timer, duration)
+
+
+func force_despawn() -> void:
+	_state = State.DEAD
+	set_physics_process(false)
+	queue_free()
+
+
+func flee_from(position: Vector3) -> void:
+	var dir := (global_position - position).normalized()
+	dir.y = 0
+	_patrol_target = global_position + dir * 20.0
+	_state = State.PATROL
+
+
 func has_detected_player() -> bool:
 	return _has_detected_player
 
