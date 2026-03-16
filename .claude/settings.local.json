@@ -49,7 +49,10 @@
       "Bash(ls /workspace/data/*.json | wc -l && ls /workspace/scripts/autoloads/*.gd | wc -l)",
       "Bash(python3 -m pytest tests/test_data_schemas.py tests/test_project_structure.py tests/test_game_logic.py -v --tb=short 2>&1 | tail -60)",
       "Bash(python3 -m pytest tests/test_data_schemas.py tests/test_project_structure.py tests/test_game_logic.py --tb=no -q 2>&1 | tail -5)",
-      "Bash(git add -A && git status --short | head -40)"
+      "Bash(git add -A && git status --short | head -40)",
+      "Bash(python3 -m pytest tests/test_game_logic.py tests/test_data_schemas.py tests/test_project_structure.py -x -q 2>&1 | tail -20)",
+      "Bash(python3 -m pytest tests/ -x -q 2>&1 | tail -10)",
+      "Bash(git add -A && git status --short | head -20)"
     ]
   }
 }

@@ -64,6 +64,16 @@ func report_to_mayor() -> void:
 	reported_to_mayor = true
 
 
+## Called by BatchProcessor step 0. Ticks the surveyor timer and, when all
+## conditions are met (surveyor done + player reported), completes founding.
+func try_complete_founding() -> void:
+	if not founding_pending:
+		return
+	on_sleep()
+	if surveyor_complete and reported_to_mayor:
+		complete_founding()
+
+
 ## Called by BatchProcessor step 0 to complete the actual founding.
 ## Registers the new settlement and clears founding state.
 func complete_founding() -> void:

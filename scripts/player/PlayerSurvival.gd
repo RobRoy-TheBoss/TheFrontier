@@ -178,20 +178,32 @@ func _get_clothing_temp_bonus() -> float:
 	return 0.0
 
 
-func on_sleep_start() -> void:
-	# Consume hunger/thirst for elapsed sleep time (approx 8 hours)
+## Reset fatigue to zero on waking (BatchProcessor step 12 — LSLEEP-015).
+func reset_fatigue() -> void:
+	var f_params: Dictionary = _params.get("fatigue", {})
+	fatigue = 0.0
+	fatigue_changed.emit(fatigue, f_params.get("max", 100.0))
+
+
+## Deduct hunger and thirst for a full sleep period (BatchProcessor step 13 — LSLEEP-016).
+## Approximates 8 in-game hours of passive consumption.
+func apply_sleep_hunger_thirst() -> void:
 	var h_params: Dictionary = _params.get("hunger", {})
 	var t_params: Dictionary = _params.get("thirst", {})
-	hunger -= h_params.get("drain_per_second", 0.002) * 28800.0
+	hunger -= h_params.get("drain_per_second", 0.002) * 28800.0  # 8 h = 28 800 s
 	thirst -= t_params.get("drain_per_second", 0.004) * 28800.0
 	hunger = max(0.0, hunger)
 	thirst = max(0.0, thirst)
+	hunger_changed.emit(hunger, h_params.get("max", 100.0))
+	thirst_changed.emit(thirst, t_params.get("max", 100.0))
+
+
+func on_sleep_start() -> void:
+	apply_sleep_hunger_thirst()
 
 
 func on_sleep_end() -> void:
-	var f_params: Dictionary = _params.get("fatigue", {})
-	fatigue = max(0.0, fatigue - f_params.get("sleep_recovery_per_second", 10.0) * 28800.0)
-	fatigue_changed.emit(fatigue, f_params.get("max", 100.0))
+	reset_fatigue()
 
 
 func get_save_data() -> Dictionary:

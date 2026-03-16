@@ -1,7 +1,8 @@
 ## SpawnManager
-## Manages monster spawning for a specific Area. Reads spawn table from area data,
-## applies east-west difficulty scalar, respects settlement suppression and safe zones.
-extends Node3D
+## Autoload singleton. Global spawn coordinator and per-area spawn manager.
+## Reads spawn table from area data, applies east-west difficulty scalar,
+## respects settlement suppression and safe zones.
+extends Node
 
 @export var area_id: String = ""
 @export var east_west_scalar: float = 1.0  # 0 = east (easy), 1 = west (hardest)
@@ -154,3 +155,13 @@ func _despawn_distant_monsters() -> void:
 
 func _on_monster_died(monster_id: String, pos: Vector3) -> void:
 	pass  # Future: drop items at pos, update kill counts
+
+
+## Called by BatchProcessor step 7 to recalculate suppression on all
+## area-specific spawn managers registered in the "spawn_manager" group.
+func recalculate_all_suppression() -> void:
+	recalculate_suppression()
+	var spawn_nodes := get_tree().get_nodes_in_group("spawn_manager")
+	for sm in spawn_nodes:
+		if sm != self and sm.has_method("recalculate_suppression"):
+			sm.recalculate_suppression()

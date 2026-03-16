@@ -124,13 +124,9 @@ func _try_sleep() -> void:
 
 
 func _do_sleep() -> void:
-	GameState.is_sleeping = true
-	survival.on_sleep_start()
+	# BatchProcessor.run_sleep_batch() manages GameState.is_sleeping internally.
+	# survival and health steps are handled by the batch (steps 11–13).
 	await BatchProcessor.run_sleep_batch()
-	health.on_sleep(in_settlement())
-	survival.on_sleep_end()
-	SaveManager.save_game()
-	GameState.is_sleeping = false
 
 
 func _try_plant_flag() -> void:
@@ -171,6 +167,13 @@ func _give_starting_items() -> void:
 
 func add_item_to_inventory(item_id: String, count: int) -> void:
 	inventory.add_item(item_id, count)
+
+
+func spend_gold(amount: int) -> bool:
+	if inventory.currency < amount:
+		return false
+	inventory.currency -= amount
+	return true
 
 
 func get_save_data() -> Dictionary:
