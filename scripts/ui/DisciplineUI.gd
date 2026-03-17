@@ -70,8 +70,24 @@ func _populate_tabs() -> void:
 				if DisciplineManager.can_unlock_ability(disc_id, ab["id"]):
 					status_label.add_theme_color_override("font_color", Color.YELLOW)
 
+			# Unlock button (visible only when ability can be unlocked)
+			var unlock_btn := Button.new()
+			unlock_btn.text = "Unlock"
+			unlock_btn.visible = DisciplineManager.can_unlock_ability(disc_id, ab["id"])
+			var cap_disc := disc_id
+			var cap_ab := ab["id"]
+			var cap_gold := int(ab.get("unlock_cost_gold", 0))
+			unlock_btn.pressed.connect(func():
+				if _player and _player.inventory.currency >= cap_gold:
+					if DisciplineManager.unlock_ability(cap_disc, cap_ab, cap_gold):
+						if cap_gold > 0:
+							_player.inventory.currency -= cap_gold
+						_refresh()
+			)
+
 			ab_row.add_child(ab_name)
 			ab_row.add_child(status_label)
+			ab_row.add_child(unlock_btn)
 			tab.add_child(ab_row)
 
 			# Description

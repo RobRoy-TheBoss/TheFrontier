@@ -54,6 +54,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("disciplines"):
 		_toggle_disciplines()
 
+	if event.is_action_pressed("scan"):
+		_perform_scan()
+
 
 func _process(delta: float) -> void:
 	pass
@@ -175,6 +178,39 @@ func spend_gold(amount: int) -> bool:
 		return false
 	inventory.currency -= amount
 	return true
+
+
+## Raycast scan for journal entries (LNAV-040..044).
+## Hits objects in the "scannable" group and records them in the field journal.
+func _perform_scan() -> void:
+	var space := get_world_3d().direct_space_state
+	var origin := camera.global_position
+	var end := origin + (-camera.global_transform.basis.z * 30.0)
+	var query := PhysicsRayQueryParameters3D.create(origin, end)
+	query.exclude = [self]
+	var result := space.intersect_ray(query)
+	if result.is_empty():
+		return
+	var collider := result.get("collider")
+	if collider == null or not collider.is_in_group("scannable"):
+		return
+	var journal_node := get_node_or_null("FieldJournal")
+	if journal_node == null:
+		journal_node = get_tree().get_first_node_in_group("field_journal")
+	if journal_node == null:
+		return
+	# Determine category and record
+	if collider.is_in_group("monster"):
+		journal_node.record_creature(collider.monster_id)
+	elif collider.is_in_group("resource_node") and collider.has_method("get"):
+		journal_node.record_ingredient(collider.resource_id)
+	elif collider.is_in_group("landmark"):
+		collider.interact(self)  # Landmark naming UI
+	# Visual + audio feedback (LNAV-043)
+	var hud := get_tree().get_first_node_in_group("hud")
+	if hud and hud.has_method("show_message"):
+		hud.show_message("Scanned.")
+	AudioManager.play_sfx("scan_beep")
 
 
 func _on_player_died() -> void:

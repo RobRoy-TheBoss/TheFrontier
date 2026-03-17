@@ -184,3 +184,18 @@ func set_settlement_tier_ambience(tier_index: int) -> void:
 	# Richer settlement sound layers at higher tiers (AUD-198 SHOULD)
 	var volume := -20.0 + (tier_index * 3.0)
 	# Placeholder: adjust settlement ambient layer volume
+
+
+## Play a non-positional 2D sound effect by logical name.
+## Gracefully no-ops if the audio file is missing (common during development).
+func play_sfx(sfx_name: String) -> void:
+	var path := "res://assets/audio/sfx/" + sfx_name + ".wav"
+	var stream := _try_load_stream(path)
+	if stream == null:
+		return
+	var player := AudioStreamPlayer.new()
+	player.stream = stream
+	player.bus = "SFX"
+	add_child(player)
+	player.play()
+	player.finished.connect(player.queue_free)

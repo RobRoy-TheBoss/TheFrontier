@@ -3,7 +3,7 @@
 **LLR Version:** v0.5.1
 **HLR Version:** v0.5.0
 **GDD Version:** v8
-**Git Commit:** 7cf61e8 (Add active ability system, all UI screens, NPC/camp/audio/road systems)
+**Git Commit:** c39c852 (Wire death handling, founding report, and death UI show_death)
 **Test Run Date:** 2026-03-16
 **Test Suite:** pytest (Python) + GUT stubs (Godot runtime)
 
