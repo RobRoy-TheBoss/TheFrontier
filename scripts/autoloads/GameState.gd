@@ -41,6 +41,10 @@ var precursor_assignments: Dictionary = {}  # site_id -> discipline_id
 # Named landmarks
 var named_landmarks: Dictionary = {}  # landmark_id -> player-given name
 
+# Home Storage — single global dict accessible at any owned home (LINV-008)
+# No capacity limit (LINV-009). Items stored as Array[{item_id, count, ...}].
+var home_storage: Array = []
+
 const EXPORT_THRESHOLDS := {
 	"low": 0,
 	"moderate": 500,

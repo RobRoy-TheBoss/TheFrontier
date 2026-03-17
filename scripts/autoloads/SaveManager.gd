@@ -86,6 +86,7 @@ func _build_save_data() -> Dictionary:
 		"current_weather": GameState.current_weather,
 		"global_export_value": GameState.global_export_value,
 		"named_landmarks": GameState.named_landmarks,
+		"home_storage": GameState.home_storage.duplicate(true),
 		"player": player_data,
 		"settlements": SettlementManager.get_save_data(),
 		"disciplines": DisciplineManager.get_save_data(),
@@ -101,6 +102,7 @@ func _apply_save_data(data: Dictionary) -> void:
 	GameState.current_weather = data.get("current_weather", "clear")
 	GameState.global_export_value = data.get("global_export_value", 0)
 	GameState.named_landmarks = data.get("named_landmarks", {})
+	GameState.home_storage = data.get("home_storage", [])
 
 	SettlementManager.apply_save_data(data.get("settlements", {}))
 	DisciplineManager.apply_save_data(data.get("disciplines", {}))

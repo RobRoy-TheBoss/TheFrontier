@@ -9,7 +9,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["tool", "settlement"],
+    "tags": [
+      "tool",
+      "settlement"
+    ],
     "stackable": false,
     "destroyed_on_death": true,
     "description": "A chartered trading company flag. Plant in an unsettled Area to claim it.",
@@ -25,7 +28,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["camp", "shelter"],
+    "tags": [
+      "camp",
+      "shelter"
+    ],
     "stackable": false,
     "description": "Required for sleeping in the field.",
     "min_purchase_tier": "trading_post"
@@ -40,7 +46,11 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["camp", "shelter", "cold"],
+    "tags": [
+      "camp",
+      "shelter",
+      "cold"
+    ],
     "stackable": false,
     "description": "Insulated tent for harsh winters. Heavier but keeps you alive.",
     "min_purchase_tier": "village"
@@ -55,7 +65,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["camp", "fire"],
+    "tags": [
+      "camp",
+      "fire"
+    ],
     "stackable": false,
     "description": "Flint, steel, and a small grate. Required to make a campfire.",
     "min_purchase_tier": "trading_post"
@@ -70,7 +83,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["camp", "alchemy"],
+    "tags": [
+      "camp",
+      "alchemy"
+    ],
     "stackable": false,
     "description": "Portable distillation equipment. Required for field alchemy.",
     "min_purchase_tier": "village"
@@ -85,7 +101,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["tool", "navigation"],
+    "tags": [
+      "tool",
+      "navigation"
+    ],
     "stackable": false,
     "description": "Shows cardinal direction. Standard-issue for all surveyors.",
     "starting_item": true
@@ -100,7 +119,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["tool", "journal"],
+    "tags": [
+      "tool",
+      "journal"
+    ],
     "stackable": false,
     "description": "Your personal journal. Records creatures, ingredients, sites, and notes.",
     "starting_item": true
@@ -115,7 +137,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["tool", "survey"],
+    "tags": [
+      "tool",
+      "survey"
+    ],
     "stackable": false,
     "description": "Extends visual survey range to medium distance.",
     "min_purchase_tier": "trading_post"
@@ -130,7 +155,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["tool", "survey"],
+    "tags": [
+      "tool",
+      "survey"
+    ],
     "stackable": false,
     "description": "Precision surveying instrument. Long range resource identification.",
     "min_purchase_tier": "town"
@@ -145,11 +173,17 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["consumable", "medical"],
+    "tags": [
+      "consumable",
+      "medical"
+    ],
     "stackable": true,
     "stack_size": 10,
     "description": "Stops bleeding. Field treatment.",
-    "use_effect": { "treats_injury": "bleeding", "treatment_partial": true }
+    "use_effect": {
+      "treats_injury": "bleeding",
+      "treatment_partial": true
+    }
   },
   {
     "id": "splint",
@@ -161,11 +195,20 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["consumable", "medical"],
+    "tags": [
+      "consumable",
+      "medical"
+    ],
     "stackable": true,
     "stack_size": 5,
     "description": "Stabilizes broken bones and damaged limbs. Field treatment.",
-    "use_effect": { "treats_injuries": ["increased_attack_cooldown", "slowed_movement"], "treatment_partial": true }
+    "use_effect": {
+      "treats_injuries": [
+        "increased_attack_cooldown",
+        "slowed_movement"
+      ],
+      "treatment_partial": true
+    }
   },
   {
     "id": "healing_potion",
@@ -177,12 +220,18 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": 259200,
-    "tags": ["consumable", "potion"],
+    "tags": [
+      "consumable",
+      "potion"
+    ],
     "stackable": true,
     "stack_size": 5,
     "subtype": "potion",
     "description": "Restores 40 health over 10 seconds.",
-    "use_effect": { "heal_amount": 40, "heal_duration": 10.0 }
+    "use_effect": {
+      "heal_amount": 40,
+      "heal_duration": 10.0
+    }
   },
   {
     "id": "stamina_potion",
@@ -194,12 +243,17 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": 259200,
-    "tags": ["consumable", "potion"],
+    "tags": [
+      "consumable",
+      "potion"
+    ],
     "stackable": true,
     "stack_size": 5,
     "subtype": "potion",
     "description": "Restores 50 stamina instantly.",
-    "use_effect": { "stamina_restore": 50 }
+    "use_effect": {
+      "stamina_restore": 50
+    }
   },
   {
     "id": "antidote",
@@ -211,12 +265,21 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": 259200,
-    "tags": ["consumable", "potion"],
+    "tags": [
+      "consumable",
+      "potion"
+    ],
     "stackable": true,
     "stack_size": 5,
     "subtype": "potion",
     "description": "Clears poison and venom effects.",
-    "use_effect": { "clears_status": ["poisoned", "venomed"], "treats_injury": "poisoning" }
+    "use_effect": {
+      "clears_status": [
+        "poisoned",
+        "venomed"
+      ],
+      "treats_injury": "poisoning"
+    }
   },
   {
     "id": "temp_resist_potion",
@@ -228,12 +291,18 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": 259200,
-    "tags": ["consumable", "potion"],
+    "tags": [
+      "consumable",
+      "potion"
+    ],
     "stackable": true,
     "stack_size": 5,
     "subtype": "potion",
     "description": "Widens temperature comfort range for 5 minutes.",
-    "use_effect": { "temp_range_bonus": 10.0, "duration": 300 }
+    "use_effect": {
+      "temp_range_bonus": 10.0,
+      "duration": 300
+    }
   },
   {
     "id": "repellent",
@@ -245,12 +314,18 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": 172800,
-    "tags": ["consumable", "potion"],
+    "tags": [
+      "consumable",
+      "potion"
+    ],
     "stackable": true,
     "stack_size": 5,
     "subtype": "potion",
     "description": "Reduces detection range of nearby monsters for 3 minutes.",
-    "use_effect": { "detection_range_multiplier": 0.5, "duration": 180 }
+    "use_effect": {
+      "detection_range_multiplier": 0.5,
+      "duration": 180
+    }
   },
   {
     "id": "raw_meat",
@@ -262,7 +337,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": 14400,
-    "tags": ["food", "perishable"],
+    "tags": [
+      "food",
+      "perishable"
+    ],
     "stackable": true,
     "stack_size": 10,
     "illness_risk": 0.4,
@@ -279,7 +357,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": 28800,
-    "tags": ["food", "perishable"],
+    "tags": [
+      "food",
+      "perishable"
+    ],
     "stackable": true,
     "stack_size": 10,
     "illness_risk": 0.0,
@@ -296,7 +377,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["food", "ration"],
+    "tags": [
+      "food",
+      "ration"
+    ],
     "stackable": true,
     "stack_size": 20,
     "illness_risk": 0.0,
@@ -315,10 +399,15 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["consumable", "water"],
+    "tags": [
+      "consumable",
+      "water"
+    ],
     "stackable": false,
     "description": "Holds water. Fill at streams and rivers.",
-    "use_effect": { "thirst_restore": 60 }
+    "use_effect": {
+      "thirst_restore": 60
+    }
   },
   {
     "id": "snare_trap",
@@ -330,7 +419,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["tool", "trap"],
+    "tags": [
+      "tool",
+      "trap"
+    ],
     "stackable": true,
     "stack_size": 5,
     "description": "Sets a trap for small game. Check after sleeping.",
@@ -347,7 +439,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["material", "metal"],
+    "tags": [
+      "material",
+      "metal"
+    ],
     "stackable": true,
     "stack_size": 20,
     "description": "Raw iron. Used for repairs and crafting."
@@ -362,7 +457,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["material", "leather"],
+    "tags": [
+      "material",
+      "leather"
+    ],
     "stackable": true,
     "stack_size": 20,
     "description": "Scraps of cured hide. Used for repairs."
@@ -377,7 +475,10 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["material", "mineral"],
+    "tags": [
+      "material",
+      "mineral"
+    ],
     "stackable": true,
     "stack_size": 20,
     "description": "Yellow mineral. Required for black powder."
@@ -392,7 +493,11 @@
     "rune_slots": 0,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["tool", "navigation", "map"],
+    "tags": [
+      "tool",
+      "navigation",
+      "map"
+    ],
     "stackable": false,
     "description": "A hand-drawn map. Shows terrain and settlements. Does not show your position.",
     "map_data": null
@@ -407,9 +512,32 @@
     "rune_slots": 1,
     "noise_level": "silent",
     "spoil_timer": -1,
-    "tags": ["clothing", "cold", "armor_light"],
+    "tags": [
+      "clothing",
+      "cold",
+      "armor_light"
+    ],
     "stackable": false,
     "description": "Heavy fur cloak. Significantly improves cold tolerance.",
     "cold_resist_bonus": 12.0
+  },
+  {
+    "id": "sending_chest",
+    "name": "Sending Chest",
+    "type": "furniture",
+    "weight": 5.0,
+    "value": 200,
+    "durability": 0,
+    "rune_slots": 0,
+    "noise_level": 0,
+    "spoil_timer": 0,
+    "tags": [
+      "home_storage",
+      "placeable"
+    ],
+    "stackable": false,
+    "destroyed_on_death": false,
+    "description": "A magical chest that deposits items directly to your Home Storage.",
+    "min_purchase_tier": "village"
   }
 ]

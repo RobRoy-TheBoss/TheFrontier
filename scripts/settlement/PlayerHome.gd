@@ -6,7 +6,6 @@ extends Node3D
 @export var settlement_id: String = ""
 
 var is_owned: bool = false
-var storage_items: Array = []
 
 @onready var bed: Node3D = $Bed
 @onready var workshop: Node3D = $AlchemyWorkshop
@@ -57,9 +56,10 @@ func sleep_here(player: Node) -> void:
 
 
 func open_storage(player: Node) -> void:
+	# Use global HomeStorage — single dict accessible from any owned home (LINV-008)
 	var ui := get_tree().get_first_node_in_group("storage_ui")
 	if ui and ui.has_method("open"):
-		ui.open(storage_items, player.inventory)
+		ui.open(GameState.home_storage, player.inventory)
 
 
 func open_workshop(player: Node) -> void:
@@ -71,11 +71,9 @@ func open_workshop(player: Node) -> void:
 func get_save_data() -> Dictionary:
 	return {
 		"settlement_id": settlement_id,
-		"is_owned": is_owned,
-		"storage_items": storage_items.duplicate(true)
+		"is_owned": is_owned
 	}
 
 
 func apply_save_data(data: Dictionary) -> void:
 	is_owned = data.get("is_owned", false)
-	storage_items = data.get("storage_items", [])
