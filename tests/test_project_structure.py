@@ -1,6 +1,6 @@
 """
 test_project_structure.py
-Traces to: LLR v0.5.1 | HLR v0.5.0 | Git commit 7cf61e8
+Traces to: LLR v0.6.0 | HLR v0.6.0 | GDD v9
 Sections: LCORE, LPROJ, LDATA
 
 Tests that the Godot project structure matches LLR requirements:
@@ -117,18 +117,16 @@ REQUIRED_AUTOLOADS = [
     "SaveManager",
     "InputManager",
     "TimeManager",
-    "SeasonManager",
-    "WeatherManager",
     "AreaManager",
     "HexGrid",
     "SettlementManager",
     "SpawnManager",
     "DisciplineManager",
     "AudioManager",
-    "MusicManager",
     "TradeGraph",
     "FoundingManager",
     "PlayerStats",
+    "CombatManager",
 ]
 
 
@@ -260,7 +258,7 @@ FLAT_DATA_FILES = [
     "disciplines.json", "reagents.json", "runes.json", "items.json",
     "injuries.json", "weapons.json", "seasons.json", "survival.json",
     "recipes.json", "manufactured_goods.json", "hirelings.json",
-    "roads.json", "landmarks.json",
+    "roads.json", "landmarks.json", "hex_templates.json",
 ]
 
 

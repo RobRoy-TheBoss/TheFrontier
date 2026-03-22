@@ -1,5 +1,30 @@
 [
   {
+    "tier": 0,
+    "id": "hamlet",
+    "name": "Hamlet",
+    "score_threshold": 0,
+    "trade_score_threshold": 0,
+    "required_resources": [],
+    "suppression_pct": 0.1,
+    "area_suppression_percent": 10,
+    "safe_zone_radius": 30.0,
+    "consumption_rate": 0.5,
+    "exploitation": {
+      "own_pct": 0.5,
+      "adjacent_pct": 0.0,
+      "ring2_pct": 0.0
+    },
+    "exploitation_pct": 0.5,
+    "monster_suppression": 0.1,
+    "services": [],
+    "road_budget": 9,
+    "visual_ref": "hamlet_visual",
+    "bridge_rivers": false,
+    "advance_score_threshold": 0,
+    "sleep_cost": 0
+  },
+  {
     "tier": 1,
     "id": "trading_post",
     "name": "Trading Post",
@@ -25,7 +50,12 @@
       "buy_spyglass"
     ],
     "road_budget": 9,
-    "visual_ref": "settlement_trading_post"
+    "visual_ref": "settlement_trading_post",
+    "exploitation_pct": 1.0,
+    "monster_suppression": 0.25,
+    "bridge_rivers": false,
+    "advance_score_threshold": 200,
+    "sleep_cost": 0
   },
   {
     "tier": 2,
@@ -33,8 +63,11 @@
     "name": "Village",
     "score_threshold": 200,
     "trade_score_threshold": 200,
-    "required_resources": ["food", "timber"],
-    "suppression_pct": 0.50,
+    "required_resources": [
+      "food",
+      "timber"
+    ],
+    "suppression_pct": 0.5,
     "area_suppression_percent": 50,
     "safe_zone_radius": 70.0,
     "consumption_rate": 1.0,
@@ -53,10 +86,18 @@
       "hire_hunter",
       "buy_home",
       "settlement_meals",
-      "injury_treatment_village"
+      "injury_treatment_village",
+      "player_home",
+      "porter",
+      "alchemy_workshop"
     ],
     "road_budget": 9,
-    "visual_ref": "settlement_village"
+    "visual_ref": "settlement_village",
+    "exploitation_pct": 1.0,
+    "monster_suppression": 0.5,
+    "bridge_rivers": false,
+    "advance_score_threshold": 800,
+    "sleep_cost": 0
   },
   {
     "tier": 3,
@@ -64,7 +105,11 @@
     "name": "Town",
     "score_threshold": 800,
     "trade_score_threshold": 800,
-    "required_resources": ["food", "timber", "iron"],
+    "required_resources": [
+      "food",
+      "timber",
+      "iron"
+    ],
     "suppression_pct": 0.75,
     "area_suppression_percent": 75,
     "safe_zone_radius": 100.0,
@@ -95,7 +140,12 @@
       "discipline_enhancement"
     ],
     "road_budget": 9,
-    "visual_ref": "settlement_town"
+    "visual_ref": "settlement_town",
+    "exploitation_pct": 1.0,
+    "monster_suppression": 0.75,
+    "bridge_rivers": true,
+    "advance_score_threshold": 2500,
+    "sleep_cost": 0
   },
   {
     "tier": 4,
@@ -103,7 +153,12 @@
     "name": "City",
     "score_threshold": 2500,
     "trade_score_threshold": 2500,
-    "required_resources": ["food", "timber", "iron", "luxury"],
+    "required_resources": [
+      "food",
+      "timber",
+      "iron",
+      "luxury"
+    ],
     "suppression_pct": 1.0,
     "area_suppression_percent": 100,
     "safe_zone_radius": 150.0,
@@ -131,6 +186,11 @@
       "manufactured_goods"
     ],
     "road_budget": 9,
-    "visual_ref": "settlement_city"
+    "visual_ref": "settlement_city",
+    "exploitation_pct": 1.0,
+    "monster_suppression": 1.0,
+    "bridge_rivers": true,
+    "advance_score_threshold": 0,
+    "sleep_cost": 0
   }
 ]

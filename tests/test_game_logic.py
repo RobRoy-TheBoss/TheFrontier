@@ -1,6 +1,6 @@
 """
 test_game_logic.py
-Traces to: LLR v0.5.1 | HLR v0.5.0 | Git commit 7cf61e8
+Traces to: LLR v0.6.0 | HLR v0.6.0 | GDD v9
 
 Pure Python tests for game logic formulas that can be validated without
 running Godot. These mirror the algorithms defined in the LLR and test
@@ -8,15 +8,23 @@ their mathematical properties.
 
 Sections covered:
   LMAP-001..006  — HexGrid math
-  LMAP-021       — Time ratio
-  LMAP-042       — Precursor randomizer constraints
+  LMAP-015..020  — Area/edge passability logic
+  LMAP-031       — Time ratio
+  LMAP-047       — Precursor randomizer constraints
   LRUNE-001..003 — Poisson distribution clamping
-  LSCORE-001..009 — Trade score formula
+  LSCORE-001..010 — Trade score formula
   LTRADE-002..003 — Dijkstra routing
   LEXPORT-001..002 — Export threshold logic
+  LECO-011..013  — Resource claim conflict
   LROAD-001..002,015 — Road budget / cost / max length
   LSPN-002       — Spawn weight formula
-  LSLEEP-003..021 — Batch step ordering (structural)
+  LSLEEP-003..023 — Batch step ordering (structural)
+  LSURV-022..027 — Survival threshold effects
+  LCBT-001..004  — Combat state logic
+  LSCORE-008     — Tier advancement resource requirements
+  LEXPORT-003    — Shop inventory filtering logic
+  LMAP-021       — Portage validation (graph topology)
+  LSCORE-011     — First-mover advantage (Dijkstra stability)
 """
 import json
 import math
@@ -166,26 +174,26 @@ def test_shared_edge_index_lmap006():
 # LMAP-021 — Time ratio: 30 real minutes = 24 in-game hours
 # ===========================================================================
 
-def test_time_ratio_lmap021():
-    """[LMAP-021] 30 real minutes shall equal 24 in-game hours (ratio = 48x)."""
+def test_time_ratio_lmap031():
+    """[LMAP-031] 30 real minutes shall equal 24 in-game hours (ratio = 48x)."""
     real_minutes = 30
     ingame_hours = 24
     expected_ratio = ingame_hours / (real_minutes / 60)  # 48x
     assert math.isclose(expected_ratio, 48.0), \
-        f"[LMAP-021] Expected time ratio 48x, got {expected_ratio}"
+        f"[LMAP-031] Expected time ratio 48x, got {expected_ratio}"
 
 
 # ===========================================================================
-# LMAP-042 — Precursor randomizer: ≥18 PoP sites, min 2 per discipline
+# LMAP-047 — Precursor randomizer: ≥8 PoP sites, min 2 per launch discipline
 # ===========================================================================
 
 def _simulate_precursor_randomizer(total_sites: int, num_disciplines: int,
-                                   min_pop: int = 18, seed: int = 42) -> dict:
+                                   min_pop: int = 8, seed: int = 42) -> dict:
     """Simulate the precursor randomizer constraints."""
     rng = random.Random(seed)
     assignments = {}
 
-    # Guarantee min 2 per discipline (9 disciplines * 2 = 18 minimum)
+    # Guarantee min 2 per discipline (4 launch disciplines * 2 = 8 minimum)
     pop_sites = list(range(total_sites))
     rng.shuffle(pop_sites)
     selected = pop_sites[:min_pop]
@@ -201,26 +209,26 @@ def _simulate_precursor_randomizer(total_sites: int, num_disciplines: int,
     return assignments
 
 
-def test_precursor_min_pop_sites_lmap042():
-    """[LMAP-042] PrecursorRandomizer shall assign at least 18 sites as Places of Power."""
+def test_precursor_min_pop_sites_lmap047():
+    """[LMAP-047] PrecursorRandomizer shall assign at least 8 sites as Places of Power."""
     assignments = _simulate_precursor_randomizer(
-        total_sites=50, num_disciplines=9, min_pop=18
+        total_sites=50, num_disciplines=4, min_pop=8
     )
     pop_count = len(assignments)
-    assert pop_count >= 18, \
-        f"[LMAP-042] Expected >= 18 PoP sites, got {pop_count}"
+    assert pop_count >= 8, \
+        f"[LMAP-047] Expected >= 8 PoP sites, got {pop_count}"
 
 
-def test_precursor_min_2_per_discipline_lmap042():
-    """[LMAP-042] PrecursorRandomizer shall assign minimum 2 PoP per discipline."""
+def test_precursor_min_2_per_discipline_lmap047():
+    """[LMAP-047] PrecursorRandomizer shall assign minimum 2 PoP per launch discipline."""
     assignments = _simulate_precursor_randomizer(
-        total_sites=50, num_disciplines=9, min_pop=18
+        total_sites=50, num_disciplines=4, min_pop=8
     )
     from collections import Counter
     counts = Counter(assignments.values())
-    for disc in range(9):
+    for disc in range(4):
         assert counts.get(disc, 0) >= 2, \
-            f"[LMAP-042] Discipline {disc} has only {counts.get(disc,0)} PoP sites (min 2)"
+            f"[LMAP-047] Discipline {disc} has only {counts.get(disc,0)} PoP sites (min 2)"
 
 
 # ===========================================================================
@@ -702,15 +710,16 @@ EXPECTED_BATCH_STEPS = [
     (6,  "road_evaluation",        "LSLEEP-009"),
     (7,  "suppression_recalc",     "LSLEEP-010"),
     (8,  "hunter_food",            "LSLEEP-011"),
-    (9,  "trapper_harvest",        "LSLEEP-012"),
-    (10, "hireling_costs",         "LSLEEP-013"),
-    (11, "injury_healing",         "LSLEEP-014"),
-    (12, "fatigue_reset",          "LSLEEP-015"),
+    # step 9 was trapper_harvest — DELETED in v0.5.2 (LSLEEP-012 ID reserved)
+    (9,  "hireling_costs",         "LSLEEP-013"),
+    (10, "injury_healing",         "LSLEEP-014"),
+    (11, "fatigue_reset",          "LSLEEP-015"),
+    (12, "clear_temp_buffs",       "LSLEEP-023"),  # Artificer Reinforce (was step 11a)
     (13, "hunger_thirst_deduct",   "LSLEEP-016"),
-    (14, "day_season_advance",     "LSLEEP-017"),
-    (15, "weather_roll",           "LSLEEP-018"),
+    (14, "day_advance",            "LSLEEP-017"),
+    (15, "weather_roll",           "LSLEEP-018"),  # POST
     (16, "surveyor_discovery",     "LSLEEP-019"),
-    (17, "cartographer_map",       "LSLEEP-020"),
+    (17, "cartographer_map",       "LSLEEP-020"),  # POST
     (18, "auto_save",              "LSLEEP-021"),
 ]
 
@@ -924,3 +933,503 @@ def test_max_attunements_is_3_ldsys001():
         f"[LDSYS-001] Max 3 attunements enforced: got {len(attunements)}"
     assert "wizard" not in attunements, \
         "[LDSYS-001] 4th attunement should be rejected"
+
+
+# ===========================================================================
+# LSLEEP-023 — clear_temp_buffs in batch ordering
+# ===========================================================================
+
+def test_clear_temp_buffs_in_batch_lsleep023():
+    """[LSLEEP-023] Batch shall include clear_temp_buffs after fatigue_reset and before hunger_thirst."""
+    steps = {name: num for num, name, _ in EXPECTED_BATCH_STEPS}
+    assert "clear_temp_buffs" in steps, \
+        "[LSLEEP-023] clear_temp_buffs must be in batch steps"
+    assert steps["clear_temp_buffs"] > steps["fatigue_reset"], \
+        "[LSLEEP-023] clear_temp_buffs must come after fatigue_reset"
+    assert steps["clear_temp_buffs"] < steps["hunger_thirst_deduct"], \
+        "[LSLEEP-023] clear_temp_buffs must come before hunger_thirst_deduct"
+
+
+def test_trapper_removed_from_batch():
+    """[LSLEEP-012 DELETED] trapper_harvest shall no longer be a batch step."""
+    names = [name for _, name, _ in EXPECTED_BATCH_STEPS]
+    assert "trapper_harvest" not in names, \
+        "trapper_harvest was deleted in v0.5.2 and must not appear in batch steps"
+
+
+# ===========================================================================
+# LMAP-015..020 — Area and edge passability logic
+# ===========================================================================
+
+def is_edge_passable(edge_type: str, area_a_tags: list, area_b_tags: list,
+                     area_a_tier: int, area_b_tier: int) -> bool:
+    """
+    [LMAP-015..018] Determine if a shared edge is passable.
+    - cliff edges are never passable (LMAP-015)
+    - river edges require Ford tag on either area OR Town+ (tier>=3) on either (LMAP-016..018)
+    - ford edges are passable (ford is a navigable river crossing)
+    """
+    if edge_type == "cliff":
+        return False
+    if edge_type == "river":
+        has_ford = "ford" in area_a_tags or "ford" in area_b_tags
+        has_bridge = area_a_tier >= 3 or area_b_tier >= 3
+        return has_ford or has_bridge
+    return True
+
+
+def is_area_road_traversable(tags: list) -> bool:
+    """
+    [LMAP-019..020] Mountain areas are not road-traversable unless Mountain Pass tag is present.
+    """
+    if "mountain" in tags:
+        return "mountain_pass" in tags
+    return True
+
+
+def test_cliff_edge_not_passable_lmap015():
+    """[LMAP-015] Cliff edges shall not be passable regardless of settlement or tags."""
+    assert not is_edge_passable("cliff", [], [], 1, 1)
+    assert not is_edge_passable("cliff", ["ford"], [], 4, 4)
+
+
+def test_river_impassable_without_ford_or_bridge_lmap016():
+    """[LMAP-016] River edge shall not be passable if neither area has Ford or Town+."""
+    assert not is_edge_passable("river", [], [], 1, 2)
+    assert not is_edge_passable("river", ["forest"], ["plains"], 2, 2)
+
+
+def test_river_passable_with_ford_tag_lmap017():
+    """[LMAP-017] River edge shall be passable if either area has the Ford tag."""
+    assert is_edge_passable("river", ["ford"], [], 1, 1)
+    assert is_edge_passable("river", [], ["ford"], 1, 2)
+
+
+def test_river_passable_with_town_settlement_lmap018():
+    """[LMAP-018] River edge shall be passable if either area has a Town+ (tier>=3) settlement."""
+    assert is_edge_passable("river", [], [], 3, 1)  # area_a has Town
+    assert is_edge_passable("river", [], [], 1, 3)  # area_b has Town
+
+
+def test_ford_edge_always_passable():
+    """Ford edge type is a passable river crossing (no restrictions)."""
+    assert is_edge_passable("ford", [], [], 1, 1)
+
+
+def test_mountain_not_road_traversable_lmap019():
+    """[LMAP-019] Mountain area without Mountain Pass tag shall not be road-traversable."""
+    assert not is_area_road_traversable(["mountain"])
+    assert not is_area_road_traversable(["mountain", "forest"])
+
+
+def test_mountain_pass_road_traversable_lmap020():
+    """[LMAP-020] Mountain area with Mountain Pass tag shall be road-traversable."""
+    assert is_area_road_traversable(["mountain", "mountain_pass"])
+
+
+def test_non_mountain_always_traversable_lmap019():
+    """[LMAP-019] Non-mountain areas are always road-traversable."""
+    assert is_area_road_traversable(["forest"])
+    assert is_area_road_traversable([])
+    assert is_area_road_traversable(["river", "plains"])
+
+
+# ===========================================================================
+# LSURV-022..027 — Survival threshold effects
+# ===========================================================================
+
+def apply_thirst_effects(thirst: float, warn_threshold: float, crit_threshold: float,
+                          base_fatigue_rate: float, max_carry: float,
+                          carry_penalty: float) -> tuple[float, float]:
+    """[LSURV-022..023] Apply thirst-based effects to fatigue rate and max_carry."""
+    fatigue_mult = 1.0
+    if thirst < warn_threshold:
+        fatigue_mult = 1.5  # configurable increase
+    if thirst < crit_threshold:
+        max_carry -= carry_penalty
+    return base_fatigue_rate * fatigue_mult, max_carry
+
+
+def apply_temperature_effects(temperature: float,
+                               cold_threshold: float, heat_threshold: float,
+                               base_speed: float, base_stamina_regen: float) -> tuple[float, float]:
+    """[LSURV-024..027] Apply temperature-based effects."""
+    speed = base_speed
+    stamina_regen = base_stamina_regen
+    if temperature < cold_threshold:
+        speed *= 0.8  # configurable
+    if temperature > heat_threshold:
+        stamina_regen *= 0.7  # configurable
+    return speed, stamina_regen
+
+
+def test_thirst_warn_increases_fatigue_rate_lsurv022():
+    """[LSURV-022] When thirst < warn_threshold, fatigue accumulation rate shall increase."""
+    rate, _ = apply_thirst_effects(thirst=20.0, warn_threshold=30.0, crit_threshold=10.0,
+                                    base_fatigue_rate=1.0, max_carry=50.0, carry_penalty=10.0)
+    assert rate > 1.0, \
+        f"[LSURV-022] Fatigue rate should increase below warn threshold, got {rate}"
+
+
+def test_thirst_above_warn_no_fatigue_penalty_lsurv022():
+    """[LSURV-022] When thirst >= warn_threshold, fatigue rate shall not be increased."""
+    rate, _ = apply_thirst_effects(thirst=35.0, warn_threshold=30.0, crit_threshold=10.0,
+                                    base_fatigue_rate=1.0, max_carry=50.0, carry_penalty=10.0)
+    assert math.isclose(rate, 1.0), \
+        f"[LSURV-022] Fatigue rate should be 1.0 above warn threshold, got {rate}"
+
+
+def test_thirst_crit_reduces_max_carry_lsurv023():
+    """[LSURV-023] When thirst < crit_threshold, max_carry shall be reduced."""
+    _, carry = apply_thirst_effects(thirst=5.0, warn_threshold=30.0, crit_threshold=10.0,
+                                     base_fatigue_rate=1.0, max_carry=50.0, carry_penalty=10.0)
+    assert carry < 50.0, \
+        f"[LSURV-023] max_carry should decrease below crit threshold, got {carry}"
+
+
+def test_thirst_above_crit_no_carry_penalty_lsurv023():
+    """[LSURV-023] When thirst >= crit_threshold, max_carry shall not be reduced."""
+    _, carry = apply_thirst_effects(thirst=15.0, warn_threshold=30.0, crit_threshold=10.0,
+                                     base_fatigue_rate=1.0, max_carry=50.0, carry_penalty=10.0)
+    assert math.isclose(carry, 50.0), \
+        f"[LSURV-023] max_carry should stay at 50.0 above crit threshold, got {carry}"
+
+
+def test_cold_reduces_movement_speed_lsurv024():
+    """[LSURV-024] When temperature < cold_threshold, movement speed shall be reduced."""
+    speed, _ = apply_temperature_effects(-5.0, cold_threshold=0.0, heat_threshold=30.0,
+                                          base_speed=5.0, base_stamina_regen=1.0)
+    assert speed < 5.0, \
+        f"[LSURV-024] Speed should reduce below cold threshold, got {speed}"
+
+
+def test_above_cold_threshold_no_speed_penalty_lsurv024():
+    """[LSURV-024] When temperature >= cold_threshold, speed shall not be penalised."""
+    speed, _ = apply_temperature_effects(10.0, cold_threshold=0.0, heat_threshold=30.0,
+                                          base_speed=5.0, base_stamina_regen=1.0)
+    assert math.isclose(speed, 5.0), \
+        f"[LSURV-024] Speed should stay at 5.0 above cold threshold, got {speed}"
+
+
+def test_heat_reduces_stamina_regen_lsurv026():
+    """[LSURV-026] When temperature > heat_threshold, stamina regen shall be reduced."""
+    _, regen = apply_temperature_effects(35.0, cold_threshold=0.0, heat_threshold=30.0,
+                                          base_speed=5.0, base_stamina_regen=1.0)
+    assert regen < 1.0, \
+        f"[LSURV-026] Stamina regen should reduce above heat threshold, got {regen}"
+
+
+def test_below_heat_threshold_no_stamina_penalty_lsurv026():
+    """[LSURV-026] When temperature <= heat_threshold, stamina regen shall not be reduced."""
+    _, regen = apply_temperature_effects(20.0, cold_threshold=0.0, heat_threshold=30.0,
+                                          base_speed=5.0, base_stamina_regen=1.0)
+    assert math.isclose(regen, 1.0), \
+        f"[LSURV-026] Stamina regen should stay at 1.0 below heat threshold, got {regen}"
+
+
+# ===========================================================================
+# LECO-011..013 — Exploitation claim conflict resolution
+# ===========================================================================
+
+def resolve_hex_claim(settlements: list[dict], hex_id: str) -> str | None:
+    """
+    [LECO-011..013] For a hex contested by multiple settlements:
+    - Only the highest-tier settlement wins.
+    - On equal tier, the higher trade_score wins.
+    Returns the winning settlement's id, or None if no settlement claims it.
+    """
+    claimants = [s for s in settlements if hex_id in s.get("exploited_hexes", [])]
+    if not claimants:
+        return None
+    winner = max(claimants, key=lambda s: (s["tier"], s["trade_score"]))
+    return winner["id"]
+
+
+def test_higher_tier_wins_resource_claim_leco011():
+    """[LECO-011] Only the highest-tier settlement shall receive resources from a contested hex."""
+    settlements = [
+        {"id": "village", "tier": 2, "trade_score": 500, "exploited_hexes": ["hex_A"]},
+        {"id": "town",    "tier": 3, "trade_score": 100, "exploited_hexes": ["hex_A"]},
+    ]
+    winner = resolve_hex_claim(settlements, "hex_A")
+    assert winner == "town", \
+        f"[LECO-011] Tier 3 town should win over tier 2 village, got {winner}"
+
+
+def test_lower_tier_gets_zero_from_contested_hex_leco012():
+    """[LECO-012] Lower-tier settlement shall receive zero exploitation from a contested hex."""
+    settlements = [
+        {"id": "village", "tier": 2, "trade_score": 500, "exploited_hexes": ["hex_A"]},
+        {"id": "town",    "tier": 3, "trade_score": 100, "exploited_hexes": ["hex_A"]},
+    ]
+    winner = resolve_hex_claim(settlements, "hex_A")
+    # The loser gets zero — verified by checking they are NOT the winner
+    assert winner != "village", \
+        "[LECO-012] Lower-tier village must not win the contested hex"
+
+
+def test_equal_tier_higher_trade_score_wins_leco013():
+    """[LECO-013] When tiers are equal, the settlement with the higher trade score wins."""
+    settlements = [
+        {"id": "s_low",  "tier": 3, "trade_score": 200, "exploited_hexes": ["hex_B"]},
+        {"id": "s_high", "tier": 3, "trade_score": 800, "exploited_hexes": ["hex_B"]},
+    ]
+    winner = resolve_hex_claim(settlements, "hex_B")
+    assert winner == "s_high", \
+        f"[LECO-013] Higher trade score (800) should win equal-tier contest, got {winner}"
+
+
+def test_uncontested_hex_returns_sole_claimant():
+    """Uncontested hex (single claimant) shall always return that settlement."""
+    settlements = [
+        {"id": "only_one", "tier": 2, "trade_score": 100, "exploited_hexes": ["hex_C"]},
+        {"id": "no_claim", "tier": 4, "trade_score": 999, "exploited_hexes": ["hex_D"]},
+    ]
+    winner = resolve_hex_claim(settlements, "hex_C")
+    assert winner == "only_one", \
+        f"Uncontested claimant should always win, got {winner}"
+
+
+# ===========================================================================
+# LCBT-001..004 — Combat state logic
+# ===========================================================================
+
+class CombatTracker:
+    """
+    [LCBT-001..004] Minimal simulation of CombatManager combat tracking.
+    """
+    def __init__(self):
+        self.targeting_monsters: set = set()
+        self.in_combat: bool = False
+        self.arrows_fired: int = 0
+        self._combat_started_count = 0
+        self._combat_ended_count = 0
+
+    def on_monster_target(self, monster_id: str):
+        was_in_combat = self.in_combat
+        self.targeting_monsters.add(monster_id)
+        self.in_combat = len(self.targeting_monsters) > 0
+        if self.in_combat and not was_in_combat:
+            self._combat_started_count += 1
+            self.arrows_fired = 0  # reset on new combat
+
+    def on_monster_stop_target(self, monster_id: str):
+        self.targeting_monsters.discard(monster_id)
+        was_in_combat = self.in_combat
+        self.in_combat = len(self.targeting_monsters) > 0
+        if was_in_combat and not self.in_combat:
+            self._combat_ended_count += 1
+
+    def fire_arrow(self):
+        self.arrows_fired += 1
+
+
+def test_player_in_combat_when_monster_targets_lcbt001():
+    """[LCBT-001] CombatManager shall report in_combat when at least one monster targets player."""
+    tracker = CombatTracker()
+    assert not tracker.in_combat
+    tracker.on_monster_target("wolf_1")
+    assert tracker.in_combat, "[LCBT-001] Should be in combat when monster targets player"
+
+
+def test_combat_started_signal_on_first_aggro_lcbt002():
+    """[LCBT-002] combat_started shall emit when the first monster targets player."""
+    tracker = CombatTracker()
+    tracker.on_monster_target("wolf_1")
+    assert tracker._combat_started_count == 1, \
+        "[LCBT-002] combat_started should fire once on first aggro"
+    tracker.on_monster_target("wolf_2")
+    assert tracker._combat_started_count == 1, \
+        "[LCBT-002] combat_started should not fire again for subsequent aggressors"
+
+
+def test_combat_ended_when_no_aggressors_lcbt003():
+    """[LCBT-003] combat_ended shall emit when no monsters are targeting the player."""
+    tracker = CombatTracker()
+    tracker.on_monster_target("wolf_1")
+    tracker.on_monster_target("wolf_2")
+    tracker.on_monster_stop_target("wolf_1")
+    assert tracker.in_combat, "[LCBT-003] Still in combat with wolf_2"
+    assert tracker._combat_ended_count == 0
+    tracker.on_monster_stop_target("wolf_2")
+    assert not tracker.in_combat, "[LCBT-003] Should leave combat when all monsters stop"
+    assert tracker._combat_ended_count == 1, \
+        "[LCBT-003] combat_ended should fire exactly once"
+
+
+def test_arrows_fired_resets_on_combat_start_lcbt004():
+    """[LCBT-004] arrows_fired counter shall reset to 0 on each new combat_started."""
+    tracker = CombatTracker()
+    # First combat
+    tracker.on_monster_target("wolf_1")
+    tracker.fire_arrow()
+    tracker.fire_arrow()
+    assert tracker.arrows_fired == 2
+    tracker.on_monster_stop_target("wolf_1")
+    # Second combat starts — counter must reset
+    tracker.on_monster_target("bear_1")
+    assert tracker.arrows_fired == 0, \
+        f"[LCBT-004] arrows_fired must reset on new combat_started, got {tracker.arrows_fired}"
+    tracker.fire_arrow()
+    assert tracker.arrows_fired == 1
+
+
+# ===========================================================================
+# LSCORE-008 — Tier advancement requires all required_resources in flow
+# ===========================================================================
+
+def test_tier_advancement_requires_all_resources_lscore008():
+    """[LSCORE-008] Tier advancement shall require all required_resources present in flow-through set."""
+    def can_advance_tier(trade_score: float, threshold: float,
+                          required: list, available: set) -> bool:
+        if trade_score < threshold:
+            return False
+        return all(r in available for r in required)
+
+    # Has score but missing a resource
+    assert not can_advance_tier(500, 200, ["iron", "timber"], {"iron"}), \
+        "[LSCORE-008] Should not advance with missing required resource"
+
+    # Has score and all resources
+    assert can_advance_tier(500, 200, ["iron", "timber"], {"iron", "timber", "fish"}), \
+        "[LSCORE-008] Should advance with score met and all resources present"
+
+    # Score not met even with all resources
+    assert not can_advance_tier(100, 200, ["iron"], {"iron"}), \
+        "[LSCORE-008] Should not advance if score below threshold"
+
+    # Empty required list: score alone sufficient
+    assert can_advance_tier(300, 200, [], set()), \
+        "[LSCORE-008] Should advance when no resources required and score met"
+
+
+# ===========================================================================
+# LEXPORT-003 — Shop inventory filtering logic
+# ===========================================================================
+
+def test_shop_filtering_logic_lexport003():
+    """[LEXPORT-003] Shop shall filter goods by export_tier <= global_tier AND
+    min_settlement_tier <= this_settlement_tier."""
+    def is_available_in_shop(item: dict, global_export_tier: int,
+                              settlement_tier: int) -> bool:
+        return (item.get("export_threshold_tier", 0) <= global_export_tier and
+                item.get("min_settlement_tier", 1) <= settlement_tier)
+
+    item_common   = {"id": "rope",         "export_threshold_tier": 1, "min_settlement_tier": 1}
+    item_advanced = {"id": "spyglass",     "export_threshold_tier": 2, "min_settlement_tier": 2}
+    item_rare     = {"id": "theodolite",   "export_threshold_tier": 3, "min_settlement_tier": 3}
+
+    # Low export, low settlement — only common available
+    assert     is_available_in_shop(item_common,   1, 1), "[LEXPORT-003] Common item should be available"
+    assert not is_available_in_shop(item_advanced, 1, 1), "[LEXPORT-003] Advanced blocked by export tier"
+    assert not is_available_in_shop(item_rare,     1, 1), "[LEXPORT-003] Rare blocked by export tier"
+
+    # High export, low settlement — export gate passed but settlement gate blocks
+    assert     is_available_in_shop(item_common,   3, 1), "[LEXPORT-003] Common still available"
+    assert not is_available_in_shop(item_advanced, 3, 1), "[LEXPORT-003] Advanced blocked by settlement tier"
+
+    # High export, high settlement — all available
+    assert is_available_in_shop(item_common,   3, 3), "[LEXPORT-003] Common available"
+    assert is_available_in_shop(item_advanced, 3, 3), "[LEXPORT-003] Advanced available"
+    assert is_available_in_shop(item_rare,     3, 3), "[LEXPORT-003] Rare available"
+
+
+# ===========================================================================
+# LMAP-021 — Portage validation: graph topology check
+# ===========================================================================
+
+def get_areas_requiring_portage(areas: list[dict]) -> list[str]:
+    """
+    [LMAP-021] For each area, check if two of its non-adjacent neighbors both have
+    a River tag. If so, that area must have a Portage tag.
+    Returns list of area IDs that violate the rule (have River neighbors but no Portage).
+    """
+    area_map = {a["id"]: a for a in areas}
+    violations = []
+
+    for area in areas:
+        neighbors = area.get("neighbors", [])
+        # Find how many neighbors have River tag
+        river_neighbors = [
+            nid for nid in neighbors
+            if "river" in [t.lower() for t in area_map.get(nid, {}).get("tags", [])]
+        ]
+        if len(river_neighbors) >= 2:
+            # Check if any two river neighbors are non-adjacent to each other
+            for i in range(len(river_neighbors)):
+                for j in range(i + 1, len(river_neighbors)):
+                    n1_neighbors = area_map.get(river_neighbors[i], {}).get("neighbors", [])
+                    are_adjacent = river_neighbors[j] in n1_neighbors
+                    if not are_adjacent:
+                        # These two river neighbors are not adjacent — portage required
+                        if "portage" not in [t.lower() for t in area.get("tags", [])]:
+                            violations.append(area["id"])
+                        break
+    return violations
+
+
+def test_portage_validation_no_violations_lmap021():
+    """[LMAP-021] Areas with two non-adjacent River neighbors must have Portage tag."""
+    # Valid: area has portage
+    areas = [
+        {"id": "A", "neighbors": ["B", "C"], "tags": ["portage"]},
+        {"id": "B", "neighbors": ["A"],       "tags": ["river"]},
+        {"id": "C", "neighbors": ["A"],       "tags": ["river"]},  # B and C not adjacent
+    ]
+    violations = get_areas_requiring_portage(areas)
+    assert "A" not in violations, \
+        "[LMAP-021] Area A has portage tag and should not be flagged"
+
+
+def test_portage_validation_detects_violation_lmap021():
+    """[LMAP-021] Area with two non-adjacent River neighbors but no Portage tag shall be flagged."""
+    areas = [
+        {"id": "A", "neighbors": ["B", "C"], "tags": []},          # no portage — violation
+        {"id": "B", "neighbors": ["A"],       "tags": ["river"]},
+        {"id": "C", "neighbors": ["A"],       "tags": ["river"]},
+    ]
+    violations = get_areas_requiring_portage(areas)
+    assert "A" in violations, \
+        "[LMAP-021] Area A should be flagged: two non-adjacent River neighbors without Portage"
+
+
+def test_portage_not_required_for_adjacent_river_neighbors_lmap021():
+    """[LMAP-021] If the two River neighbors are adjacent to each other, Portage is not required."""
+    areas = [
+        {"id": "A", "neighbors": ["B", "C"], "tags": []},
+        {"id": "B", "neighbors": ["A", "C"], "tags": ["river"]},   # B and C are adjacent
+        {"id": "C", "neighbors": ["A", "B"], "tags": ["river"]},
+    ]
+    violations = get_areas_requiring_portage(areas)
+    assert "A" not in violations, \
+        "[LMAP-021] Area A should not be flagged when River neighbors are adjacent to each other"
+
+
+# ===========================================================================
+# LSCORE-011 — First-mover advantage: Dijkstra doesn't displace existing routes
+# ===========================================================================
+
+def test_first_mover_dijkstra_stable_lscore011():
+    """[LSCORE-011] Re-running Dijkstra on unchanged graph topology shall produce the same
+    shortest paths — existing routes are not displaced by new settlements on same graph."""
+    graph = {
+        "s1":   ["junction", "port"],
+        "s2":   ["junction"],
+        "junction": ["s1", "s2", "port"],
+        "port": ["s1", "junction"],
+    }
+    ports = {"port"}
+
+    # Run twice — result must be identical (no displacement on re-calculation)
+    port1, path1 = dijkstra_nearest_port("s1", graph, ports)
+    port2, path2 = dijkstra_nearest_port("s1", graph, ports)
+    assert path1 == path2, \
+        "[LSCORE-011] Dijkstra must be deterministic — same graph yields same route"
+
+    # s2 added after s1 connected — s2 should get its own valid route without affecting s1
+    port_s1, path_s1 = dijkstra_nearest_port("s1", graph, ports)
+    port_s2, path_s2 = dijkstra_nearest_port("s2", graph, ports)
+    assert port_s1 is not None and port_s2 is not None, \
+        "[LSCORE-011] Both settlements should reach a port"
+    assert path_s1[0] == "s1" and path_s2[0] == "s2", \
+        "[LSCORE-011] Each route must originate from its own settlement"

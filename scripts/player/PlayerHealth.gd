@@ -1,5 +1,6 @@
 ## PlayerHealth
 ## Manages health pool, stamina pool, and the injury system.
+class_name PlayerHealth
 extends Node
 
 signal health_changed(current: float, maximum: float)
@@ -26,7 +27,7 @@ var _stamina_regen_cooldown: float = 0.0
 
 
 func _ready() -> void:
-	_params = GameData.survival_params
+	_params = DataLoader.survival
 	_apply_discipline_passives()
 	_recalculate_max()
 
@@ -44,7 +45,7 @@ func _recalculate_max() -> void:
 	max_health = hp_params.get("base_max", 100.0) + _health_bonus
 	# Apply injury reduction
 	for inj_id in active_injuries:
-		var inj := GameData.get_injury(inj_id)
+		var inj := DataLoader.get_injury(inj_id)
 		var debuffs: Dictionary = inj.get("debuffs", {})
 		if debuffs.has("max_health_reduction_percent"):
 			max_health *= (1.0 - debuffs["max_health_reduction_percent"] / 100.0)
@@ -135,7 +136,7 @@ func _regen_stamina(delta: float) -> void:
 
 func _process_injury_effects(delta: float) -> void:
 	for inj_id in active_injuries:
-		var inj := GameData.get_injury(inj_id)
+		var inj := DataLoader.get_injury(inj_id)
 		var debuffs: Dictionary = inj.get("debuffs", {})
 		if debuffs.has("health_drain_per_second"):
 			current_health -= debuffs["health_drain_per_second"] * delta
@@ -149,10 +150,10 @@ func _try_inflict_random_injury() -> void:
 	# Weight-based random selection from injury definitions
 	var available := []
 	var total_weight := 0.0
-	for inj_id in GameData.injuries:
+	for inj_id in DataLoader.injuries:
 		if inj_id in active_injuries:
 			continue
-		var inj := GameData.get_injury(inj_id)
+		var inj := DataLoader.get_injury(inj_id)
 		var w: float = inj.get("probability_weight", 1.0)
 		# Resilience rune reduction
 		if DisciplineManager.has_passive("rune_resilience"):
@@ -188,7 +189,7 @@ func resolve_injury(injury_id: String) -> void:
 
 
 func can_treat_injury(injury_id: String, location_tier: String) -> bool:
-	var inj := GameData.get_injury(injury_id)
+	var inj := DataLoader.get_injury(injury_id)
 	var required: String = inj.get("treatment_tier", "city")
 	var tier_order := ["field", "camp", "village", "town", "city"]
 	# Ritualist Mending raises effective tier
@@ -203,7 +204,7 @@ func can_treat_injury(injury_id: String, location_tier: String) -> bool:
 func get_movement_speed_multiplier() -> float:
 	var mult := 1.0
 	for inj_id in active_injuries:
-		var inj := GameData.get_injury(inj_id)
+		var inj := DataLoader.get_injury(inj_id)
 		var debuffs: Dictionary = inj.get("debuffs", {})
 		mult *= debuffs.get("movement_speed_multiplier", 1.0)
 	return mult
@@ -212,7 +213,7 @@ func get_movement_speed_multiplier() -> float:
 func get_attack_cooldown_multiplier() -> float:
 	var mult := 1.0
 	for inj_id in active_injuries:
-		var inj := GameData.get_injury(inj_id)
+		var inj := DataLoader.get_injury(inj_id)
 		mult *= inj.get("debuffs", {}).get("attack_cooldown_multiplier", 1.0)
 	return mult
 
@@ -220,7 +221,7 @@ func get_attack_cooldown_multiplier() -> float:
 func _get_stamina_cost_multiplier() -> float:
 	var mult := 1.0
 	for inj_id in active_injuries:
-		var inj := GameData.get_injury(inj_id)
+		var inj := DataLoader.get_injury(inj_id)
 		mult *= inj.get("debuffs", {}).get("stamina_cost_multiplier", 1.0)
 	return mult
 
@@ -256,7 +257,7 @@ func on_sleep(in_settlement: bool) -> void:
 		if can_treat_injury(inj_id, location_tier):
 			resolve_injury(inj_id)
 		else:
-			var inj := GameData.get_injury(inj_id)
+			var inj := DataLoader.get_injury(inj_id)
 			var partial_tier: String = inj.get("partial_stabilization_tier", "")
 			if partial_tier != "" and _tier_index(location_tier) >= _tier_index(partial_tier):
 				# Partial: no resolution, just stop bleed etc.

@@ -6,11 +6,15 @@
     "debuffs": {
       "max_health_reduction_percent": 25
     },
-    "causes": ["heavy_melee_hit", "apex_attack", "fall_damage"],
+    "causes": [
+      "heavy_melee_hit",
+      "apex_attack",
+      "fall_damage"
+    ],
     "probability_by_source": {
       "heavy_melee_hit": 0.15,
       "apex_attack": 0.25,
-      "fall_damage": 0.30
+      "fall_damage": 0.3
     },
     "treatment_tier": "town",
     "partial_stabilization_tier": "camp",
@@ -22,13 +26,18 @@
     "name": "Cracked Ribs",
     "description": "Cracked ribs make every exertion costly.",
     "debuffs": {
-      "stamina_cost_multiplier": 1.4
+      "stamina_cost_multiplier": 1.4,
+      "attack_cooldown_multiplier": 1.4
     },
-    "causes": ["blunt_impact", "fall_damage", "crushing_attack"],
+    "causes": [
+      "blunt_impact",
+      "fall_damage",
+      "crushing_attack"
+    ],
     "probability_by_source": {
-      "blunt_impact": 0.20,
+      "blunt_impact": 0.2,
       "fall_damage": 0.25,
-      "crushing_attack": 0.30
+      "crushing_attack": 0.3
     },
     "treatment_tier": "village",
     "partial_stabilization_tier": "field",
@@ -43,11 +52,15 @@
       "attack_cooldown_multiplier": 1.5,
       "bow_draw_speed_multiplier": 1.6
     },
-    "causes": ["arm_hit", "overexertion", "heavy_blunt"],
+    "causes": [
+      "arm_hit",
+      "overexertion",
+      "heavy_blunt"
+    ],
     "probability_by_source": {
       "arm_hit": 0.25,
-      "overexertion": 0.10,
-      "heavy_blunt": 0.20
+      "overexertion": 0.1,
+      "heavy_blunt": 0.2
     },
     "treatment_tier": "village",
     "partial_stabilization_tier": "field",
@@ -61,9 +74,13 @@
     "debuffs": {
       "health_drain_per_second": 0.8
     },
-    "causes": ["blade_attack", "claw_attack", "puncture"],
+    "causes": [
+      "blade_attack",
+      "claw_attack",
+      "puncture"
+    ],
     "probability_by_source": {
-      "blade_attack": 0.20,
+      "blade_attack": 0.2,
       "claw_attack": 0.25,
       "puncture": 0.15
     },
@@ -80,16 +97,21 @@
       "health_drain_per_second": 0.4,
       "stamina_regen_multiplier": 0.5
     },
-    "causes": ["venom_bite", "poison_spit", "toxic_area"],
+    "causes": [
+      "venom_bite",
+      "poison_spit",
+      "toxic_area"
+    ],
     "probability_by_source": {
       "venom_bite": 0.35,
-      "poison_spit": 0.50,
+      "poison_spit": 0.5,
       "toxic_area": 0.05
     },
     "treatment_tier": "camp",
     "partial_stabilization_tier": "field",
     "partial_stabilization_effect": "Purged some toxin. Drain reduced.",
-    "probability_weight": 0.8
+    "probability_weight": 0.8,
+    "dot_rate": 2.0
   },
   {
     "id": "sprained_ankle",
@@ -99,13 +121,17 @@
       "movement_speed_multiplier": 0.6,
       "dodge_distance_multiplier": 0.5
     },
-    "causes": ["leg_hit", "fall_damage", "uneven_terrain"],
+    "causes": [
+      "leg_hit",
+      "fall_damage",
+      "uneven_terrain"
+    ],
     "probability_by_source": {
-      "leg_hit": 0.20,
-      "fall_damage": 0.30,
+      "leg_hit": 0.2,
+      "fall_damage": 0.3,
       "uneven_terrain": 0.05
     },
-    "treatment_tier": "village",
+    "treatment_tier": "camp",
     "partial_stabilization_tier": "field",
     "partial_stabilization_effect": "Splinted. Speed penalty reduced.",
     "probability_weight": 1.1
@@ -117,9 +143,13 @@
     "debuffs": {
       "temperature_comfort_range_reduction": 10.0
     },
-    "causes": ["raw_food", "bad_water", "exposure"],
+    "causes": [
+      "raw_food",
+      "bad_water",
+      "exposure"
+    ],
     "probability_by_source": {
-      "raw_food": 0.40,
+      "raw_food": 0.4,
       "bad_water": 0.35,
       "exposure": 0.001
     },

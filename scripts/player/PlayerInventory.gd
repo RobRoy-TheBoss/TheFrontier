@@ -1,6 +1,7 @@
 ## PlayerInventory
 ## Weight-based inventory with rune socketing support.
 ## Items stored as { item_id: String, count: int, runes: Array, instance_id: String }
+class_name PlayerInventory
 extends Node
 
 signal inventory_changed()
@@ -30,12 +31,9 @@ func _ready() -> void:
 
 
 func add_item(item_id: String, count: int) -> bool:
-	var item_def := GameData.get_item(item_id)
+	var item_def := DataLoader.get_item(item_id)
 	if item_def.is_empty():
-		# Check weapon / armor
-		item_def = GameData.get_weapon(item_id)
-	if item_def.is_empty():
-		item_def = GameData.get_armor(item_id)
+		item_def = DataLoader.get_weapon(item_id)
 	if item_def.is_empty():
 		push_warning("[PlayerInventory] Unknown item: " + item_id)
 		return false
@@ -46,14 +44,14 @@ func add_item(item_id: String, count: int) -> bool:
 		for entry in items:
 			if entry["item_id"] == item_id:
 				var stack_max: int = item_def.get("stack_size", 99)
-				var can_add := mini(count, stack_max - entry["count"])
+				var can_add: int = mini(count, stack_max - int(entry["count"]))
 				entry["count"] += can_add
 				count -= can_add
 				if count <= 0:
 					break
 		while count > 0:
 			var stack_max: int = item_def.get("stack_size", 99)
-			var to_add := mini(count, stack_max)
+			var to_add: int = mini(count, stack_max)
 			items.append({ "item_id": item_id, "count": to_add, "runes": [] })
 			count -= to_add
 	else:
@@ -70,7 +68,7 @@ func remove_item(item_id: String, count: int) -> bool:
 	var remaining := count
 	for entry in items.duplicate():
 		if entry["item_id"] == item_id:
-			var remove_count := mini(remaining, entry["count"])
+			var remove_count: int = mini(remaining, int(entry["count"]))
 			entry["count"] -= remove_count
 			remaining -= remove_count
 			if entry["count"] <= 0:
@@ -184,7 +182,7 @@ func get_all_equipped_rune_effects() -> Array:
 	var effects := []
 	for slot in equipped:
 		for rune_id in get_equipped_runes(slot):
-			var rune := GameData.get_rune(rune_id)
+			var rune := DataLoader.get_rune(rune_id)
 			if not rune.is_empty():
 				effects.append(rune.get("effect_data", {}))
 	return effects
@@ -213,13 +211,11 @@ func _recalculate_weight() -> void:
 
 
 func _get_any_item_def(item_id: String) -> Dictionary:
-	var def := GameData.get_item(item_id)
+	var def := DataLoader.get_item(item_id)
 	if def.is_empty():
-		def = GameData.get_weapon(item_id)
+		def = DataLoader.get_weapon(item_id)
 	if def.is_empty():
-		def = GameData.get_armor(item_id)
-	if def.is_empty():
-		def = GameData.get_rune(item_id)
+		def = DataLoader.get_rune(item_id)
 	return def
 
 

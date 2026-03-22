@@ -1,24 +1,5 @@
 [
   {
-    "id": "settlement_flag",
-    "name": "Settlement Flag",
-    "type": "tool",
-    "weight": 8.0,
-    "value": 150,
-    "durability": 100,
-    "rune_slots": 0,
-    "noise_level": "silent",
-    "spoil_timer": -1,
-    "tags": [
-      "tool",
-      "settlement"
-    ],
-    "stackable": false,
-    "destroyed_on_death": true,
-    "description": "A chartered trading company flag. Plant in an unsettled Area to claim it.",
-    "min_purchase_tier": "trading_post"
-  },
-  {
     "id": "tent",
     "name": "Tent",
     "type": "camp_equipment",
@@ -107,7 +88,9 @@
     ],
     "stackable": false,
     "description": "Shows cardinal direction. Standard-issue for all surveyors.",
-    "starting_item": true
+    "starting_item": true,
+    "survey_radius": 2,
+    "min_shop_tier": "trading_post"
   },
   {
     "id": "field_journal",
@@ -143,7 +126,9 @@
     ],
     "stackable": false,
     "description": "Extends visual survey range to medium distance.",
-    "min_purchase_tier": "trading_post"
+    "min_purchase_tier": "trading_post",
+    "survey_radius": 4,
+    "min_shop_tier": "trading_post"
   },
   {
     "id": "theodolite",
@@ -161,7 +146,9 @@
     ],
     "stackable": false,
     "description": "Precision surveying instrument. Long range resource identification.",
-    "min_purchase_tier": "town"
+    "min_purchase_tier": "town",
+    "survey_radius": 6,
+    "min_shop_tier": "town"
   },
   {
     "id": "bandage",
@@ -227,6 +214,7 @@
     "stackable": true,
     "stack_size": 5,
     "subtype": "potion",
+    "buff_id": "healing_regen",
     "description": "Restores 40 health over 10 seconds.",
     "use_effect": {
       "heal_amount": 40,
@@ -345,7 +333,8 @@
     "stack_size": 10,
     "illness_risk": 0.4,
     "hunger_restore": 20,
-    "description": "Edible but risky uncooked. Cook it."
+    "description": "Edible but risky uncooked. Cook it.",
+    "gut_sickness_chance": 0.4
   },
   {
     "id": "cooked_meat",
@@ -365,7 +354,23 @@
     "stack_size": 10,
     "illness_risk": 0.0,
     "hunger_restore": 35,
+    "expired_gut_sickness_chance": 0.6,
     "description": "Satisfying. Cook at campfire from raw meat."
+  },
+  {
+    "id": "firefly_jar",
+    "name": "Firefly Jar",
+    "type": "tool",
+    "weight": 0.3,
+    "value": 8,
+    "durability": 100,
+    "rune_slots": 0,
+    "noise_level": "silent",
+    "spoil_timer": 0,
+    "tags": ["light_source", "monster_reaction"],
+    "spawns_light": true,
+    "registers_monster_light_reaction": true,
+    "description": "A jar of fireflies. Glows softly, attracting or repelling monsters."
   },
   {
     "id": "hardtack",
@@ -539,5 +544,217 @@
     "destroyed_on_death": false,
     "description": "A magical chest that deposits items directly to your Home Storage.",
     "min_purchase_tier": "village"
+  },
+  {
+    "id": "cooked_fish",
+    "name": "Cooked Fish",
+    "type": "food",
+    "weight": 0.4,
+    "value": 4,
+    "durability": -1,
+    "rune_slots": 0,
+    "noise_level": "silent",
+    "spoil_timer": 21600,
+    "tags": [
+      "food",
+      "perishable"
+    ],
+    "stackable": true,
+    "stack_size": 10,
+    "illness_risk": 0.0,
+    "hunger_restore": 25,
+    "description": "Light and nourishing. Cook at campfire from raw fish."
+  },
+  {
+    "id": "arrow",
+    "name": "Arrow",
+    "type": "ammo",
+    "description": "A wooden shaft with an iron tip.",
+    "weight": 0.05,
+    "value": 1,
+    "stackable": true,
+    "max_stack": 40,
+    "durability": -1,
+    "rune_slots": 0,
+    "noise_level": "silent",
+    "spoil_timer": -1,
+    "tags": [
+      "ammo"
+    ]
+  },
+  {
+    "id": "unboiled_water",
+    "name": "Unboiled Water",
+    "type": "consumable",
+    "description": "Water collected from a stream. Boil it before drinking.",
+    "weight": 0.5,
+    "value": 0,
+    "stackable": false,
+    "thirst_restore": 30.0,
+    "gut_sickness_chance": 0.35,
+    "durability": -1,
+    "rune_slots": 0,
+    "noise_level": "silent",
+    "spoil_timer": -1,
+    "tags": [
+      "unboiled_water"
+    ]
+  },
+  {
+    "id": "boiled_water",
+    "name": "Boiled Water",
+    "type": "consumable",
+    "description": "Safe to drink. Boiling kills pathogens.",
+    "weight": 0.5,
+    "value": 2,
+    "stackable": false,
+    "thirst_restore": 35.0,
+    "gut_sickness_chance": 0.0,
+    "durability": -1,
+    "rune_slots": 0,
+    "noise_level": "silent",
+    "spoil_timer": -1,
+    "tags": [
+      "boiled_water"
+    ]
+  },
+  {
+    "id": "pistol_ball",
+    "name": "Pistol Ball",
+    "type": "ammo",
+    "description": "Lead ball for a pistol.",
+    "weight": 0.03,
+    "value": 1,
+    "stackable": true,
+    "max_stack": 30,
+    "durability": -1,
+    "rune_slots": 0,
+    "noise_level": "silent",
+    "spoil_timer": -1,
+    "tags": [
+      "ammo"
+    ]
+  },
+  {
+    "id": "musket_ball",
+    "name": "Musket Ball",
+    "type": "ammo",
+    "description": "Lead ball for a musket.",
+    "weight": 0.05,
+    "value": 1,
+    "stackable": true,
+    "max_stack": 20,
+    "durability": -1,
+    "rune_slots": 0,
+    "noise_level": "silent",
+    "spoil_timer": -1,
+    "tags": [
+      "ammo"
+    ]
+  },
+  {
+    "id": "iron_ore",
+    "name": "Iron Ore",
+    "type": "resource",
+    "category": "raw_material",
+    "description": "Unrefined iron ore. Smelted into ingots at a settlement.",
+    "weight": 2.0,
+    "value": 4,
+    "stackable": true,
+    "max_stack": 20,
+    "durability": -1,
+    "rune_slots": 0,
+    "noise_level": "silent",
+    "spoil_timer": -1,
+    "tags": [
+      "iron_ore"
+    ]
+  },
+  {
+    "id": "iron_tools",
+    "name": "Iron Tools",
+    "type": "resource",
+    "category": "manufactured",
+    "description": "A set of iron tools. Used in construction and crafting.",
+    "weight": 3.0,
+    "value": 25,
+    "stackable": true,
+    "max_stack": 10,
+    "durability": -1,
+    "rune_slots": 0,
+    "noise_level": "silent",
+    "spoil_timer": -1,
+    "tags": [
+      "iron_tools"
+    ]
+  },
+  {
+    "id": "village_map",
+    "name": "Village Map",
+    "type": "map",
+    "category": "navigation",
+    "weight": 0.1,
+    "value": 40,
+    "stackable": false,
+    "reveal_radius": 2,
+    "min_shop_tier": "village",
+    "reveals_biomes": true,
+    "reveals_landmarks": true,
+    "reveals_rivers": true,
+    "reveals_cliffs": true,
+    "description": "A map covering a 2-hex radius around a village.",
+    "durability": -1,
+    "rune_slots": 0,
+    "noise_level": "silent",
+    "spoil_timer": -1,
+    "tags": [
+      "village_map"
+    ]
+  },
+  {
+    "id": "town_map",
+    "name": "Town Map",
+    "type": "map",
+    "category": "navigation",
+    "weight": 0.1,
+    "value": 60,
+    "stackable": false,
+    "reveal_radius": 3,
+    "min_shop_tier": "town",
+    "reveals_biomes": true,
+    "reveals_landmarks": true,
+    "reveals_rivers": true,
+    "reveals_cliffs": true,
+    "description": "A map covering a 3-hex radius around a town.",
+    "durability": -1,
+    "rune_slots": 0,
+    "noise_level": "silent",
+    "spoil_timer": -1,
+    "tags": [
+      "town_map"
+    ]
+  },
+  {
+    "id": "city_map",
+    "name": "City Map",
+    "type": "map",
+    "category": "navigation",
+    "weight": 0.1,
+    "value": 80,
+    "stackable": false,
+    "reveal_radius": 4,
+    "min_shop_tier": "city",
+    "reveals_biomes": true,
+    "reveals_landmarks": true,
+    "reveals_rivers": true,
+    "reveals_cliffs": true,
+    "description": "A map covering a 4-hex radius around a city.",
+    "durability": -1,
+    "rune_slots": 0,
+    "noise_level": "silent",
+    "spoil_timer": -1,
+    "tags": [
+      "city_map"
+    ]
   }
 ]

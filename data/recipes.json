@@ -7,8 +7,12 @@
     "station": "campfire",
     "discipline_required": null,
     "ingredients": [
-      { "item_id": "raw_meat", "count": 1 }
-    ]
+      {
+        "item_id": "raw_meat",
+        "count": 1
+      }
+    ],
+    "station_type": "campfire"
   },
   {
     "id": "bandage_craft",
@@ -18,8 +22,12 @@
     "station": "campfire",
     "discipline_required": null,
     "ingredients": [
-      { "item_id": "cloth_scrap", "count": 2 }
-    ]
+      {
+        "item_id": "cloth_scrap",
+        "count": 2
+      }
+    ],
+    "station_type": "campfire"
   },
   {
     "id": "snare_trap",
@@ -29,9 +37,16 @@
     "station": "campfire",
     "discipline_required": null,
     "ingredients": [
-      { "item_id": "wood_scraps", "count": 2 },
-      { "item_id": "leather_scraps", "count": 1 }
-    ]
+      {
+        "item_id": "wood_scraps",
+        "count": 2
+      },
+      {
+        "item_id": "leather_scraps",
+        "count": 1
+      }
+    ],
+    "station_type": "campfire"
   },
   {
     "id": "healing_potion",
@@ -41,9 +56,16 @@
     "station": "alchemy_set",
     "discipline_required": null,
     "ingredients": [
-      { "item_id": "red_heartleaf", "count": 2 },
-      { "item_id": "purified_water", "count": 1 }
-    ]
+      {
+        "item_id": "red_heartleaf",
+        "count": 2
+      },
+      {
+        "item_id": "purified_water",
+        "count": 1
+      }
+    ],
+    "station_type": "alchemy"
   },
   {
     "id": "stamina_potion",
@@ -53,9 +75,16 @@
     "station": "alchemy_set",
     "discipline_required": null,
     "ingredients": [
-      { "item_id": "quickvine_root", "count": 2 },
-      { "item_id": "purified_water", "count": 1 }
-    ]
+      {
+        "item_id": "quickvine_root",
+        "count": 2
+      },
+      {
+        "item_id": "purified_water",
+        "count": 1
+      }
+    ],
+    "station_type": "alchemy"
   },
   {
     "id": "antidote",
@@ -65,9 +94,16 @@
     "station": "alchemy_set",
     "discipline_required": null,
     "ingredients": [
-      { "item_id": "bitter_moss", "count": 3 },
-      { "item_id": "purified_water", "count": 1 }
-    ]
+      {
+        "item_id": "bitter_moss",
+        "count": 3
+      },
+      {
+        "item_id": "purified_water",
+        "count": 1
+      }
+    ],
+    "station_type": "alchemy"
   },
   {
     "id": "temp_resist_potion",
@@ -77,10 +113,20 @@
     "station": "alchemy_set",
     "discipline_required": null,
     "ingredients": [
-      { "item_id": "frostbark", "count": 2 },
-      { "item_id": "ember_sap", "count": 1 },
-      { "item_id": "purified_water", "count": 1 }
-    ]
+      {
+        "item_id": "frostbark",
+        "count": 2
+      },
+      {
+        "item_id": "ember_sap",
+        "count": 1
+      },
+      {
+        "item_id": "purified_water",
+        "count": 1
+      }
+    ],
+    "station_type": "alchemy"
   },
   {
     "id": "repellent",
@@ -90,9 +136,16 @@
     "station": "alchemy_set",
     "discipline_required": null,
     "ingredients": [
-      { "item_id": "stinkweed", "count": 3 },
-      { "item_id": "lurker_venom_sac", "count": 1 }
-    ]
+      {
+        "item_id": "stinkweed",
+        "count": 3
+      },
+      {
+        "item_id": "lurker_venom_sac",
+        "count": 1
+      }
+    ],
+    "station_type": "alchemy"
   },
   {
     "id": "ammo_pistol_ball",
@@ -102,9 +155,16 @@
     "station": "camp",
     "discipline_required": "artificer_ammo_smith",
     "ingredients": [
-      { "item_id": "iron_scraps", "count": 2 },
-      { "item_id": "sulfur", "count": 1 }
-    ]
+      {
+        "item_id": "iron_scraps",
+        "count": 2
+      },
+      {
+        "item_id": "sulfur",
+        "count": 1
+      }
+    ],
+    "station_type": "camp"
   },
   {
     "id": "ammo_musket_ball",
@@ -114,9 +174,16 @@
     "station": "camp",
     "discipline_required": "artificer_ammo_smith",
     "ingredients": [
-      { "item_id": "iron_scraps", "count": 3 },
-      { "item_id": "sulfur", "count": 2 }
-    ]
+      {
+        "item_id": "iron_scraps",
+        "count": 3
+      },
+      {
+        "item_id": "sulfur",
+        "count": 2
+      }
+    ],
+    "station_type": "camp"
   },
   {
     "id": "spike_trap",
@@ -126,9 +193,16 @@
     "station": "camp",
     "discipline_required": "artificer_spike_trap",
     "ingredients": [
-      { "item_id": "iron_scraps", "count": 4 },
-      { "item_id": "wood_scraps", "count": 3 }
-    ]
+      {
+        "item_id": "iron_scraps",
+        "count": 4
+      },
+      {
+        "item_id": "wood_scraps",
+        "count": 3
+      }
+    ],
+    "station_type": "camp"
   },
   {
     "id": "mega_heal_potion",
@@ -138,10 +212,20 @@
     "station": "alchemy_set",
     "discipline_required": "alchemist_master_brewer",
     "ingredients": [
-      { "item_id": "red_heartleaf", "count": 5 },
-      { "item_id": "rare_fungal_extract", "count": 1 },
-      { "item_id": "purified_water", "count": 2 }
-    ]
+      {
+        "item_id": "red_heartleaf",
+        "count": 5
+      },
+      {
+        "item_id": "rare_fungal_extract",
+        "count": 1
+      },
+      {
+        "item_id": "purified_water",
+        "count": 2
+      }
+    ],
+    "station_type": "alchemy"
   },
   {
     "id": "temp_immunity_potion",
@@ -151,10 +235,20 @@
     "station": "alchemy_set",
     "discipline_required": "alchemist_master_brewer",
     "ingredients": [
-      { "item_id": "frostbark", "count": 3 },
-      { "item_id": "ember_sap", "count": 3 },
-      { "item_id": "rare_fungal_extract", "count": 1 }
-    ]
+      {
+        "item_id": "frostbark",
+        "count": 3
+      },
+      {
+        "item_id": "ember_sap",
+        "count": 3
+      },
+      {
+        "item_id": "rare_fungal_extract",
+        "count": 1
+      }
+    ],
+    "station_type": "alchemy"
   },
   {
     "id": "powerful_repellent",
@@ -164,9 +258,78 @@
     "station": "alchemy_set",
     "discipline_required": "alchemist_master_brewer",
     "ingredients": [
-      { "item_id": "stinkweed", "count": 5 },
-      { "item_id": "horror_eye", "count": 1 },
-      { "item_id": "lurker_venom_sac", "count": 2 }
-    ]
+      {
+        "item_id": "stinkweed",
+        "count": 5
+      },
+      {
+        "item_id": "horror_eye",
+        "count": 1
+      },
+      {
+        "item_id": "lurker_venom_sac",
+        "count": 2
+      }
+    ],
+    "station_type": "alchemy"
+  },
+  {
+    "id": "campfire_kit",
+    "name": "Craft Campfire Kit",
+    "output_item": "campfire_kit",
+    "output_count": 1,
+    "station": "none",
+    "discipline_required": null,
+    "ingredients": [
+      {
+        "item_id": "wood",
+        "count": 3
+      },
+      {
+        "item_id": "stone",
+        "count": 2
+      },
+      {
+        "item_id": "fiber",
+        "count": 1
+      }
+    ],
+    "station_type": "none"
+  },
+  {
+    "id": "boiled_water",
+    "name": "Boiled Water",
+    "station_type": "campfire",
+    "ingredients": [
+      {
+        "id": "unboiled_water",
+        "qty": 1
+      }
+    ],
+    "outputs": [
+      {
+        "id": "boiled_water",
+        "qty": 1
+      }
+    ],
+    "time": 30.0
+  },
+  {
+    "id": "mineral_powder",
+    "name": "Mineral Powder",
+    "station_type": "camp",
+    "ingredients": [
+      {
+        "id": "stone",
+        "qty": 2
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mineral_powder",
+        "qty": 1
+      }
+    ],
+    "time": 20.0
   }
 ]

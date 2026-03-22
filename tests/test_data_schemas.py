@@ -1,7 +1,7 @@
 """
 test_data_schemas.py
-Traces to: LLR v0.5.1 | HLR v0.5.0 | Git commit 7cf61e8
-Section 2: Data Layer — LDATA-001 through LDATA-042
+Traces to: LLR v0.6.0 | HLR v0.6.0 | GDD v9
+Section 2: Data Layer — LDATA-001 through LDATA-044
 
 Tests that all required JSON data files exist under res://data/ (flat layout),
 are valid JSON, and conform to the field schemas required by the LLR.
@@ -27,7 +27,7 @@ def _load(filename: str):
     path = DATA_DIR / filename
     assert path.exists(), (
         f"FAIL: {filename} not found at {path}. "
-        "LLR v0.5.1 requires all data files directly under res://data/."
+        "LLR v0.6.0 requires all data files directly under res://data/."
     )
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -63,6 +63,7 @@ REQUIRED_DATA_FILES = [
     ("hirelings.json",          "LDATA-018"),
     ("roads.json",              "LDATA-019"),
     ("landmarks.json",          "LDATA-020"),
+    ("hex_templates.json",      "LDATA-044"),
 ]
 
 
@@ -263,20 +264,20 @@ def test_reagents_schema_ldata040():
 # ---------------------------------------------------------------------------
 
 def test_discipline_count_ldata041():
-    """[LDATA-041] disciplines.json shall contain exactly 9 disciplines."""
+    """[LDATA-041] disciplines.json shall contain exactly 4 launch disciplines."""
     data = _load("disciplines.json")
     disciplines = data if isinstance(data, list) else data.get("disciplines", [])
-    assert len(disciplines) == 9, \
-        f"[LDATA-041] Expected 9 disciplines, found {len(disciplines)}"
+    assert len(disciplines) == 4, \
+        f"[LDATA-041] Expected 4 launch disciplines, found {len(disciplines)}"
 
 
 def test_ability_count_ldata041():
-    """[LDATA-041] disciplines.json shall contain exactly 61 total abilities across all disciplines."""
+    """[LDATA-041] disciplines.json shall contain exactly 28 total launch abilities."""
     data = _load("disciplines.json")
     disciplines = data if isinstance(data, list) else data.get("disciplines", [])
     total = sum(len(d.get("abilities", [])) for d in disciplines)
-    assert total == 61, \
-        f"[LDATA-041] Expected 61 total abilities, found {total}"
+    assert total == 28, \
+        f"[LDATA-041] Expected 28 total launch abilities, found {total}"
 
 
 # ---------------------------------------------------------------------------
@@ -611,3 +612,145 @@ def test_exploitation_percentages_leco006_to_009():
         assert exp["own_pct"] == 1.0, "[LECO-009] City own_pct must be 1.0"
         assert exp["adjacent_pct"] == 1.0, "[LECO-009] City adjacent_pct must be 1.0"
         assert exp["ring2_pct"] == 0.25, "[LECO-009] City ring2_pct must be 0.25"
+
+
+# ---------------------------------------------------------------------------
+# LDATA-043 — behavior_type values
+# ---------------------------------------------------------------------------
+
+VALID_BEHAVIOR_TYPES = {"territorial", "ambush", "swarm", "heavy", "docile", "apex"}
+
+
+def test_behavior_type_ldata043():
+    """[LDATA-043] Each monster entry shall have behavior_type from the allowed set."""
+    data = _load("monsters.json")
+    monsters = data if isinstance(data, list) else data.get("monsters", [])
+    assert len(monsters) > 0, "monsters.json has no entries"
+    for m in monsters:
+        bt = m.get("behavior_type")
+        assert bt is not None, \
+            f"[LDATA-043] Monster '{m.get('id')}' missing behavior_type"
+        assert bt in VALID_BEHAVIOR_TYPES, \
+            f"[LDATA-043] Monster '{m.get('id')}' has invalid behavior_type '{bt}'; " \
+            f"must be one of {VALID_BEHAVIOR_TYPES}"
+
+
+# ---------------------------------------------------------------------------
+# LDATA-044 — hex_templates.json schema
+# ---------------------------------------------------------------------------
+
+def test_hex_templates_schema_ldata044():
+    """[LDATA-044] hex_templates.json shall list entries with template_id, biome_type, scene_path."""
+    data = _load("hex_templates.json")
+    templates = data if isinstance(data, list) else data.get("templates", [])
+    assert len(templates) > 0, "hex_templates.json has no entries"
+    required = ["template_id", "biome_type", "scene_path"]
+    for t in templates:
+        _has_fields(t, required, "hex_templates.json")
+        assert isinstance(t["template_id"], str) and t["template_id"], \
+            f"template_id must be a non-empty string: {t}"
+        assert isinstance(t["scene_path"], str) and t["scene_path"].endswith(".tscn"), \
+            f"scene_path must point to a .tscn file: {t.get('template_id')}"
+
+
+# ---------------------------------------------------------------------------
+# LDATA-045 — monsters.json: at least 8 monster types (MON-009)
+# ---------------------------------------------------------------------------
+
+def test_monster_count_at_least_8_ldata045():
+    """[LDATA-045] monsters.json shall contain at least 8 monster entries."""
+    data = _load("monsters.json")
+    monsters = data if isinstance(data, list) else data.get("monsters", [])
+    assert len(monsters) >= 8, \
+        f"[LDATA-045] Expected >= 8 monster types, found {len(monsters)}"
+
+
+# ---------------------------------------------------------------------------
+# LSPN-006 — suppression_pct exact values per tier
+# ---------------------------------------------------------------------------
+
+def test_suppression_pct_values_lspn006():
+    """[LSPN-006] settlement_tiers.json shall define exact suppression_pct per tier."""
+    data = _load("settlement_tiers.json")
+    tiers = data if isinstance(data, list) else data.get("tiers", [])
+    tier_by_index = {t["tier"]: t for t in tiers}
+    expected = {1: 0.25, 2: 0.50, 3: 0.75, 4: 1.00}
+    for tier_num, expected_pct in expected.items():
+        if tier_num in tier_by_index:
+            actual = tier_by_index[tier_num].get("suppression_pct")
+            assert actual == expected_pct, \
+                f"[LSPN-006] Tier {tier_num} suppression_pct: expected {expected_pct}, got {actual}"
+
+
+# ---------------------------------------------------------------------------
+# LSURV-028 — survival.json threshold sub-objects (SURV-005)
+# ---------------------------------------------------------------------------
+
+def test_survival_json_has_threshold_objects_lsurv028():
+    """[LSURV-028] survival.json shall define hunger, thirst, temperature, fatigue sub-objects
+    each with at least a low/warn threshold and a critical threshold."""
+    data = _load("survival.json")
+    for section in ("hunger", "thirst", "temperature", "fatigue"):
+        assert section in data, \
+            f"[LSURV-028] survival.json missing '{section}' sub-object"
+        obj = data[section]
+        # Must have some form of critical threshold
+        has_crit = any(k for k in obj if "critical" in k or "crit" in k)
+        assert has_crit, \
+            f"[LSURV-028] survival.json['{section}'] missing a critical threshold key"
+        # Must have some form of warn / low threshold
+        has_warn = any(k for k in obj if "warn" in k or "low" in k or "threshold" in k)
+        assert has_warn, \
+            f"[LSURV-028] survival.json['{section}'] missing a warn/low threshold key"
+
+
+# ---------------------------------------------------------------------------
+# LCRAFT-027 — campfire_kit recipe requires wood (CAMP-003)
+# ---------------------------------------------------------------------------
+
+def test_campfire_kit_recipe_has_wood_lcraft027():
+    """[LCRAFT-027] A campfire_kit recipe shall exist in recipes.json with wood as an ingredient."""
+    data = _load("recipes.json")
+    recipes = data if isinstance(data, list) else data.get("recipes", [])
+    campfire = next((r for r in recipes if r.get("id") == "campfire_kit"), None)
+    assert campfire is not None, \
+        "[LCRAFT-027] No 'campfire_kit' recipe found in recipes.json"
+    ingredients = campfire.get("ingredients", [])
+    ingredient_ids = [i.get("item_id", "") for i in ingredients]
+    has_wood = any("wood" in iid for iid in ingredient_ids)
+    assert has_wood, \
+        f"[LCRAFT-027] campfire_kit recipe has no wood ingredient; found: {ingredient_ids}"
+
+
+# ---------------------------------------------------------------------------
+# LCRAFT-028 — cooked food items have positive spoil_timer (CRAFT-005)
+# ---------------------------------------------------------------------------
+
+def test_cooked_food_has_spoil_timer_lcraft028():
+    """[LCRAFT-028] Cooked meat and cooked fish shall have a positive spoil_timer in items.json."""
+    data = _load("items.json")
+    items = data if isinstance(data, list) else data.get("items", [])
+    items_by_id = {i["id"]: i for i in items}
+
+    for item_id in ("cooked_meat", "cooked_fish"):
+        assert item_id in items_by_id, \
+            f"[LCRAFT-028] '{item_id}' not found in items.json"
+        spoil = items_by_id[item_id].get("spoil_timer", 0)
+        assert spoil > 0, \
+            f"[LCRAFT-028] '{item_id}' spoil_timer must be > 0, got {spoil}"
+
+
+# ---------------------------------------------------------------------------
+# LSCORE-007 — tier score thresholds are present and ascending in JSON
+# ---------------------------------------------------------------------------
+
+def test_score_thresholds_ascending_lscore007():
+    """[LSCORE-007] settlement_tiers.json score_threshold values shall be ascending by tier."""
+    data = _load("settlement_tiers.json")
+    tiers = data if isinstance(data, list) else data.get("tiers", [])
+    sorted_tiers = sorted(tiers, key=lambda t: t["tier"])
+    thresholds = [t.get("score_threshold", 0) for t in sorted_tiers]
+    for i in range(len(thresholds) - 1):
+        assert thresholds[i] <= thresholds[i + 1], \
+            f"[LSCORE-007] score_threshold not ascending: tier {i+1} ({thresholds[i]}) " \
+            f">= tier {i+2} ({thresholds[i+1]})"

@@ -39,114 +39,141 @@ func _ready() -> void:
 
 
 func _load_all() -> void:
-	# Monsters
-	var monster_data := _load_json("monsters.json")
-	for m in monster_data.get("monsters", []):
+	# Monsters (array root)
+	for m in _load_json_array("monsters.json"):
 		monsters[m["id"]] = m
 
-	# Spawn tables
-	var spawn_data := _load_json("spawn_tables.json")
-	for s in spawn_data.get("spawn_tables", []):
+	# Spawn tables (array root)
+	for s in _load_json_array("spawn_tables.json"):
 		spawn_tables[s["id"]] = s
 
-	# Resources
-	var resource_data := _load_json("resources.json")
-	for r in resource_data.get("resources", []):
+	# Resources (array root)
+	for r in _load_json_array("resources.json"):
 		resources[r["id"]] = r
 
-	# Areas
-	var area_data := _load_json("areas.json")
-	for a in area_data.get("areas", []):
+	# Areas (array root)
+	for a in _load_json_array("areas.json"):
 		areas[a["id"]] = a
 
-	# Settlement tiers (also keep raw dict for road_quality etc.)
-	var tier_data := _load_json("settlement_tiers.json")
-	settlement_tiers = tier_data
+	# Settlement tiers (array root — store as {"tiers": [...]} for compatibility)
+	var tiers_array: Array = _load_json_array("settlement_tiers.json")
+	settlement_tiers = {"tiers": tiers_array}
 
-	# Trade weights
+	# Trade weights (dict root)
 	trade_weights = _load_json("trade_weights.json")
 
-	# Export thresholds
-	export_thresholds = _load_json("export_thresholds.json")
+	# Export thresholds (dict root — JSON stores flat numerics; expand to rich objects at load)
+	var _raw_thresholds: Dictionary = _load_json("export_thresholds.json")
+	for _thresh_key in _raw_thresholds:
+		var _val: Variant = _raw_thresholds[_thresh_key]
+		if _val is float or _val is int:
+			export_thresholds[_thresh_key] = {"threshold": float(_val), "goods_tier": _thresh_key}
+		else:
+			export_thresholds[_thresh_key] = _val
 
-	# Disciplines
-	var discipline_data := _load_json("disciplines.json")
-	for d in discipline_data.get("disciplines", []):
+	# Disciplines (array root OR dict with "disciplines"/"extended_disciplines" keys)
+	var _disc_text := FileAccess.get_file_as_string(DATA_PATH + "disciplines.json")
+	var _disc_raw: Variant = JSON.parse_string(_disc_text)
+	var _launch_discs: Array = []
+	var _ext_discs: Array = []
+	if _disc_raw is Array:
+		_launch_discs = _disc_raw
+	elif _disc_raw is Dictionary:
+		_launch_discs = _disc_raw.get("disciplines", [])
+		_ext_discs = _disc_raw.get("extended_disciplines", [])
+	for d in _launch_discs:
 		disciplines[d["id"]] = d
+	for d in _ext_discs:
+		if disciplines.has(d["id"]):
+			disciplines[d["id"]]["abilities"].append_array(d.get("abilities", []))
+		else:
+			disciplines[d["id"]] = d
 
-	# Reagents
-	var reagent_data := _load_json("reagents.json")
-	for r in reagent_data.get("reagents", []):
+	# Reagents (array root)
+	for r in _load_json_array("reagents.json"):
 		reagents[r["id"]] = r
 
-	# Runes
-	var rune_data := _load_json("runes.json")
-	for r in rune_data.get("runes", []):
+	# Runes (array root)
+	for r in _load_json_array("runes.json"):
 		runes[r["id"]] = r
 
-	# Items
-	var item_data := _load_json("items.json")
-	for i in item_data.get("items", []):
+	# Items (array root)
+	for i in _load_json_array("items.json"):
 		items[i["id"]] = i
 
-	# Injuries
-	var injury_data := _load_json("injuries.json")
-	for i in injury_data.get("injuries", []):
+	# Injuries (array root)
+	for i in _load_json_array("injuries.json"):
 		injuries[i["id"]] = i
 
-	# Weapons
-	var weapon_data := _load_json("weapons.json")
-	for w in weapon_data.get("weapons", []):
+	# Weapons (array root)
+	for w in _load_json_array("weapons.json"):
 		weapons[w["id"]] = w
 
-	# Seasons (ordered array kept for index-based lookup)
-	var season_data := _load_json("seasons.json")
-	_seasons_ordered = season_data.get("seasons", [])
+	# Seasons (array root)
+	_seasons_ordered = _load_json_array("seasons.json")
 	for s in _seasons_ordered:
 		seasons[s["id"]] = s
 
-	# Survival params
+	# Survival params (dict root)
 	survival = _load_json("survival.json")
 
-	# Recipes
-	var recipe_data := _load_json("recipes.json")
-	for r in recipe_data.get("recipes", []):
+	# Recipes (array root)
+	for r in _load_json_array("recipes.json"):
 		recipes[r["id"]] = r
 
-	# Manufactured goods
-	var mg_data := _load_json("manufactured_goods.json")
-	for g in mg_data.get("manufactured_goods", []):
+	# Manufactured goods (array root)
+	for g in _load_json_array("manufactured_goods.json"):
 		manufactured_goods[g["id"]] = g
 
-	# Hirelings
-	var hireling_data := _load_json("hirelings.json")
-	for h in hireling_data.get("hirelings", []):
+	# Hirelings (array root)
+	for h in _load_json_array("hirelings.json"):
 		hirelings[h["id"]] = h
 
-	# Roads
-	var road_data := _load_json("roads.json")
-	for r in road_data.get("roads", []):
-		roads[r["id"]] = r
+	# Roads (array root — keyed by quality int)
+	for r in _load_json_array("roads.json"):
+		roads[r["quality"]] = r
+	roads["road_budget"] = 9
+	roads["speed_multiplier"] = 1.3  # baseline paved road speed multiplier
 
-	# Landmarks
-	var landmark_data := _load_json("landmarks.json")
-	for l in landmark_data.get("landmarks", []):
+	# Landmarks (array root)
+	for l in _load_json_array("landmarks.json"):
 		landmarks[l["id"]] = l
 
 
 func _load_json(filename: String) -> Dictionary:
-	var full_path := DATA_PATH + filename
-	var file := FileAccess.open(full_path, FileAccess.READ)
+	var full_path: String = DATA_PATH + filename
+	var file: FileAccess = FileAccess.open(full_path, FileAccess.READ)
 	if file == null:
 		push_error("[DataLoader] Failed to open: " + full_path)
 		return {}
-	var text := file.get_as_text()
+	var text: String = file.get_as_text()
 	file.close()
-	var result := JSON.parse_string(text)
+	var result: Variant = JSON.parse_string(text)
 	if result == null:
 		push_error("[DataLoader] Failed to parse JSON: " + full_path)
 		return {}
-	return result
+	if not result is Dictionary:
+		push_error("[DataLoader] JSON root is not a Dictionary: " + full_path)
+		return {}
+	return result as Dictionary
+
+
+func _load_json_array(filename: String) -> Array:
+	var full_path: String = DATA_PATH + filename
+	var file: FileAccess = FileAccess.open(full_path, FileAccess.READ)
+	if file == null:
+		push_error("[DataLoader] Failed to open: " + full_path)
+		return []
+	var text: String = file.get_as_text()
+	file.close()
+	var result: Variant = JSON.parse_string(text)
+	if result == null:
+		push_error("[DataLoader] Failed to parse JSON: " + full_path)
+		return []
+	if not result is Array:
+		push_error("[DataLoader] JSON root is not an Array: " + full_path)
+		return []
+	return result as Array
 
 
 # --- Typed getters ---
@@ -183,12 +210,21 @@ func get_area(id: String) -> Dictionary:
 	return areas.get(id, {})
 
 
+## Returns the settlement tier Dictionary by string id (e.g. "hamlet").
+func get_tier(id: String) -> Dictionary:
+	var tiers: Array = settlement_tiers.get("tiers", [])
+	for t in tiers:
+		if (t as Dictionary).get("id", "") == id:
+			return t as Dictionary
+	return {}
+
+
 ## Returns the settlement tier Dictionary for the given integer index (0-based).
-func get_tier(tier_int: int) -> Dictionary:
+func get_tier_by_index(tier_int: int) -> Dictionary:
 	var tiers: Array = settlement_tiers.get("tiers", [])
 	if tier_int < 0 or tier_int >= tiers.size():
 		return {}
-	return tiers[tier_int]
+	return tiers[tier_int] as Dictionary
 
 
 func get_hireling(id: String) -> Dictionary:
@@ -208,7 +244,7 @@ func get_season(id: String) -> Dictionary:
 func get_season_by_index(index: int) -> Dictionary:
 	if index < 0 or index >= _seasons_ordered.size():
 		return {}
-	return _seasons_ordered[index]
+	return _seasons_ordered[index] as Dictionary
 
 
 func get_spawn_table(id: String) -> Dictionary:
@@ -217,3 +253,8 @@ func get_spawn_table(id: String) -> Dictionary:
 
 func get_resource(id: String) -> Dictionary:
 	return resources.get(id, {})
+
+
+## Returns any top-level survival value by key. May be float, int, Array, or Dictionary.
+func get_survival_param(key: String) -> Variant:
+	return survival.get(key, null)

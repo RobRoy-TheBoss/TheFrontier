@@ -1,5 +1,6 @@
 ## PlayerSurvival
 ## Tracks and processes Hunger, Thirst, Temperature, Fatigue, Encumbrance.
+class_name PlayerSurvival
 extends Node
 
 signal hunger_changed(value: float, max_value: float)
@@ -20,7 +21,7 @@ var _player: CharacterBody3D
 
 
 func _ready() -> void:
-	_params = GameData.survival_params
+	_params = DataLoader.survival
 	_player = get_parent()
 
 
@@ -60,7 +61,7 @@ func _process_thirst(delta: float) -> void:
 func _process_temperature(delta: float) -> void:
 	var t_params: Dictionary = _params.get("temperature", {})
 	var season := GameState.get_current_season()
-	var biome_temp := season.get("temperature_modifier", 0.0)
+	var biome_temp: float = season.get("temperature_modifier", 0.0)
 	# Altitude cooling: placeholder
 	# Weather modifier
 	var weather_temp_mod := _get_weather_temp_mod()
@@ -113,12 +114,12 @@ func accumulate_fatigue(amount: float) -> void:
 
 
 func consume_hunger(amount: float) -> void:
-	hunger = min(hunger + amount, _params.get("hunger", {}).get("max", 100.0))
+	hunger = max(hunger - amount, 0.0)
 	hunger_changed.emit(hunger, 100.0)
 
 
 func consume_thirst(amount: float) -> void:
-	thirst = min(thirst + amount, _params.get("thirst", {}).get("max", 100.0))
+	thirst = max(thirst - amount, 0.0)
 	thirst_changed.emit(thirst, 100.0)
 
 

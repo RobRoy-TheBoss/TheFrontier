@@ -1,0 +1,83 @@
+[gd_scene load_steps=2 format=3 uid="uid://hud_scene"]
+
+[ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="1"]
+
+[node name="HUD" type="Control"]
+script = ExtResource("1")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 200.0
+offset_bottom = 32.0
+max_value = 100.0
+value = 100.0
+
+[node name="StaminaBar" type="ProgressBar" parent="."]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 40.0
+offset_right = 200.0
+offset_bottom = 56.0
+max_value = 100.0
+value = 100.0
+
+[node name="Compass" type="Control" parent="."]
+layout_mode = 0
+offset_left = 880.0
+offset_top = 16.0
+offset_right = 1040.0
+offset_bottom = 64.0
+
+[node name="Needle" type="Control" parent="Compass"]
+layout_mode = 0
+offset_right = 160.0
+offset_bottom = 48.0
+
+[node name="WeaponDisplay" type="Control" parent="."]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 880.0
+offset_right = 300.0
+offset_bottom = 920.0
+
+[node name="WeaponName" type="Label" parent="WeaponDisplay"]
+layout_mode = 0
+offset_right = 284.0
+offset_bottom = 40.0
+text = "Unarmed"
+
+[node name="StatusEffects" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 64.0
+offset_right = 500.0
+offset_bottom = 96.0
+
+[node name="ReloadIndicator" type="Control" parent="."]
+layout_mode = 0
+offset_left = 880.0
+offset_top = 880.0
+offset_right = 1040.0
+offset_bottom = 920.0
+visible = false
+
+[node name="ReloadBar" type="ProgressBar" parent="ReloadIndicator"]
+layout_mode = 0
+offset_right = 160.0
+offset_bottom = 40.0
+max_value = 100.0
+
+[node name="Crosshair" type="Control" parent="."]
+layout_mode = 0
+offset_left = 952.0
+offset_top = 532.0
+offset_right = 968.0
+offset_bottom = 548.0

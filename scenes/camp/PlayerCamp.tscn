@@ -18,3 +18,5 @@ visible = false
 [node name="CampArea" type="Area3D" parent="."]
 
 [node name="CampfireCollision" type="CollisionShape3D" parent="CampArea"]
+
+[node name="DeterrentArea" type="Area3D" parent="."]

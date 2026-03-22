@@ -1,5 +1,6 @@
 ## PlayerCombat
 ## Handles melee, bow, and firearm combat logic, dodge, block, and discipline integration.
+class_name PlayerCombat
 extends Node
 
 signal attack_landed(target: Node, damage: float)
@@ -99,7 +100,7 @@ func _handle_input(delta: float) -> void:
 func _try_attack() -> void:
 	if attack_cooldown > 0.0 or is_dodging:
 		return
-	var weapon := _get_equipped_weapon()
+	var weapon: Dictionary = _get_equipped_weapon()
 	if weapon.is_empty():
 		_melee_unarmed()
 		return
@@ -115,10 +116,10 @@ func _try_attack() -> void:
 func _melee_unarmed() -> void:
 	if not _health.try_consume_stamina(10.0):
 		return
-	var target := _get_melee_target()
+	var target: Node = _get_melee_target()
 	if target == null:
 		return
-	var damage := 10.0
+	var damage: float = 10.0
 	_deal_damage(target, damage)
 	_set_attack_cooldown(1.0)
 
@@ -128,12 +129,12 @@ func _melee_attack(weapon: Dictionary) -> void:
 	if not _health.try_consume_stamina(stamina_cost):
 		return
 
-	var target := _get_melee_target()
+	var target: Node = _get_melee_target()
 	if target == null:
 		_set_attack_cooldown(1.0 / weapon.get("attack_speed", 1.0))
 		return
 
-	var damage := _calculate_melee_damage(weapon)
+	var damage: float = _calculate_melee_damage(weapon)
 	_deal_damage(target, damage)
 	_set_attack_cooldown(1.0 / weapon.get("attack_speed", 1.0))
 
@@ -147,7 +148,7 @@ func _calculate_melee_damage(weapon: Dictionary) -> float:
 	var base: float = weapon.get("damage", 10.0)
 	# Warrior Heavy Hand
 	if DisciplineManager.has_passive("heavy_hand"):
-		var eff := DisciplineManager.get_passive_effect("heavy_hand")
+		var eff: Dictionary = DisciplineManager.get_passive_effect("heavy_hand")
 		base *= eff.get("melee_damage_multiplier", 1.20)
 	# Rune effects
 	for rune_eff in _inventory.get_all_equipped_rune_effects():
@@ -158,13 +159,13 @@ func _calculate_melee_damage(weapon: Dictionary) -> float:
 
 func _get_melee_target() -> Node:
 	var camera: Camera3D = _player.camera
-	var space := _player.get_world_3d().direct_space_state
-	var origin := camera.global_position
-	var end := origin + (-camera.global_transform.basis.z * ATTACK_RANGE)
-	var query := PhysicsRayQueryParameters3D.create(origin, end)
+	var space: PhysicsDirectSpaceState3D = _player.get_world_3d().direct_space_state
+	var origin: Vector3 = camera.global_position
+	var end: Vector3 = origin + (-camera.global_transform.basis.z * ATTACK_RANGE)
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, end)
 	query.exclude = [_player]
 	query.collision_mask = 0b10  # Monster layer
-	var result := space.intersect_ray(query)
+	var result: Dictionary = space.intersect_ray(query)
 	if result.is_empty():
 		return null
 	return result.get("collider")
@@ -185,10 +186,10 @@ func _start_bow_draw(weapon: Dictionary) -> void:
 
 func _release_bow() -> void:
 	is_drawing_bow = false
-	var weapon := _get_equipped_weapon()
+	var weapon: Dictionary = _get_equipped_weapon()
 	if weapon.is_empty():
 		return
-	var arrow_id := "arrow"
+	var arrow_id: String = "arrow"
 	if not _inventory.has_item(arrow_id):
 		return
 	_inventory.remove_item(arrow_id, 1)
@@ -196,24 +197,24 @@ func _release_bow() -> void:
 	var draw_speed: float = weapon.get("draw_speed", 1.5)
 	# Steady Draw passive
 	if DisciplineManager.has_passive("steady_draw"):
-		var eff := DisciplineManager.get_passive_effect("steady_draw")
+		var eff: Dictionary = DisciplineManager.get_passive_effect("steady_draw")
 		draw_speed /= eff.get("draw_speed_multiplier", 1.30)
 
-	var charge := clamp(draw_time / draw_speed, 0.0, 1.0)
+	var charge: float = clamp(draw_time / draw_speed, 0.0, 1.0)
 	var damage: float = weapon.get("damage", 35.0) * charge
 	# Light Foot stealth bonus
 	if DisciplineManager.has_passive("light_foot") and _is_undetected():
-		var eff := DisciplineManager.get_passive_effect("light_foot")
+		var eff: Dictionary = DisciplineManager.get_passive_effect("light_foot")
 		damage *= eff.get("stealth_bow_damage_multiplier", 1.40)
 
-	var target := _get_ranged_target(BOW_RANGE)
+	var target: Node = _get_ranged_target(BOW_RANGE)
 	if target != null:
 		_deal_damage(target, damage)
 		DisciplineManager.add_xp("survivalist", "bow_kill")
 
 	# Arrow recovery (Survivalist)
 	if DisciplineManager.has_passive("arrow_recovery"):
-		var eff := DisciplineManager.get_passive_effect("arrow_recovery")
+		var eff: Dictionary = DisciplineManager.get_passive_effect("arrow_recovery")
 		if randf() < eff.get("recovery_chance", 0.60):
 			_inventory.add_item("arrow", 1)
 
@@ -226,16 +227,16 @@ func _try_fire(weapon: Dictionary) -> void:
 	if reload_steps_remaining > 0:
 		return
 
-	var ammo_id := "pistol_ball" if weapon["type"] == "pistol" else "musket_ball"
+	var ammo_id: String = "pistol_ball" if weapon["type"] == "pistol" else "musket_ball"
 	if not _inventory.has_item(ammo_id):
 		return
 	_inventory.remove_item(ammo_id, 1)
 
 	var damage: float = weapon.get("damage", 80.0)
-	var sway := _calculate_aim_sway(weapon)
-	var target := _get_ranged_target(weapon.get("range", 20.0))
+	var sway: float = _calculate_aim_sway(weapon)
+	var target: Node = _get_ranged_target(weapon.get("range", 20.0))
 	if target != null:
-		var accuracy_roll := randf()
+		var accuracy_roll: float = randf()
 		if accuracy_roll > sway:
 			_deal_damage(target, damage)
 		DisciplineManager.add_xp("artificer", "firearm_kill")
@@ -248,7 +249,7 @@ func _try_fire(weapon: Dictionary) -> void:
 	var step_time: float = weapon.get("reload_time_per_step", 1.2)
 	# Quick Load
 	if DisciplineManager.has_passive("quick_load"):
-		var eff := DisciplineManager.get_passive_effect("quick_load")
+		var eff: Dictionary = DisciplineManager.get_passive_effect("quick_load")
 		step_time *= eff.get("reload_time_multiplier", 0.70)
 	reload_steps_remaining = total_steps
 	reload_step_timer = step_time
@@ -257,10 +258,10 @@ func _try_fire(weapon: Dictionary) -> void:
 
 func _complete_reload_step() -> void:
 	reload_steps_remaining -= 1
-	var weapon := _get_equipped_weapon()
+	var weapon: Dictionary = _get_equipped_weapon()
 	var step_time: float = weapon.get("reload_time_per_step", 1.2)
 	if DisciplineManager.has_passive("quick_load"):
-		var eff := DisciplineManager.get_passive_effect("quick_load")
+		var eff: Dictionary = DisciplineManager.get_passive_effect("quick_load")
 		step_time *= eff.get("reload_time_multiplier", 0.70)
 
 	if reload_steps_remaining <= 0:
@@ -278,10 +279,10 @@ func _calculate_aim_sway(weapon: Dictionary) -> float:
 	var fatigue: float = _player.survival.fatigue
 	var aim_threshold: float = f_params.get("aim_impairment_threshold", 60.0)
 	if fatigue > aim_threshold:
-		var fatigue_sway := (fatigue - aim_threshold) / 40.0 * 0.15
+		var fatigue_sway: float = (fatigue - aim_threshold) / 40.0 * 0.15
 		# Steady Hands
 		if DisciplineManager.has_passive("steady_hands"):
-			var eff := DisciplineManager.get_passive_effect("steady_hands")
+			var eff: Dictionary = DisciplineManager.get_passive_effect("steady_hands")
 			fatigue_sway *= eff.get("fatigue_sway_multiplier", 0.50)
 		base_sway += fatigue_sway
 	return base_sway
@@ -294,10 +295,10 @@ func _try_dodge() -> void:
 		return
 
 	is_dodging = true
-	var dodge_duration := DODGE_DURATION
+	var dodge_duration: float = DODGE_DURATION
 	# Swordsman Read widens window
 	if DisciplineManager.has_passive("read"):
-		var eff := DisciplineManager.get_passive_effect("read")
+		var eff: Dictionary = DisciplineManager.get_passive_effect("read")
 		# Handled in open_riposte_window
 		pass
 	dodge_timer = dodge_duration
@@ -309,9 +310,9 @@ func _try_dodge() -> void:
 
 
 func open_riposte_window(attacker: Node, base_window: float) -> void:
-	var window := base_window
+	var window: float = base_window
 	if DisciplineManager.has_passive("read"):
-		var eff := DisciplineManager.get_passive_effect("read")
+		var eff: Dictionary = DisciplineManager.get_passive_effect("read")
 		window += eff.get("dodge_window_bonus", 0.3)
 	riposte_window_open = true
 	riposte_window_timer = window
@@ -322,13 +323,13 @@ func open_riposte_window(attacker: Node, base_window: float) -> void:
 func _execute_riposte(target: Node) -> void:
 	if not DisciplineManager.is_ability_unlocked("swordsman", "riposte"):
 		return
-	var weapon := _get_equipped_weapon()
-	var base_damage := weapon.get("damage", 10.0) if not weapon.is_empty() else 10.0
-	var eff := DisciplineManager.get_passive_effect("riposte") if DisciplineManager.has_passive("riposte") else {}
-	var damage := base_damage * eff.get("damage_multiplier", 2.0)
+	var weapon: Dictionary = _get_equipped_weapon()
+	var base_damage: float = weapon.get("damage", 10.0) if not weapon.is_empty() else 10.0
+	var eff: Dictionary = DisciplineManager.get_passive_effect("riposte") if DisciplineManager.has_passive("riposte") else {}
+	var damage: float = base_damage * eff.get("damage_multiplier", 2.0)
 	# Warrior Heavy Hand applies to riposte
 	if DisciplineManager.has_passive("heavy_hand"):
-		var warrior_eff := DisciplineManager.get_passive_effect("heavy_hand")
+		var warrior_eff: Dictionary = DisciplineManager.get_passive_effect("heavy_hand")
 		damage *= warrior_eff.get("melee_damage_multiplier", 1.20)
 
 	if target.has_method("take_damage"):
@@ -339,7 +340,7 @@ func _execute_riposte(target: Node) -> void:
 
 	# Cripple
 	if DisciplineManager.is_ability_unlocked("swordsman", "cripple"):
-		var cripple_eff := DisciplineManager.get_passive_effect("cripple")
+		var cripple_eff: Dictionary = DisciplineManager.get_passive_effect("cripple")
 		if target.has_method("apply_cripple"):
 			target.apply_cripple(cripple_eff.get("cripple_duration", 15.0))
 		DisciplineManager.add_xp("swordsman", "cripple_applied")
@@ -352,26 +353,26 @@ func _execute_riposte(target: Node) -> void:
 func _execute_flurry(target: Node) -> void:
 	if not _health.try_consume_stamina(45.0):
 		return
-	var weapon := _get_equipped_weapon()
-	var base_damage := weapon.get("damage", 10.0) if not weapon.is_empty() else 10.0
+	var weapon: Dictionary = _get_equipped_weapon()
+	var base_damage: float = weapon.get("damage", 10.0) if not weapon.is_empty() else 10.0
 	for i in range(3):
 		if target.has_method("take_damage"):
 			target.take_damage(base_damage * 0.9, _player)
 
 
 func receive_attack_for_block(damage: float, attacker: Node) -> float:
+	var blocked_pct: float = 0.6
+	var stamina_cost: float = damage * 0.3
+	_health.drain_stamina(stamina_cost)
 	if not is_blocking:
 		return damage
-	var blocked_pct := 0.6
-	var stamina_cost := damage * 0.3
-	_health.drain_stamina(stamina_cost)
 	return damage * (1.0 - blocked_pct)
 
 
 func receive_damage_check_barrier(damage: float) -> float:
 	if barrier_hp <= 0.0:
 		return damage
-	var absorbed := min(damage, barrier_hp)
+	var absorbed: float = min(damage, barrier_hp)
 	barrier_hp -= absorbed
 	return damage - absorbed
 
@@ -381,12 +382,12 @@ func is_invulnerable_dodge() -> bool:
 
 
 func _set_attack_cooldown(base_cooldown: float) -> void:
-	var mult := _health.get_attack_cooldown_multiplier()
+	var mult: float = _health.get_attack_cooldown_multiplier()
 	attack_cooldown = base_cooldown * mult
 
 
 func _get_equipped_weapon() -> Dictionary:
-	var equipped := _inventory.equipped.get("weapon", {})
+	var equipped: Dictionary = _inventory.equipped.get("weapon", {})
 	if equipped.is_empty():
 		return {}
 	return GameData.get_weapon(equipped.get("item_id", ""))
@@ -394,20 +395,20 @@ func _get_equipped_weapon() -> Dictionary:
 
 func _get_ranged_target(max_range: float) -> Node:
 	var camera: Camera3D = _player.camera
-	var space := _player.get_world_3d().direct_space_state
-	var origin := camera.global_position
-	var end := origin + (-camera.global_transform.basis.z * max_range)
-	var query := PhysicsRayQueryParameters3D.create(origin, end)
+	var space: PhysicsDirectSpaceState3D = _player.get_world_3d().direct_space_state
+	var origin: Vector3 = camera.global_position
+	var end: Vector3 = origin + (-camera.global_transform.basis.z * max_range)
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, end)
 	query.exclude = [_player]
 	query.collision_mask = 0b10
-	var result := space.intersect_ray(query)
+	var result: Dictionary = space.intersect_ray(query)
 	if result.is_empty():
 		return null
 	return result.get("collider")
 
 
 func _attract_monsters(radius: float) -> void:
-	var monsters := get_tree().get_nodes_in_group("monster")
+	var monsters: Array = get_tree().get_nodes_in_group("monster")
 	for m in monsters:
 		if m.global_position.distance_to(_player.global_position) <= radius:
 			if m.has_method("alert_to_sound"):
@@ -416,7 +417,7 @@ func _attract_monsters(radius: float) -> void:
 
 func _is_undetected() -> bool:
 	# Check if any nearby monster has detected the player
-	var monsters := get_tree().get_nodes_in_group("monster")
+	var monsters: Array = get_tree().get_nodes_in_group("monster")
 	for m in monsters:
 		if m.has_method("has_detected_player") and m.has_detected_player():
 			return false
@@ -424,9 +425,9 @@ func _is_undetected() -> bool:
 
 
 func _get_bow_held_stamina_drain() -> float:
-	var base := 5.0
+	var base: float = 5.0
 	if DisciplineManager.has_passive("steady_draw"):
-		var eff := DisciplineManager.get_passive_effect("steady_draw")
+		var eff: Dictionary = DisciplineManager.get_passive_effect("steady_draw")
 		base *= eff.get("held_stamina_drain_multiplier", 0.50)
 	return base
 

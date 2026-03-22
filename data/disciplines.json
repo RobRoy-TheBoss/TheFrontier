@@ -1,801 +1,968 @@
-[
-  {
-    "id": "survivalist",
-    "name": "Survivalist",
-    "description": "Wilderness self-sufficiency and bow mastery. You stay out longer, move unseen, and hunt with a bow.",
-    "ability_count": 8,
-    "xp_triggers": [
-      { "trigger": "trap_check", "xp": 10 },
-      { "trigger": "bow_kill", "xp": 15 },
-      { "trigger": "sleep_outdoors", "xp": 5 },
-      { "trigger": "off_road_travel_km", "xp": 2 },
-      { "trigger": "close_range_aggro_avoided", "xp": 20 },
-      { "trigger": "arrow_recovered", "xp": 3 }
-    ],
-    "abilities": [
-      {
-        "id": "trapper",
-        "index": 1,
-        "name": "Trapper",
-        "type": "active",
-        "description": "Place snare traps. Check after sleep for small game.",
-        "unlock_cost_xp": 0,
-        "unlock_cost_gold": 0,
-        "granted_on_attunement": true,
-        "cooldown": 0,
-        "effect_data": { "trap_yield_range": [1, 3], "trap_item_id": "snare_trap" }
-      },
-      {
-        "id": "arrow_recovery",
-        "index": 2,
-        "name": "Arrow Recovery",
-        "type": "passive",
-        "description": "Recover 60% of fired arrows after combat ends.",
-        "unlock_cost_xp": 100,
-        "unlock_cost_gold": 20,
-        "effect_data": { "recovery_chance": 0.60 }
-      },
-      {
-        "id": "night_eyes",
-        "index": 3,
-        "name": "Night Eyes",
-        "type": "active",
-        "description": "Toggleable dark vision. Drains stamina while active.",
-        "unlock_cost_xp": 220,
-        "unlock_cost_gold": 40,
-        "cooldown": 0,
-        "effect_data": { "stamina_drain_per_second": 4.0, "vision_range_bonus": 15.0 }
-      },
-      {
-        "id": "light_foot",
-        "index": 4,
-        "name": "Light Foot",
-        "type": "passive",
-        "description": "Monster detection range -35%. Stealth bow shots deal +40% damage.",
-        "unlock_cost_xp": 380,
-        "unlock_cost_gold": 65,
-        "effect_data": { "detection_range_multiplier": 0.65, "stealth_bow_damage_multiplier": 1.40 }
-      },
-      {
-        "id": "steady_draw",
-        "index": 5,
-        "name": "Steady Draw",
-        "type": "passive",
-        "description": "Bow draw speed +30%. Aim sway -40%. Held draw drains 50% less stamina.",
-        "unlock_cost_xp": 600,
-        "unlock_cost_gold": 90,
-        "effect_data": { "draw_speed_multiplier": 1.30, "aim_sway_multiplier": 0.60, "held_stamina_drain_multiplier": 0.50 }
-      },
-      {
-        "id": "weatherskin",
-        "index": 6,
-        "name": "Weatherskin",
-        "type": "passive",
-        "description": "Temperature comfort thresholds widened by 8 degrees each direction.",
-        "unlock_cost_xp": 850,
-        "unlock_cost_gold": 120,
-        "effect_data": { "cold_threshold_bonus": 8.0, "heat_threshold_bonus": 8.0 }
-      },
-      {
-        "id": "endurance",
-        "index": 7,
-        "name": "Endurance",
-        "type": "passive",
-        "description": "Stamina pool +25%. Fatigue penalties halved.",
-        "unlock_cost_xp": 1100,
-        "unlock_cost_gold": 160,
-        "effect_data": { "stamina_max_multiplier": 1.25, "fatigue_penalty_multiplier": 0.50 }
-      },
-      {
-        "id": "ghost_walk",
-        "index": 8,
-        "name": "Ghost Walk",
-        "type": "active",
-        "description": "10 seconds of full stealth. Long cooldown. Breaks on attack.",
-        "unlock_cost_xp": 1400,
-        "unlock_cost_gold": 200,
-        "cooldown": 180,
-        "duration": 10,
-        "effect_data": { "detection_multiplier": 0.0, "breaks_on_attack": true }
-      }
-    ]
-  },
-  {
-    "id": "ritualist",
-    "name": "Ritualist",
-    "description": "Precursor channeler. Tactical zone control, utility, and the capstone teleport.",
-    "ability_count": 7,
-    "xp_triggers": [
-      { "trigger": "ritual_channel_completed", "xp": 20 },
-      { "trigger": "precursor_site_visited", "xp": 30 },
-      { "trigger": "sleep_near_ruins", "xp": 8 },
-      { "trigger": "survived_warded_night", "xp": 25 }
-    ],
-    "abilities": [
-      {
-        "id": "ward",
-        "index": 1,
-        "name": "Ward",
-        "type": "active",
-        "description": "5s channel. Creates a 10-foot circle at target. Monsters cannot enter for 60s.",
-        "unlock_cost_xp": 0,
-        "unlock_cost_gold": 0,
-        "granted_on_attunement": true,
-        "channel_time": 5.0,
-        "cooldown": 15,
-        "duration": 60,
-        "effect_data": { "radius": 3.0, "blocks_monsters": true }
-      },
-      {
-        "id": "reveal",
-        "index": 2,
-        "name": "Reveal",
-        "type": "active",
-        "description": "5s channel. Marks undiscovered resources in Area on journal for 60s.",
-        "unlock_cost_xp": 120,
-        "unlock_cost_gold": 25,
-        "channel_time": 5.0,
-        "cooldown": 120,
-        "duration": 60,
-        "effect_data": { "scope": "area_resources" }
-      },
-      {
-        "id": "calm",
-        "index": 3,
-        "name": "Calm",
-        "type": "active",
-        "description": "5s channel. De-aggro single target for 60s. Second attunement: affects AoE.",
-        "unlock_cost_xp": 280,
-        "unlock_cost_gold": 50,
-        "channel_time": 5.0,
-        "cooldown": 30,
-        "duration": 60,
-        "effect_data": { "is_aoe": false, "aoe_radius": 8.0 }
-      },
-      {
-        "id": "mending",
-        "index": 4,
-        "name": "Mending",
-        "type": "active",
-        "description": "5s channel. Treat injury as one tier higher rest location.",
-        "unlock_cost_xp": 480,
-        "unlock_cost_gold": 80,
-        "channel_time": 5.0,
-        "cooldown": 300,
-        "effect_data": { "treatment_tier_bonus": 1 }
-      },
-      {
-        "id": "banish",
-        "index": 5,
-        "name": "Banish",
-        "type": "active",
-        "description": "5s channel. Force despawn single target. Does not work on Apex. Once per day.",
-        "unlock_cost_xp": 700,
-        "unlock_cost_gold": 120,
-        "channel_time": 5.0,
-        "cooldown": 86400,
-        "effect_data": { "works_on_apex": false }
-      },
-      {
-        "id": "anchor",
-        "index": 6,
-        "name": "Anchor",
-        "type": "active",
-        "description": "Two-part. 5s to set anchor. 5s from anywhere to teleport to anchor. One-way, one-use.",
-        "unlock_cost_xp": 950,
-        "unlock_cost_gold": 160,
-        "channel_time": 5.0,
-        "cooldown": 0,
-        "effect_data": { "one_way": true, "one_use": true, "consumed_on_use": true }
-      },
-      {
-        "id": "echo_ward",
-        "index": 7,
-        "name": "Echo Ward",
-        "type": "passive",
-        "description": "Wards persist 50% longer and pulse a brief stagger on monsters that approach.",
-        "unlock_cost_xp": 1200,
-        "unlock_cost_gold": 180,
-        "effect_data": { "ward_duration_multiplier": 1.50, "pulse_stagger_duration": 0.8 }
-      }
-    ]
-  },
-  {
-    "id": "pathfinder",
-    "name": "Pathfinder",
-    "description": "Expert navigator and terrain reader. You move fast through difficult country and always know where you are.",
-    "ability_count": 6,
-    "xp_triggers": [
-      { "trigger": "new_area_entered", "xp": 20 },
-      { "trigger": "off_road_travel_km", "xp": 3 },
-      { "trigger": "resource_prospected", "xp": 15 },
-      { "trigger": "landmark_identified", "xp": 25 }
-    ],
-    "abilities": [
-      {
-        "id": "wayfinder",
-        "index": 1,
-        "name": "Wayfinder",
-        "type": "passive",
-        "description": "Always know your hex coordinates. Fog of war clears 50% faster when moving.",
-        "unlock_cost_xp": 0,
-        "unlock_cost_gold": 0,
-        "granted_on_attunement": true,
-        "effect_data": { "coordinates_always_visible": true, "fog_clear_rate_multiplier": 1.50 }
-      },
-      {
-        "id": "light_provisions",
-        "index": 2,
-        "name": "Light Provisions",
-        "type": "passive",
-        "description": "Food and water consumption -20% while travelling.",
-        "unlock_cost_xp": 100,
-        "unlock_cost_gold": 20,
-        "effect_data": { "travel_food_consumption_multiplier": 0.80, "travel_water_consumption_multiplier": 0.80 }
-      },
-      {
-        "id": "cartography",
-        "index": 3,
-        "name": "Cartography",
-        "type": "active",
-        "description": "Produce a detailed area map from memory. Reveals resource tags and landmarks.",
-        "unlock_cost_xp": 220,
-        "unlock_cost_gold": 40,
-        "cooldown": 0,
-        "effect_data": { "reveals_resource_tags": true, "reveals_landmarks": true, "requires_visited_area": true }
-      },
-      {
-        "id": "prospect",
-        "index": 4,
-        "name": "Prospect",
-        "type": "active",
-        "description": "Survey an area's resource richness from any point within it. No theodolite required.",
-        "unlock_cost_xp": 380,
-        "unlock_cost_gold": 65,
-        "cooldown": 30,
-        "effect_data": { "reveals_richness": true, "no_theodolite_required": true }
-      },
-      {
-        "id": "steady_pace",
-        "index": 5,
-        "name": "Steady Pace",
-        "type": "passive",
-        "description": "Overland travel speed +20%. Difficult terrain penalties halved.",
-        "unlock_cost_xp": 600,
-        "unlock_cost_gold": 90,
-        "effect_data": { "travel_speed_multiplier": 1.20, "difficult_terrain_penalty_multiplier": 0.50 }
-      },
-      {
-        "id": "pathsense",
-        "index": 6,
-        "name": "Pathsense",
-        "type": "passive",
-        "description": "Detect ambush monsters before they attack. Warning radius +10m.",
-        "unlock_cost_xp": 850,
-        "unlock_cost_gold": 120,
-        "effect_data": { "ambush_warning": true, "warning_radius_bonus": 10.0 }
-      }
-    ]
-  },
-  {
-    "id": "warrior",
-    "name": "Warrior",
-    "description": "Direct combat power and physical resilience. Hit harder, carry more, take punishment.",
-    "ability_count": 6,
-    "xp_triggers": [
-      { "trigger": "melee_kill", "xp": 10 },
-      { "trigger": "damage_taken_survived", "xp": 5 },
-      { "trigger": "heavy_load_carried_hour", "xp": 8 },
-      { "trigger": "heavy_armor_worn_hour", "xp": 6 }
-    ],
-    "abilities": [
-      {
-        "id": "heavy_hand",
-        "index": 1,
-        "name": "Heavy Hand",
-        "type": "passive",
-        "description": "Melee damage +20%.",
-        "unlock_cost_xp": 0,
-        "unlock_cost_gold": 0,
-        "granted_on_attunement": true,
-        "effect_data": { "melee_damage_multiplier": 1.20 }
-      },
-      {
-        "id": "pack_mule",
-        "index": 2,
-        "name": "Pack Mule",
-        "type": "passive",
-        "description": "Carry weight +30%. Over-encumbrance penalty reduced.",
-        "unlock_cost_xp": 100,
-        "unlock_cost_gold": 20,
-        "effect_data": { "carry_weight_multiplier": 1.30, "overenc_speed_penalty_reduction": 0.50 }
-      },
-      {
-        "id": "ironclad",
-        "index": 3,
-        "name": "Ironclad",
-        "type": "passive",
-        "description": "Heavy armor equippable. All armor damage reduction increased.",
-        "unlock_cost_xp": 220,
-        "unlock_cost_gold": 40,
-        "effect_data": { "unlocks_heavy_armor": true, "armor_dr_bonus_percent": 15 }
-      },
-      {
-        "id": "stagger",
-        "index": 4,
-        "name": "Stagger",
-        "type": "active",
-        "description": "Charged heavy attack. Staggers non-Apex targets. High stamina cost.",
-        "unlock_cost_xp": 380,
-        "unlock_cost_gold": 65,
-        "cooldown": 8,
-        "effect_data": { "stamina_cost": 40, "stagger_duration": 2.5, "works_on_apex": false }
-      },
-      {
-        "id": "second_wind",
-        "index": 5,
-        "name": "Second Wind",
-        "type": "active",
-        "description": "Below 25% HP: instant 30% stamina restore + 8s damage resistance. Once per rest.",
-        "unlock_cost_xp": 600,
-        "unlock_cost_gold": 90,
-        "cooldown": -1,
-        "duration": 8,
-        "effect_data": { "stamina_restore_percent": 0.30, "damage_resist_percent": 0.35, "once_per_rest": true, "hp_threshold": 0.25 }
-      },
-      {
-        "id": "warcry",
-        "index": 6,
-        "name": "Warcry",
-        "type": "active",
-        "description": "15m AoE flinch on non-Apex targets. Moderate cooldown.",
-        "unlock_cost_xp": 850,
-        "unlock_cost_gold": 120,
-        "cooldown": 45,
-        "effect_data": { "radius": 15.0, "flinch_duration": 1.5, "works_on_apex": false }
-      }
-    ]
-  },
-  {
-    "id": "swordsman",
-    "name": "Swordsman",
-    "description": "Precision and finesse. Read the fight, exploit openings, cripple through technique.",
-    "ability_count": 8,
-    "xp_triggers": [
-      { "trigger": "riposte_landed", "xp": 25 },
-      { "trigger": "dodge_successful", "xp": 8 },
-      { "trigger": "no_damage_kill", "xp": 30 },
-      { "trigger": "cripple_applied", "xp": 15 }
-    ],
-    "abilities": [
-      {
-        "id": "riposte",
-        "index": 1,
-        "name": "Riposte",
-        "type": "active",
-        "description": "Dodge during enemy attack window deals 2x damage counter.",
-        "unlock_cost_xp": 0,
-        "unlock_cost_gold": 0,
-        "granted_on_attunement": true,
-        "effect_data": { "damage_multiplier": 2.0 }
-      },
-      {
-        "id": "cripple",
-        "index": 2,
-        "name": "Cripple",
-        "type": "passive",
-        "description": "Ripostes apply cripple debuff: speed and attack disabled for 15s.",
-        "unlock_cost_xp": 120,
-        "unlock_cost_gold": 25,
-        "effect_data": { "cripple_duration": 15.0, "speed_reduction": 0.50, "attack_disable": true }
-      },
-      {
-        "id": "read",
-        "index": 3,
-        "name": "Read",
-        "type": "passive",
-        "description": "Enhanced attack telegraphs. Dodge window widened by 0.3s.",
-        "unlock_cost_xp": 280,
-        "unlock_cost_gold": 50,
-        "effect_data": { "telegraph_enhancement": true, "dodge_window_bonus": 0.3 }
-      },
-      {
-        "id": "bleed",
-        "index": 4,
-        "name": "Bleed",
-        "type": "passive",
-        "description": "Critical hits apply bleed DOT. Stacks up to 3 times.",
-        "unlock_cost_xp": 480,
-        "unlock_cost_gold": 80,
-        "effect_data": { "bleed_dps": 3.0, "bleed_duration": 10.0, "max_stacks": 3 }
-      },
-      {
-        "id": "flurry",
-        "index": 5,
-        "name": "Flurry",
-        "type": "active",
-        "description": "After a riposte: 3-strike chain. High burst damage. Heavy stamina cost.",
-        "unlock_cost_xp": 700,
-        "unlock_cost_gold": 120,
-        "cooldown": 12,
-        "effect_data": { "strike_count": 3, "damage_per_strike_multiplier": 0.9, "stamina_cost": 45, "requires_riposte": true }
-      },
-      {
-        "id": "deathmark",
-        "index": 6,
-        "name": "Deathmark",
-        "type": "passive",
-        "description": "3 or more cripples applied in one fight: target takes 30% more damage from all sources.",
-        "unlock_cost_xp": 950,
-        "unlock_cost_gold": 160,
-        "effect_data": { "cripple_threshold": 3, "damage_taken_multiplier": 1.30 }
-      },
-      {
-        "id": "swift_step",
-        "index": 7,
-        "name": "Swift Step",
-        "type": "passive",
-        "description": "Dodge stamina cost -30%. Consecutive dodges within 3s cost 50% less.",
-        "unlock_cost_xp": 1200,
-        "unlock_cost_gold": 180,
-        "effect_data": { "dodge_cost_multiplier": 0.70, "consecutive_dodge_discount": 0.50, "consecutive_window": 3.0 }
-      },
-      {
-        "id": "execution",
-        "index": 8,
-        "name": "Execution",
-        "type": "active",
-        "description": "Finisher on targets below 15% HP. Instant kill on non-Apex. Moderate cooldown.",
-        "unlock_cost_xp": 1500,
-        "unlock_cost_gold": 220,
-        "cooldown": 30,
-        "effect_data": { "hp_threshold": 0.15, "works_on_apex": false, "instant_kill": true }
-      }
-    ]
-  },
-  {
-    "id": "artificer",
-    "name": "Artificer",
-    "description": "Mobile blacksmith and master gunman. Your camp is a workshop. Your firearms are primary weapons.",
-    "ability_count": 8,
-    "xp_triggers": [
-      { "trigger": "repair_performed", "xp": 15 },
-      { "trigger": "ammo_crafted", "xp": 5 },
-      { "trigger": "firearm_kill", "xp": 12 },
-      { "trigger": "trap_triggered", "xp": 20 },
-      { "trigger": "mechanism_activated", "xp": 35 }
-    ],
-    "abilities": [
-      {
-        "id": "field_repair",
-        "index": 1,
-        "name": "Field Repair",
-        "type": "active",
-        "description": "Repair weapons and armor at camp using raw materials.",
-        "unlock_cost_xp": 0,
-        "unlock_cost_gold": 0,
-        "granted_on_attunement": true,
-        "effect_data": { "requires_camp": true, "materials_consumed": ["iron_scraps", "leather_scraps"] }
-      },
-      {
-        "id": "quick_load",
-        "index": 2,
-        "name": "Quick Load",
-        "type": "passive",
-        "description": "Firearm reload time -30%.",
-        "unlock_cost_xp": 100,
-        "unlock_cost_gold": 20,
-        "effect_data": { "reload_time_multiplier": 0.70 }
-      },
-      {
-        "id": "ammo_smith",
-        "index": 3,
-        "name": "Ammo Smith",
-        "type": "active",
-        "description": "Craft bullets and powder at camp from iron and sulfur.",
-        "unlock_cost_xp": 220,
-        "unlock_cost_gold": 40,
-        "effect_data": { "requires_camp": true, "unlocks_recipes": ["ammo_pistol_ball", "ammo_musket_ball"] }
-      },
-      {
-        "id": "spike_trap",
-        "index": 4,
-        "name": "Spike Trap",
-        "type": "active",
-        "description": "Craft and place spike trap from iron and wood. Significant damage. Recoverable.",
-        "unlock_cost_xp": 380,
-        "unlock_cost_gold": 65,
-        "effect_data": { "damage": 80, "recoverable": true, "craft_recipe": "spike_trap", "item_id": "spike_trap" }
-      },
-      {
-        "id": "steady_hands",
-        "index": 5,
-        "name": "Steady Hands",
-        "type": "passive",
-        "description": "Aim sway from fatigue -50%. Range accuracy improved.",
-        "unlock_cost_xp": 600,
-        "unlock_cost_gold": 90,
-        "effect_data": { "fatigue_sway_multiplier": 0.50, "range_accuracy_bonus": 0.15 }
-      },
-      {
-        "id": "reinforce",
-        "index": 6,
-        "name": "Reinforce",
-        "type": "active",
-        "description": "Temporarily boost weapon/armor until next sleep. Consumes materials.",
-        "unlock_cost_xp": 850,
-        "unlock_cost_gold": 120,
-        "cooldown": 0,
-        "effect_data": { "damage_bonus_percent": 20, "dr_bonus": 10, "expires_on_sleep": true }
-      },
-      {
-        "id": "jury_rig",
-        "index": 7,
-        "name": "Jury Rig",
-        "type": "active",
-        "description": "Emergency repair without materials. Approximately 10 uses.",
-        "unlock_cost_xp": 1100,
-        "unlock_cost_gold": 160,
-        "effect_data": { "uses": 10, "repair_amount_percent": 0.40, "no_materials_required": true }
-      },
-      {
-        "id": "mechanical_insight",
-        "index": 8,
-        "name": "Mechanical Insight",
-        "type": "passive",
-        "description": "Activate precursor mechanisms. Opens locked chambers and caches. Disassemble artifacts.",
-        "unlock_cost_xp": 1400,
-        "unlock_cost_gold": 200,
-        "effect_data": { "unlocks_mechanisms": true, "unlock_locked_chambers": true, "disassemble_artifacts": true }
-      }
-    ]
-  },
-  {
-    "id": "alchemist",
-    "name": "Alchemist",
-    "description": "Botanical mastery. You see what others miss, brew what others cannot.",
-    "ability_count": 6,
-    "xp_triggers": [
-      { "trigger": "ingredient_gathered", "xp": 5 },
-      { "trigger": "potion_brewed", "xp": 15 },
-      { "trigger": "potion_consumed", "xp": 8 },
-      { "trigger": "recipe_experimented", "xp": 25 }
-    ],
-    "abilities": [
-      {
-        "id": "keen_eye",
-        "index": 1,
-        "name": "Keen Eye",
-        "type": "passive",
-        "description": "Hidden gathering nodes become visible. Reveals rare ingredient locations.",
-        "unlock_cost_xp": 0,
-        "unlock_cost_gold": 0,
-        "granted_on_attunement": true,
-        "effect_data": { "reveals_hidden_nodes": true, "reveals_rare_ingredients": true }
-      },
-      {
-        "id": "light_load",
-        "index": 2,
-        "name": "Light Load",
-        "type": "passive",
-        "description": "Plants and potions weigh 50% less.",
-        "unlock_cost_xp": 100,
-        "unlock_cost_gold": 20,
-        "effect_data": { "plant_weight_multiplier": 0.50, "potion_weight_multiplier": 0.50 }
-      },
-      {
-        "id": "extended_potency",
-        "index": 3,
-        "name": "Extended Potency",
-        "type": "passive",
-        "description": "Potion durations +50%.",
-        "unlock_cost_xp": 220,
-        "unlock_cost_gold": 40,
-        "effect_data": { "potion_duration_multiplier": 1.50 }
-      },
-      {
-        "id": "toxicologist",
-        "index": 4,
-        "name": "Toxicologist",
-        "type": "passive",
-        "description": "Poison and venom 50% less effective. Poisoning injuries downgraded one tier.",
-        "unlock_cost_xp": 380,
-        "unlock_cost_gold": 65,
-        "effect_data": { "poison_effectiveness_multiplier": 0.50, "poisoning_injury_tier_reduction": 1 }
-      },
-      {
-        "id": "master_brewer",
-        "index": 5,
-        "name": "Master Brewer",
-        "type": "active",
-        "description": "Unlocks advanced recipes: mega-heal, temperature immunity, powerful repellent.",
-        "unlock_cost_xp": 600,
-        "unlock_cost_gold": 90,
-        "effect_data": { "unlocks_recipes": ["mega_heal_potion", "temp_immunity_potion", "powerful_repellent"] }
-      },
-      {
-        "id": "identify",
-        "index": 6,
-        "name": "Identify",
-        "type": "active",
-        "description": "Examine unknown materials to learn properties. Unlocks experimental recipes.",
-        "unlock_cost_xp": 850,
-        "unlock_cost_gold": 120,
-        "cooldown": 0,
-        "effect_data": { "identifies_unknown_materials": true, "unlocks_experimental_recipes": true }
-      }
-    ]
-  },
-  {
-    "id": "scholar",
-    "name": "Scholar",
-    "description": "Lore keeper and rune expert. You decode what others cannot read and revive what others leave behind.",
-    "ability_count": 6,
-    "xp_triggers": [
-      { "trigger": "rune_inscribed", "xp": 20 },
-      { "trigger": "precursor_text_read", "xp": 30 },
-      { "trigger": "artifact_salvaged", "xp": 25 },
-      { "trigger": "journal_entry_added", "xp": 8 }
-    ],
-    "abilities": [
-      {
-        "id": "runic_literacy",
-        "index": 1,
-        "name": "Runic Literacy",
-        "type": "passive",
-        "description": "Identify unknown runes on sight. Read precursor inscriptions without items.",
-        "unlock_cost_xp": 0,
-        "unlock_cost_gold": 0,
-        "granted_on_attunement": true,
-        "effect_data": { "identify_runes": true, "read_precursor_text": true }
-      },
-      {
-        "id": "salvage",
-        "index": 2,
-        "name": "Salvage",
-        "type": "active",
-        "description": "Recover runes from destroyed or worn equipment. 50% success chance.",
-        "unlock_cost_xp": 100,
-        "unlock_cost_gold": 20,
-        "cooldown": 0,
-        "effect_data": { "salvage_chance": 0.50, "requires_ruined_item": true }
-      },
-      {
-        "id": "shelter",
-        "index": 3,
-        "name": "Shelter",
-        "type": "passive",
-        "description": "Precursor ruins count as Town-tier rest location for injury treatment.",
-        "unlock_cost_xp": 220,
-        "unlock_cost_gold": 40,
-        "effect_data": { "ruin_rest_tier": "town" }
-      },
-      {
-        "id": "glyph_ward",
-        "index": 4,
-        "name": "Glyph Ward",
-        "type": "active",
-        "description": "Inscribe a ward glyph on the ground. Lasts until triggered. Stuns attackers for 3s.",
-        "unlock_cost_xp": 380,
-        "unlock_cost_gold": 65,
-        "cooldown": 60,
-        "duration": -1,
-        "effect_data": { "stun_duration": 3.0, "triggered_once": true, "radius": 1.5 }
-      },
-      {
-        "id": "deep_reading",
-        "index": 5,
-        "name": "Deep Reading",
-        "type": "passive",
-        "description": "Reading precursor texts reveals nearby caches and monster spawn locations.",
-        "unlock_cost_xp": 600,
-        "unlock_cost_gold": 90,
-        "effect_data": { "reveals_caches": true, "reveals_spawn_locations": true }
-      },
-      {
-        "id": "reactivate",
-        "index": 6,
-        "name": "Reactivate",
-        "type": "active",
-        "description": "Restore a depleted rune to partial charge. Requires 10-minute ritual.",
-        "unlock_cost_xp": 850,
-        "unlock_cost_gold": 120,
-        "cooldown": 0,
-        "channel_time": 600,
-        "effect_data": { "rune_charge_restore_percent": 0.50, "requires_camp": true }
-      }
-    ]
-  },
-  {
-    "id": "wizard",
-    "name": "Wizard",
-    "description": "Direct combat magic. Each spell consumes a specific reagent. Power comes from preparation.",
-    "ability_count": 6,
-    "xp_triggers": [
-      { "trigger": "spell_cast", "xp": 10 },
-      { "trigger": "spell_kill", "xp": 20 }
-    ],
-    "abilities": [
-      {
-        "id": "firebolt",
-        "index": 1,
-        "name": "Firebolt",
-        "type": "active",
-        "description": "1s cast. Moderate fire damage + burn DOT.",
-        "unlock_cost_xp": 0,
-        "unlock_cost_gold": 0,
-        "granted_on_attunement": true,
-        "cast_time": 1.0,
-        "cooldown": 2,
-        "reagent": "fire_herb",
-        "effect_data": { "damage": 35, "burn_dps": 5.0, "burn_duration": 6.0, "damage_type": "fire" }
-      },
-      {
-        "id": "frost_snap",
-        "index": 2,
-        "name": "Frost Snap",
-        "type": "active",
-        "description": "1s cast. Roots target for 5s. No direct damage.",
-        "unlock_cost_xp": 120,
-        "unlock_cost_gold": 25,
-        "cast_time": 1.0,
-        "cooldown": 8,
-        "reagent": "crystal_shard",
-        "effect_data": { "damage": 0, "root_duration": 5.0, "damage_type": "frost" }
-      },
-      {
-        "id": "force_push",
-        "index": 3,
-        "name": "Force Push",
-        "type": "active",
-        "description": "Instant. Cone knockback and stagger.",
-        "unlock_cost_xp": 280,
-        "unlock_cost_gold": 50,
-        "cast_time": 0.0,
-        "cooldown": 6,
-        "reagent": "mineral_powder",
-        "effect_data": { "cone_angle": 60, "knockback_force": 15.0, "stagger_duration": 1.5 }
-      },
-      {
-        "id": "lightning_arc",
-        "index": 4,
-        "name": "Lightning Arc",
-        "type": "active",
-        "description": "1.5s cast. Chains to up to 3 targets. High damage.",
-        "unlock_cost_xp": 480,
-        "unlock_cost_gold": 80,
-        "cast_time": 1.5,
-        "cooldown": 10,
-        "reagent": "charged_filament",
-        "effect_data": { "damage": 70, "max_chain_targets": 3, "chain_range": 6.0, "damage_type": "lightning" }
-      },
-      {
-        "id": "stone_shield",
-        "index": 5,
-        "name": "Stone Shield",
-        "type": "active",
-        "description": "1s cast. Absorb barrier lasting ~15s.",
-        "unlock_cost_xp": 700,
-        "unlock_cost_gold": 120,
-        "cast_time": 1.0,
-        "cooldown": 30,
-        "reagent": "mineral_powder",
-        "reagent_count": 2,
-        "effect_data": { "barrier_hp": 80, "duration": 15.0 }
-      },
-      {
-        "id": "ruin",
-        "index": 6,
-        "name": "Ruin",
-        "type": "active",
-        "description": "2s cast. Massive single-target damage.",
-        "unlock_cost_xp": 950,
-        "unlock_cost_gold": 160,
-        "cast_time": 2.0,
-        "cooldown": 20,
-        "reagent": "precursor_core_fragment",
-        "effect_data": { "damage": 250, "damage_type": "arcane" }
-      }
-    ]
-  }
-]
+{
+  "disciplines": [
+    {
+      "id": "survivalist",
+      "name": "Survivalist",
+      "description": "Wilderness self-sufficiency and bow mastery. You stay out longer, move unseen, and hunt with a bow.",
+      "ability_count": 8,
+      "xp_triggers": [
+        {
+          "trigger": "trap_check",
+          "xp": 10
+        },
+        {
+          "trigger": "bow_kill",
+          "xp": 15
+        },
+        {
+          "trigger": "sleep_outdoors",
+          "xp": 5
+        },
+        {
+          "trigger": "off_road_travel_km",
+          "xp": 2
+        },
+        {
+          "trigger": "close_range_aggro_avoided",
+          "xp": 20
+        },
+        {
+          "trigger": "arrow_recovered",
+          "xp": 3
+        }
+      ],
+      "abilities": [
+        {
+          "id": "trapper",
+          "index": 1,
+          "name": "Trapper",
+          "type": "active",
+          "description": "Place snare traps. Check after sleep for small game.",
+          "unlock_cost_xp": 0,
+          "xp_cost": 0,
+          "unlock_cost_gold": 0,
+          "granted_on_attunement": true,
+          "cooldown": 0,
+          "trap_yield_range": [
+            1,
+            3
+          ],
+          "trap_item_id": "snare_trap"
+        },
+        {
+          "id": "arrow_recovery",
+          "index": 2,
+          "name": "Arrow Recovery",
+          "type": "passive",
+          "description": "Recover 60% of fired arrows after combat ends.",
+          "unlock_cost_xp": 100,
+          "unlock_cost_gold": 20,
+          "recovery_chance": 0.6
+        },
+        {
+          "id": "night_eyes",
+          "index": 3,
+          "name": "Night Eyes",
+          "type": "active",
+          "description": "Toggleable dark vision. Drains stamina while active.",
+          "unlock_cost_xp": 220,
+          "unlock_cost_gold": 40,
+          "cooldown": 0,
+          "vision_range_bonus": 15.0,
+          "stamina_drain": 4.0
+        },
+        {
+          "id": "light_foot",
+          "index": 4,
+          "name": "Light Foot",
+          "type": "passive",
+          "description": "Monster detection range -35%. Stealth bow shots deal +40% damage.",
+          "unlock_cost_xp": 380,
+          "unlock_cost_gold": 65,
+          "detection_range_multiplier": 0.65,
+          "stealth_damage_mult": 1.4
+        },
+        {
+          "id": "steady_draw",
+          "index": 5,
+          "name": "Steady Draw",
+          "type": "passive",
+          "description": "Bow draw speed +30%. Aim sway -40%. Held draw drains 50% less stamina.",
+          "unlock_cost_xp": 600,
+          "unlock_cost_gold": 90,
+          "draw_speed_multiplier": 1.3,
+          "sway_reduction": 0.6,
+          "stamina_drain_mult": 0.5
+        },
+        {
+          "id": "weatherskin",
+          "index": 6,
+          "name": "Weatherskin",
+          "type": "passive",
+          "description": "Temperature comfort thresholds widened by 8 degrees each direction.",
+          "unlock_cost_xp": 850,
+          "unlock_cost_gold": 120,
+          "cold_threshold_bonus": 8.0,
+          "heat_threshold_bonus": 8.0,
+          "temp_range_bonus": 10.0
+        },
+        {
+          "id": "endurance",
+          "index": 7,
+          "name": "Endurance",
+          "type": "passive",
+          "description": "Stamina pool +25%. Fatigue penalties halved.",
+          "unlock_cost_xp": 1100,
+          "unlock_cost_gold": 160,
+          "stamina_max_multiplier": 1.25,
+          "stamina_mult": 1.25,
+          "fatigue_penalty_reduction": 0.5
+        }
+      ]
+    },
+    {
+      "id": "warrior",
+      "name": "Warrior",
+      "description": "Direct combat power and physical resilience. Hit harder, carry more, take punishment.",
+      "ability_count": 6,
+      "xp_triggers": [
+        {
+          "trigger": "melee_kill",
+          "xp": 10
+        },
+        {
+          "trigger": "damage_taken_survived",
+          "xp": 5
+        },
+        {
+          "trigger": "heavy_load_carried_hour",
+          "xp": 8
+        },
+        {
+          "trigger": "heavy_armor_worn_hour",
+          "xp": 6
+        }
+      ],
+      "abilities": [
+        {
+          "id": "heavy_hand",
+          "index": 1,
+          "name": "Heavy Hand",
+          "type": "passive",
+          "description": "Melee damage +20%.",
+          "unlock_cost_xp": 0,
+          "unlock_cost_gold": 0,
+          "granted_on_attunement": true,
+          "melee_damage_multiplier": 1.2,
+          "damage_mult": 1.2
+        },
+        {
+          "id": "pack_mule",
+          "index": 2,
+          "name": "Pack Mule",
+          "type": "passive",
+          "description": "Carry weight +30%. Over-encumbrance penalty reduced.",
+          "unlock_cost_xp": 100,
+          "unlock_cost_gold": 20,
+          "carry_weight_multiplier": 1.3,
+          "overenc_speed_penalty_reduction": 0.5,
+          "carry_weight_mult": 1.3,
+          "encumbrance_speed_penalty_reduction": 0.5
+        },
+        {
+          "id": "ironclad",
+          "index": 3,
+          "name": "Ironclad",
+          "type": "passive",
+          "description": "Heavy armor equippable. All armor damage reduction increased.",
+          "unlock_cost_xp": 220,
+          "unlock_cost_gold": 40,
+          "unlocks_heavy_armor": true,
+          "armor_dr_bonus_percent": 15,
+          "enables_heavy_armor": true,
+          "armor_bonus": 15.0
+        },
+        {
+          "id": "stagger",
+          "index": 4,
+          "name": "Stagger",
+          "type": "active",
+          "description": "Charged heavy attack. Staggers non-Apex targets. High stamina cost.",
+          "unlock_cost_xp": 380,
+          "unlock_cost_gold": 65,
+          "cooldown": 8,
+          "stamina_cost": 40,
+          "stagger_duration": 2.5,
+          "works_on_apex": false,
+          "affects_apex": false
+        },
+        {
+          "id": "second_wind",
+          "index": 5,
+          "name": "Second Wind",
+          "type": "active",
+          "description": "Below 25% HP: instant 30% stamina restore + 8s damage resistance. Once per rest.",
+          "unlock_cost_xp": 600,
+          "unlock_cost_gold": 90,
+          "cooldown": -1,
+          "duration": 8,
+          "stamina_restore_percent": 0.3,
+          "damage_resist_percent": 0.35,
+          "once_per_rest": true,
+          "hp_threshold": 0.25,
+          "stamina_restore": 50.0,
+          "damage_resist_duration": 5.0,
+          "health_threshold": 0.25
+        },
+        {
+          "id": "warcry",
+          "index": 6,
+          "name": "Warcry",
+          "type": "active",
+          "description": "15m AoE flinch on non-Apex targets. Moderate cooldown.",
+          "unlock_cost_xp": 850,
+          "unlock_cost_gold": 120,
+          "cooldown": 45,
+          "radius": 15.0,
+          "flinch_duration": 1.5,
+          "works_on_apex": false,
+          "flinch_radius": 15.0
+        }
+      ]
+    },
+    {
+      "id": "artificer",
+      "name": "Artificer",
+      "description": "Mobile blacksmith and master gunman. Your camp is a workshop. Your firearms are primary weapons.",
+      "ability_count": 8,
+      "xp_triggers": [
+        {
+          "trigger": "repair_performed",
+          "xp": 15
+        },
+        {
+          "trigger": "ammo_crafted",
+          "xp": 5
+        },
+        {
+          "trigger": "firearm_kill",
+          "xp": 12
+        },
+        {
+          "trigger": "trap_triggered",
+          "xp": 20
+        },
+        {
+          "trigger": "mechanism_activated",
+          "xp": 35
+        }
+      ],
+      "abilities": [
+        {
+          "id": "field_repair",
+          "index": 1,
+          "name": "Field Repair",
+          "type": "active",
+          "description": "Repair weapons and armor at camp using raw materials.",
+          "unlock_cost_xp": 0,
+          "unlock_cost_gold": 0,
+          "granted_on_attunement": true,
+          "requires_camp": true,
+          "materials_consumed": [
+            "iron_scraps",
+            "leather_scraps"
+          ]
+        },
+        {
+          "id": "quick_load",
+          "index": 2,
+          "name": "Quick Load",
+          "type": "passive",
+          "description": "Firearm reload time -30%.",
+          "unlock_cost_xp": 100,
+          "unlock_cost_gold": 20,
+          "reload_time_multiplier": 0.7,
+          "reload_time_mult": 0.6
+        },
+        {
+          "id": "ammo_smith",
+          "index": 3,
+          "name": "Ammo Smith",
+          "type": "active",
+          "description": "Craft bullets and powder at camp from iron and sulfur.",
+          "unlock_cost_xp": 220,
+          "unlock_cost_gold": 40,
+          "requires_camp": true,
+          "unlocks_recipes": [
+            "ammo_pistol_ball",
+            "ammo_musket_ball"
+          ]
+        },
+        {
+          "id": "spike_trap",
+          "index": 4,
+          "name": "Spike Trap",
+          "type": "active",
+          "description": "Craft and place spike trap from iron and wood. Significant damage. Recoverable.",
+          "unlock_cost_xp": 380,
+          "unlock_cost_gold": 65,
+          "damage": 80,
+          "recoverable": true,
+          "craft_recipe": "spike_trap",
+          "item_id": "spike_trap"
+        },
+        {
+          "id": "steady_hands",
+          "index": 5,
+          "name": "Steady Hands",
+          "type": "passive",
+          "description": "Aim sway from fatigue -50%. Range accuracy improved.",
+          "unlock_cost_xp": 600,
+          "unlock_cost_gold": 90,
+          "fatigue_sway_multiplier": 0.5,
+          "range_accuracy_bonus": 0.15,
+          "aim_sway_mult": 0.5
+        },
+        {
+          "id": "reinforce",
+          "index": 6,
+          "name": "Reinforce",
+          "type": "active",
+          "description": "Temporarily boost weapon/armor until next sleep. Consumes materials.",
+          "unlock_cost_xp": 850,
+          "unlock_cost_gold": 120,
+          "cooldown": 0,
+          "duration": 28800,
+          "damage_bonus_percent": 20,
+          "dr_bonus": 10,
+          "expires_on_sleep": true,
+          "required_item": "iron_scraps"
+        },
+        {
+          "id": "jury_rig",
+          "index": 7,
+          "name": "Jury Rig",
+          "type": "active",
+          "description": "Emergency repair without materials. Approximately 10 uses.",
+          "unlock_cost_xp": 1100,
+          "unlock_cost_gold": 160,
+          "uses": 10,
+          "repair_amount_percent": 0.4,
+          "no_materials_required": true
+        },
+        {
+          "id": "mechanical_insight",
+          "index": 8,
+          "name": "Mechanical Insight",
+          "type": "passive",
+          "description": "Activate precursor mechanisms. Opens locked chambers and caches. Disassemble artifacts.",
+          "unlock_cost_xp": 1400,
+          "unlock_cost_gold": 200,
+          "unlocks_mechanisms": true,
+          "unlock_locked_chambers": true,
+          "disassemble_artifacts": true,
+          "can_activate_precursor": true,
+          "can_disassemble_artifacts": true,
+          "precursor_flag": "activated"
+        }
+      ]
+    },
+    {
+      "id": "alchemist",
+      "name": "Alchemist",
+      "description": "Botanical mastery. You see what others miss, brew what others cannot.",
+      "ability_count": 6,
+      "xp_triggers": [
+        {
+          "trigger": "ingredient_gathered",
+          "xp": 5
+        },
+        {
+          "trigger": "potion_brewed",
+          "xp": 15
+        },
+        {
+          "trigger": "potion_consumed",
+          "xp": 8
+        },
+        {
+          "trigger": "recipe_experimented",
+          "xp": 25
+        }
+      ],
+      "abilities": [
+        {
+          "id": "keen_eye",
+          "index": 1,
+          "name": "Keen Eye",
+          "type": "passive",
+          "description": "Hidden gathering nodes become visible. Reveals rare ingredient locations.",
+          "unlock_cost_xp": 0,
+          "unlock_cost_gold": 0,
+          "granted_on_attunement": true,
+          "reveals_hidden_nodes": true,
+          "reveals_rare_ingredients": true
+        },
+        {
+          "id": "light_load",
+          "index": 2,
+          "name": "Light Load",
+          "type": "passive",
+          "description": "Plants and potions weigh 50% less.",
+          "unlock_cost_xp": 100,
+          "unlock_cost_gold": 20,
+          "plant_weight_multiplier": 0.5,
+          "potion_weight_multiplier": 0.5,
+          "plant_potion_weight_mult": 0.5
+        },
+        {
+          "id": "extended_potency",
+          "index": 3,
+          "name": "Extended Potency",
+          "type": "passive",
+          "description": "Potion durations +50%.",
+          "unlock_cost_xp": 220,
+          "unlock_cost_gold": 40,
+          "potion_duration_multiplier": 1.5,
+          "buff_duration_mult": 1.5
+        },
+        {
+          "id": "toxicologist",
+          "index": 4,
+          "name": "Toxicologist",
+          "type": "passive",
+          "description": "Poison and venom 50% less effective. Poisoning injuries downgraded one tier.",
+          "unlock_cost_xp": 380,
+          "unlock_cost_gold": 65,
+          "poison_effectiveness_multiplier": 0.5,
+          "poisoning_injury_tier_reduction": 1,
+          "poison_damage_reduction": 0.5,
+          "venom_treatment_tier": 1
+        },
+        {
+          "id": "master_brewer",
+          "index": 5,
+          "name": "Master Brewer",
+          "type": "active",
+          "description": "Unlocks advanced recipes: mega-heal, temperature immunity, powerful repellent.",
+          "unlock_cost_xp": 600,
+          "unlock_cost_gold": 90,
+          "unlocks_recipes": [
+            "mega_heal_potion",
+            "temp_immunity_potion",
+            "powerful_repellent",
+            "firefly_jar"
+          ]
+        },
+        {
+          "id": "identify",
+          "index": 6,
+          "name": "Identify",
+          "type": "active",
+          "description": "Examine unknown materials to learn properties. Unlocks experimental recipes.",
+          "unlock_cost_xp": 850,
+          "unlock_cost_gold": 120,
+          "cooldown": 0,
+          "identifies_unknown_materials": true,
+          "unlocks_experimental_recipes": true
+        },
+        {
+          "id": "purify_water",
+          "index": 7,
+          "name": "Purify Water",
+          "type": "active",
+          "description": "Use reagents to purify water without boiling.",
+          "unlock_cost_xp": 600,
+          "unlock_cost_gold": 90,
+          "cooldown": 0,
+          "converts_unboiled_to_boiled": true,
+          "reagent": "purification_herb"
+        }
+      ]
+    }
+  ],
+  "extended_disciplines": [
+    {
+      "id": "survivalist",
+      "abilities": [
+        {
+          "id": "ghost_walk",
+          "index": 8,
+          "name": "Ghost Walk",
+          "type": "active",
+          "description": "10 seconds of full stealth. Long cooldown. Breaks on attack.",
+          "unlock_cost_xp": 1400,
+          "unlock_cost_gold": 200,
+          "cooldown": 180,
+          "duration": 10.0,
+          "detection_multiplier": 0.0,
+          "breaks_on_attack": true
+        }
+      ]
+    },
+    {
+      "id": "ritualist",
+      "name": "Ritualist",
+      "description": "Commands ancient rituals of warding, preservation, and deceit.",
+      "abilities": [
+        {
+          "id": "ward",
+          "index": 0,
+          "name": "Ward",
+          "type": "active",
+          "description": "Channel for 5s to place a ward zone.",
+          "unlock_cost_xp": 0,
+          "unlock_cost_gold": 0,
+          "granted_on_attunement": true,
+          "channel_time": 5.0,
+          "duration": 60.0,
+          "cooldown": 15.0,
+          "radius": 10.0
+        },
+        {
+          "id": "preserve",
+          "index": 1,
+          "name": "Preserve",
+          "type": "passive",
+          "description": "Slows food spoilage and durability loss.",
+          "unlock_cost_xp": 150,
+          "unlock_cost_gold": 50,
+          "spoil_rate_mult": 0.5,
+          "durability_loss_mult": 0.7
+        },
+        {
+          "id": "decoy",
+          "index": 2,
+          "name": "Decoy",
+          "type": "active",
+          "description": "Channel 5s, noise burst after 10s attracts non-apex monsters.",
+          "unlock_cost_xp": 200,
+          "unlock_cost_gold": 75,
+          "channel_time": 5.0,
+          "noise_delay": 10.0,
+          "duration": 30.0,
+          "attracts_non_apex": true
+        },
+        {
+          "id": "enchant",
+          "index": 3,
+          "name": "Enchant",
+          "type": "active",
+          "description": "Temporarily enchants a weapon.",
+          "unlock_cost_xp": 250,
+          "unlock_cost_gold": 100,
+          "damage_bonus": 15.0,
+          "stacks_with_runes": true
+        },
+        {
+          "id": "sending_chest",
+          "index": 4,
+          "name": "Sending Chest",
+          "type": "passive",
+          "description": "Unlocks sending chest once per rest.",
+          "unlock_cost_xp": 300,
+          "unlock_cost_gold": 100,
+          "once_per_rest": true
+        },
+        {
+          "id": "banishment_circle",
+          "index": 5,
+          "name": "Banishment Circle",
+          "type": "active",
+          "description": "Permanent circle repelling non-apex monsters.",
+          "unlock_cost_xp": 400,
+          "unlock_cost_gold": 150,
+          "affects_apex": false,
+          "persists_across_sleep": true
+        },
+        {
+          "id": "anchor",
+          "index": 6,
+          "name": "Anchor",
+          "type": "active",
+          "description": "Marks a safe anchor location.",
+          "unlock_cost_xp": 500,
+          "unlock_cost_gold": 200,
+          "clears_on_use": true
+        }
+      ],
+      "xp_triggers": [
+        {
+          "trigger": "ward_placed",
+          "xp": 20
+        },
+        {
+          "trigger": "ritual_completed",
+          "xp": 15
+        },
+        {
+          "trigger": "item_enchanted",
+          "xp": 10
+        }
+      ]
+    },
+    {
+      "id": "pathfinder",
+      "name": "Pathfinder",
+      "description": "Master of wilderness navigation.",
+      "abilities": [
+        {
+          "id": "wayfinder",
+          "index": 0,
+          "name": "Wayfinder",
+          "type": "passive",
+          "description": "Increases survey radius.",
+          "unlock_cost_xp": 0,
+          "unlock_cost_gold": 0,
+          "granted_on_attunement": true,
+          "survey_radius_mult": 1.5
+        },
+        {
+          "id": "light_provisions",
+          "index": 1,
+          "name": "Light Provisions",
+          "type": "passive",
+          "description": "Food and water weigh less.",
+          "unlock_cost_xp": 150,
+          "unlock_cost_gold": 50,
+          "food_water_weight_mult": 0.6
+        },
+        {
+          "id": "cartography",
+          "index": 2,
+          "name": "Cartography",
+          "type": "passive",
+          "description": "Reveals more map detail.",
+          "unlock_cost_xp": 200,
+          "unlock_cost_gold": 75,
+          "map_reveal_bonus": 2
+        },
+        {
+          "id": "prospect",
+          "index": 3,
+          "name": "Prospect",
+          "type": "active",
+          "description": "Reveals nearby resource nodes.",
+          "unlock_cost_xp": 300,
+          "unlock_cost_gold": 100,
+          "reveal_radius": 30.0
+        },
+        {
+          "id": "steady_pace",
+          "index": 4,
+          "name": "Steady Pace",
+          "type": "passive",
+          "description": "Increases stamina regen while walking.",
+          "unlock_cost_xp": 400,
+          "unlock_cost_gold": 150,
+          "stamina_regen_mult": 1.3
+        }
+      ],
+      "xp_triggers": [
+        {
+          "trigger": "hex_revealed",
+          "xp": 5
+        },
+        {
+          "trigger": "landmark_discovered",
+          "xp": 20
+        },
+        {
+          "trigger": "area_surveyed",
+          "xp": 15
+        }
+      ]
+    },
+    {
+      "id": "swordsman",
+      "name": "Swordsman",
+      "description": "Precision blade fighter.",
+      "abilities": [
+        {
+          "id": "riposte",
+          "index": 0,
+          "name": "Riposte",
+          "type": "passive",
+          "description": "Counterattacks within dodge window deal 2x damage.",
+          "unlock_cost_xp": 0,
+          "unlock_cost_gold": 0,
+          "granted_on_attunement": true,
+          "damage_mult": 2.0
+        },
+        {
+          "id": "cripple",
+          "index": 1,
+          "name": "Cripple",
+          "type": "passive",
+          "description": "Strong hits may cripple the target.",
+          "unlock_cost_xp": 150,
+          "unlock_cost_gold": 50,
+          "cripple_chance": 0.2
+        },
+        {
+          "id": "read",
+          "index": 2,
+          "name": "Read",
+          "type": "passive",
+          "description": "Extends the riposte dodge window.",
+          "unlock_cost_xp": 200,
+          "unlock_cost_gold": 75,
+          "dodge_window_mult": 1.4
+        },
+        {
+          "id": "off_hand_mastery",
+          "index": 3,
+          "name": "Off-hand Mastery",
+          "type": "passive",
+          "description": "Improves shield and pistol swap.",
+          "unlock_cost_xp": 250,
+          "unlock_cost_gold": 100,
+          "shield_block_bonus": 0.1,
+          "shield_recovery_mult": 0.8,
+          "pistol_swap_time_mult": 0.7,
+          "pistol_aim_bonus": 0.15
+        },
+        {
+          "id": "bleed",
+          "index": 4,
+          "name": "Bleed",
+          "type": "passive",
+          "description": "Crits apply bleeding stacks.",
+          "unlock_cost_xp": 300,
+          "unlock_cost_gold": 100,
+          "crit_chance": 0.15,
+          "max_stacks": 3,
+          "dps": 5.0,
+          "duration": 8.0
+        },
+        {
+          "id": "blade_sense",
+          "index": 5,
+          "name": "Blade Sense",
+          "type": "passive",
+          "description": "Reduces injury probability.",
+          "unlock_cost_xp": 350,
+          "unlock_cost_gold": 125,
+          "bleeding_gash_prob_reduction": 0.5,
+          "deep_wound_prob_reduction": 0.4
+        },
+        {
+          "id": "flurry",
+          "index": 6,
+          "name": "Flurry",
+          "type": "active",
+          "description": "3 rapid strikes within riposte window.",
+          "unlock_cost_xp": 450,
+          "unlock_cost_gold": 175,
+          "requires_riposte_window": true,
+          "hit_count": 3,
+          "stamina_cost": 40.0
+        },
+        {
+          "id": "deathmark",
+          "index": 7,
+          "name": "Deathmark",
+          "type": "passive",
+          "description": "At 3 cripple stacks, next hit deals 1.3x damage.",
+          "unlock_cost_xp": 600,
+          "unlock_cost_gold": 200,
+          "cripple_threshold": 3,
+          "damage_mult": 1.3
+        }
+      ],
+      "xp_triggers": [
+        {
+          "trigger": "riposte_landed",
+          "xp": 25
+        },
+        {
+          "trigger": "melee_kill",
+          "xp": 8
+        },
+        {
+          "trigger": "dodge_during_attack",
+          "xp": 15
+        }
+      ]
+    },
+    {
+      "id": "scholar",
+      "name": "Scholar",
+      "description": "Specialist in precursor knowledge and runic lore.",
+      "abilities": [
+        {
+          "id": "runic_literacy",
+          "index": 0,
+          "name": "Runic Literacy",
+          "type": "passive",
+          "description": "Can identify runes without reagents.",
+          "unlock_cost_xp": 0,
+          "unlock_cost_gold": 0,
+          "granted_on_attunement": true,
+          "identify_cost_reduction": 1.0
+        },
+        {
+          "id": "salvage",
+          "index": 1,
+          "name": "Salvage",
+          "type": "passive",
+          "description": "Monsters drop more loot.",
+          "unlock_cost_xp": 150,
+          "unlock_cost_gold": 50,
+          "loot_mult": 1.3
+        },
+        {
+          "id": "shelter",
+          "index": 2,
+          "name": "Shelter",
+          "type": "passive",
+          "description": "Resting at ruins counts as rest tier 2.",
+          "unlock_cost_xp": 200,
+          "unlock_cost_gold": 75,
+          "rest_tier_at_ruin": 2,
+          "weather_protection": true
+        },
+        {
+          "id": "glyph_ward",
+          "index": 3,
+          "name": "Glyph Ward",
+          "type": "active",
+          "description": "Activates a precursor site glyph ward.",
+          "unlock_cost_xp": 350,
+          "unlock_cost_gold": 150,
+          "requires_precursor_site": true,
+          "radius": 25.0,
+          "duration": 120.0
+        },
+        {
+          "id": "deep_reading",
+          "index": 4,
+          "name": "Deep Reading",
+          "type": "passive",
+          "description": "Surveying precursor sites reveals hex locations.",
+          "unlock_cost_xp": 400,
+          "unlock_cost_gold": 150,
+          "reveals_hex_locations": true
+        },
+        {
+          "id": "reactivate",
+          "index": 5,
+          "name": "Reactivate",
+          "type": "active",
+          "description": "Draws power from a precursor site.",
+          "unlock_cost_xp": 500,
+          "unlock_cost_gold": 200,
+          "hunger_restore": 30.0,
+          "thirst_restore": 30.0,
+          "max_charges": 3,
+          "charges_per_use": 1,
+          "depleted_state": "offline"
+        }
+      ],
+      "xp_triggers": [
+        {
+          "trigger": "ruin_entered",
+          "xp": 20
+        },
+        {
+          "trigger": "artifact_identified",
+          "xp": 15
+        },
+        {
+          "trigger": "precursor_activated",
+          "xp": 40
+        }
+      ]
+    },
+    {
+      "id": "wizard",
+      "name": "Wizard",
+      "description": "Channels elemental forces through reagent-based spellcasting.",
+      "abilities": [
+        {
+          "id": "firebolt",
+          "index": 0,
+          "name": "Firebolt",
+          "type": "active",
+          "description": "Hurls a bolt of fire.",
+          "unlock_cost_xp": 0,
+          "unlock_cost_gold": 0,
+          "granted_on_attunement": true,
+          "burn_dps": 8.0,
+          "reagent": "fire_herb"
+        },
+        {
+          "id": "frost_snap",
+          "index": 1,
+          "name": "Frost Snap",
+          "type": "active",
+          "description": "Freezes target for 5s.",
+          "unlock_cost_xp": 200,
+          "unlock_cost_gold": 75,
+          "root_duration": 5.0,
+          "reagent": "crystal_shard"
+        },
+        {
+          "id": "force_push",
+          "index": 2,
+          "name": "Force Push",
+          "type": "active",
+          "description": "Knocks back enemies.",
+          "unlock_cost_xp": 300,
+          "unlock_cost_gold": 100,
+          "knockback_force": 15.0,
+          "reagent": "mineral_powder"
+        },
+        {
+          "id": "lightning_arc",
+          "index": 3,
+          "name": "Lightning Arc",
+          "type": "active",
+          "description": "Chains between multiple targets.",
+          "unlock_cost_xp": 400,
+          "unlock_cost_gold": 150,
+          "chain_count": 3,
+          "reagent": "charged_filament"
+        },
+        {
+          "id": "stone_shield",
+          "index": 4,
+          "name": "Stone Shield",
+          "type": "active",
+          "description": "Stone barrier absorbs damage for 15s.",
+          "unlock_cost_xp": 500,
+          "unlock_cost_gold": 175,
+          "barrier_hp": 200.0,
+          "duration": 15.0,
+          "reagent": "mineral_powder",
+          "reagent_count": 2
+        },
+        {
+          "id": "ruin",
+          "index": 5,
+          "name": "Ruin",
+          "type": "active",
+          "description": "Devastating precursor energy blast.",
+          "unlock_cost_xp": 700,
+          "unlock_cost_gold": 300,
+          "damage": 250.0,
+          "reagent": "precursor_core_fragment"
+        }
+      ],
+      "xp_triggers": [
+        {
+          "trigger": "spell_cast",
+          "xp": 10
+        },
+        {
+          "trigger": "reagent_consumed",
+          "xp": 5
+        },
+        {
+          "trigger": "monster_killed_with_spell",
+          "xp": 20
+        }
+      ]
+    }
+  ]
+}

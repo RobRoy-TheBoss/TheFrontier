@@ -33,11 +33,11 @@ class SettlementData:
 	var last_rested_here: bool = false
 
 	func get_tier_id() -> String:
-		var t := GameData.get_tier_by_index(tier_index)
-		return t.get("id", "trading_post")
+		var t: Dictionary = DataLoader.get_tier_by_index(tier_index)
+		return t.get("id", "hamlet")
 
 	func has_service(service: String) -> bool:
-		var t := GameData.get_tier_by_index(tier_index)
+		var t: Dictionary = DataLoader.get_tier_by_index(tier_index)
 		return service in t.get("services", [])
 
 
@@ -50,7 +50,7 @@ func _register_starting_settlement() -> void:
 	var crestport := SettlementData.new()
 	crestport.id = "crestport"
 	crestport.area_id = "area_crestport"
-	crestport.tier_index = 0
+	crestport.tier_index = 2  # index 2 = village tier
 	crestport.is_deep_water_port = true
 	crestport.position = Vector3(0, 0, 0)  # Placeholder; set by world data
 	settlements["crestport"] = crestport
@@ -143,8 +143,8 @@ func accumulate_trade_score(settlement_id: String, amount: float) -> void:
 
 func _check_tier_advance(settlement_id: String) -> void:
 	var s: SettlementData = settlements[settlement_id]
-	var next_tier_index := s.tier_index + 1
-	var next_tier := GameData.get_tier_by_index(next_tier_index)
+	var next_tier_index: int = s.tier_index + 1
+	var next_tier: Dictionary = DataLoader.get_tier_by_index(next_tier_index)
 	if next_tier.is_empty():
 		return  # Already max tier
 	if s.trade_score < next_tier.get("trade_score_threshold", INF):
@@ -172,10 +172,10 @@ func get_road_quality(id_a: String, id_b: String) -> Dictionary:
 	if s_a == null or s_b == null:
 		return {}
 	var min_tier := mini(s_a.tier_index, s_b.tier_index)
-	var tier_a_name := GameData.get_tier_by_index(s_a.tier_index).get("id", "trading_post")
-	var tier_b_name := GameData.get_tier_by_index(s_b.tier_index).get("id", "trading_post")
+	var tier_a_name: String = DataLoader.get_tier_by_index(s_a.tier_index).get("id", "trading_post")
+	var tier_b_name: String = DataLoader.get_tier_by_index(s_b.tier_index).get("id", "trading_post")
 	var key := _road_key(tier_a_name, tier_b_name)
-	return GameData.settlement_tiers.get("road_quality", {}).get(key, {})
+	return {}
 
 
 func _road_key(tier_a: String, tier_b: String) -> String:
