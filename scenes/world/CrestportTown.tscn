@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://fzkjrur5swjpl"]
+
+[ext_resource type="Script" path="res://scripts/world/CrestportTown.gd" id="1"]
+
+[node name="CrestportTown" type="Node3D"]
+scale = Vector3(2, 2, 2)
+script = ExtResource("1")
