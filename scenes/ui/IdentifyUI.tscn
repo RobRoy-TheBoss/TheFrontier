@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://cbx8w2l5ld50x"]
+
+[ext_resource type="Script" uid="uid://c2gxi8hcclppy" path="res://scripts/ui/IdentifyUI.gd" id="1"]
+
+[node name="IdentifyUI" type="Control" unique_id=536688816]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=1300463844]
+layout_mode = 0
+anchor_left = 0.2
+anchor_top = 0.1
+anchor_right = 0.8
+anchor_bottom = 0.9
+
+[node name="TitleLabel" type="Label" parent="Panel" unique_id=196319063]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Identify Item"
+horizontal_alignment = 1
+
+[node name="ItemList" type="VBoxContainer" parent="Panel" unique_id=1754336866]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="InfoLabel" type="Label" parent="Panel" unique_id=971977945]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="IdentifyButton" type="Button" parent="Panel" unique_id=822654453]
+layout_mode = 2
+disabled = true
+text = "Identify"
+
+[node name="CloseButton" type="Button" parent="Panel" unique_id=1949887932]
+layout_mode = 2
+text = "Close"

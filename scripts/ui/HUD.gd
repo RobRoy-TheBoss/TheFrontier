@@ -53,18 +53,18 @@ func _on_stamina_changed(current: float, maximum: float) -> void:
 func _update_compass() -> void:
 	if _player == null or compass_needle == null:
 		return
-	var player_rot_y := _player.rotation.y
+	var player_rot_y: float = _player.rotation.y
 	compass_needle.rotation = -player_rot_y
 
 
 func _update_weapon_display() -> void:
 	if _player == null or weapon_label == null:
 		return
-	var equipped := _player.inventory.equipped.get("weapon", {})
+	var equipped: Dictionary = _player.inventory.equipped.get("weapon", {})
 	if equipped.is_empty():
 		weapon_label.text = "Unarmed"
 		return
-	var weapon := GameData.get_weapon(equipped.get("item_id", ""))
+	var weapon: Dictionary = GameData.get_weapon(equipped.get("item_id", ""))
 	weapon_label.text = weapon.get("name", "Unknown")
 
 

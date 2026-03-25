@@ -2,11 +2,11 @@
 ## Weight-based inventory display with rune socketing interface.
 extends Control
 
-@onready var item_list: VBoxContainer = $Panel/ScrollContainer/ItemList
-@onready var weight_label: Label = $Panel/WeightLabel
-@onready var currency_label: Label = $Panel/CurrencyLabel
-@onready var equipment_slots: GridContainer = $Panel/EquipmentSlots
-@onready var rune_panel: Control = $Panel/RunePanel
+@onready var item_list: VBoxContainer = $Panel/VBox/ScrollContainer/ItemList
+@onready var weight_label: Label = $Panel/VBox/WeightLabel
+@onready var currency_label: Label = $Panel/VBox/CurrencyLabel
+@onready var equipment_slots: GridContainer = $Panel/VBox/EquipmentSlots
+@onready var rune_panel: Control = $Panel/VBox/RunePanel
 
 var _player: Node = null
 var _inventory: PlayerInventory = null
@@ -69,6 +69,14 @@ func _populate_item_list() -> void:
 		row.add_child(name_label)
 		row.add_child(count_label)
 		row.add_child(weight_label_node)
+
+		var is_equippable := def.has("type") or def.has("armor_class")
+		if is_equippable:
+			var equip_btn := Button.new()
+			equip_btn.text = "Equip"
+			equip_btn.pressed.connect(func(): _inventory.equip(item_id, "auto"))
+			row.add_child(equip_btn)
+
 		item_list.add_child(row)
 
 
@@ -84,19 +92,19 @@ func _populate_equipment_slots() -> void:
 		var slot_label := Label.new()
 		slot_label.text = slot.capitalize()
 
-		var equipped := _inventory.equipped.get(slot, {})
+		var equipped: Dictionary = _inventory.equipped.get(slot, {})
 		var item_label := Label.new()
 		if equipped.is_empty():
 			item_label.text = "—"
 		else:
-			var def := GameData.get_weapon(equipped.get("item_id", ""))
+			var def: Dictionary = GameData.get_weapon(equipped.get("item_id", ""))
 			if def.is_empty():
 				def = GameData.get_armor(equipped.get("item_id", ""))
 			item_label.text = def.get("name", equipped.get("item_id", ""))
 
 		# Rune slots display
 		if not equipped.is_empty():
-			var any_def := GameData.get_weapon(equipped.get("item_id", ""))
+			var any_def: Dictionary = GameData.get_weapon(equipped.get("item_id", ""))
 			if any_def.is_empty():
 				any_def = GameData.get_armor(equipped.get("item_id", ""))
 			var max_rune_slots: int = any_def.get("rune_slots", 0)
@@ -107,6 +115,13 @@ func _populate_equipment_slots() -> void:
 
 		slot_container.add_child(slot_label)
 		slot_container.add_child(item_label)
+
+		if not equipped.is_empty():
+			var unequip_btn := Button.new()
+			unequip_btn.text = "Unequip"
+			unequip_btn.pressed.connect(func(): _inventory.unequip(slot))
+			slot_container.add_child(unequip_btn)
+
 		equipment_slots.add_child(slot_container)
 
 

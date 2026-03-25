@@ -1,0 +1,126 @@
+[gd_scene load_steps=2 format=3 uid="uid://w2x2zxq72etqe"]
+
+[ext_resource type="Script" path="res://scripts/ui/SettingsUI.gd" id="1"]
+
+[node name="SettingsUI" type="Control"]
+script = ExtResource("1")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+visible = false
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.15
+anchor_top = 0.05
+anchor_right = 0.85
+anchor_bottom = 0.95
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "Settings"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="AudioTitle" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "Audio"
+theme_override_font_sizes/font_size = 14
+
+[node name="Audio" type="VBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="MasterRow" type="HBoxContainer" parent="Panel/VBox/Audio"]
+layout_mode = 2
+
+[node name="MasterLabel" type="Label" parent="Panel/VBox/Audio/MasterRow"]
+layout_mode = 2
+text = "Master Volume"
+size_flags_horizontal = 3
+
+[node name="MasterSlider" type="HSlider" parent="Panel/VBox/Audio"]
+layout_mode = 2
+min_value = 0.0
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="MusicRow" type="HBoxContainer" parent="Panel/VBox/Audio"]
+layout_mode = 2
+
+[node name="MusicLabel" type="Label" parent="Panel/VBox/Audio/MusicRow"]
+layout_mode = 2
+text = "Music Volume"
+size_flags_horizontal = 3
+
+[node name="MusicSlider" type="HSlider" parent="Panel/VBox/Audio"]
+layout_mode = 2
+min_value = 0.0
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="SFXRow" type="HBoxContainer" parent="Panel/VBox/Audio"]
+layout_mode = 2
+
+[node name="SFXLabel" type="Label" parent="Panel/VBox/Audio/SFXRow"]
+layout_mode = 2
+text = "SFX Volume"
+size_flags_horizontal = 3
+
+[node name="SFXSlider" type="HSlider" parent="Panel/VBox/Audio"]
+layout_mode = 2
+min_value = 0.0
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="DisplayTitle" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "Display"
+theme_override_font_sizes/font_size = 14
+
+[node name="Display" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="WindowLabel" type="Label" parent="Panel/VBox/Display"]
+layout_mode = 2
+text = "Window Mode"
+size_flags_horizontal = 3
+
+[node name="WindowOption" type="OptionButton" parent="Panel/VBox/Display"]
+layout_mode = 2
+
+[node name="GraphicsLabel" type="Label" parent="Panel/VBox/Display"]
+layout_mode = 2
+text = "Graphics"
+size_flags_horizontal = 3
+
+[node name="GraphicsOption" type="OptionButton" parent="Panel/VBox/Display"]
+layout_mode = 2
+
+[node name="KeybindingsTitle" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "Keybindings"
+theme_override_font_sizes/font_size = 14
+
+[node name="KeybindingsScroll" type="ScrollContainer" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="KeybindingsList" type="VBoxContainer" parent="Panel/VBox/KeybindingsScroll"]
+layout_mode = 2
+
+[node name="ResetKeysButton" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Reset Keybindings to Default"
+
+[node name="CloseButton" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Close"

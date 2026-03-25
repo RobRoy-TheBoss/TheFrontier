@@ -59,15 +59,15 @@ func _handle_death() -> void:
 
 
 func _drop_items_at_death(player: Node) -> void:
-	var death_pos := player.global_position
+	var death_pos: Vector3 = player.global_position
 	# Spawn a loot cache at death position with all inventory items
-	var cache_scene := load("res://scenes/items/ItemCache.tscn")
+	var cache_scene: PackedScene = load("res://scenes/items/ItemCache.tscn") as PackedScene
 	if cache_scene == null:
 		return
-	var cache := cache_scene.instantiate()
+	var cache: Node = cache_scene.instantiate()
 	cache.global_position = death_pos
 	# Transfer inventory to cache
-	var items_to_drop := player.inventory.items.duplicate(true)
+	var items_to_drop: Array = player.inventory.items.duplicate(true)
 	cache.set_meta("items", items_to_drop)
 	player.inventory.items.clear()
 	player.inventory.inventory_changed.emit()

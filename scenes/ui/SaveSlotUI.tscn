@@ -1,0 +1,67 @@
+[gd_scene load_steps=2 format=3 uid="uid://dhhvyzdtdrlh4"]
+
+[ext_resource type="Script" path="res://scripts/ui/SaveSlotUI.gd" id="1"]
+
+[node name="SaveSlotUI" type="Control"]
+script = ExtResource("1")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+visible = false
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.25
+anchor_top = 0.1
+anchor_right = 0.75
+anchor_bottom = 0.9
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "Save / Load Game"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+
+[node name="SlotList" type="VBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SlotNameInput" type="LineEdit" parent="Panel/VBox"]
+layout_mode = 2
+placeholder_text = "Slot name..."
+max_length = 32
+
+[node name="Buttons" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="SaveButton" type="Button" parent="Panel/VBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Save"
+
+[node name="LoadButton" type="Button" parent="Panel/VBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Load"
+disabled = true
+
+[node name="DeleteButton" type="Button" parent="Panel/VBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Delete"
+disabled = true
+
+[node name="StatusLabel" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+
+[node name="CloseButton" type="Button" parent="Panel/VBox"]
+layout_mode = 2
+text = "Close"

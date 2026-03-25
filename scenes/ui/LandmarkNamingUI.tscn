@@ -1,0 +1,43 @@
+[gd_scene load_steps=2 format=3 uid="uid://ooi3i5sbidudw"]
+
+[ext_resource type="Script" path="res://scripts/ui/LandmarkNamingUI.gd" id="1"]
+
+[node name="LandmarkNamingUI" type="Control"]
+script = ExtResource("1")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+visible = false
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.3
+anchor_top = 0.35
+anchor_right = 0.7
+anchor_bottom = 0.65
+
+[node name="TitleLabel" type="Label" parent="Panel"]
+layout_mode = 2
+text = "Name This Landmark"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+
+[node name="CurrentLabel" type="Label" parent="Panel"]
+layout_mode = 2
+text = "Current name: —"
+
+[node name="NameInput" type="LineEdit" parent="Panel"]
+layout_mode = 2
+placeholder_text = "Enter a name..."
+max_length = 48
+
+[node name="ConfirmButton" type="Button" parent="Panel"]
+layout_mode = 2
+text = "Confirm"
+
+[node name="CancelButton" type="Button" parent="Panel"]
+layout_mode = 2
+text = "Cancel"

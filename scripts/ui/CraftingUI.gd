@@ -2,22 +2,24 @@
 ## Shared crafting interface for campfire, alchemy set, home workshop, and town alchemist.
 extends Control
 
+const _AlchemySystem := preload("res://scripts/alchemy/AlchemySystem.gd")
+
 @onready var station_label: Label = $Panel/StationLabel
 @onready var recipe_list: VBoxContainer = $Panel/RecipeList
 @onready var ingredient_list: VBoxContainer = $Panel/IngredientList
 @onready var brew_button: Button = $Panel/BrewButton
 @onready var close_button: Button = $Panel/CloseButton
 
-var _station: AlchemySystem.Station = AlchemySystem.Station.CAMPFIRE
+var _station: _AlchemySystem.Station = _AlchemySystem.Station.CAMPFIRE
 var _selected_recipe_id: String = ""
 var _filtered_recipe_ids: Array = []
-var _alchemy_system: AlchemySystem = null
+var _alchemy_system: _AlchemySystem = null
 var _player: Node = null
 
 
 func _ready() -> void:
 	add_to_group("crafting_ui")
-	_alchemy_system = AlchemySystem.new()
+	_alchemy_system = _AlchemySystem.new()
 	if brew_button:
 		brew_button.pressed.connect(_on_brew_pressed)
 	if close_button:
@@ -26,7 +28,7 @@ func _ready() -> void:
 	_player = get_tree().get_first_node_in_group("player")
 
 
-func open(station: AlchemySystem.Station) -> void:
+func open(station: _AlchemySystem.Station) -> void:
 	_station = station
 	_filtered_recipe_ids = []
 	visible = true
@@ -45,10 +47,10 @@ func _refresh() -> void:
 		return
 	if station_label:
 		match _station:
-			AlchemySystem.Station.CAMPFIRE: station_label.text = "Campfire"
-			AlchemySystem.Station.ALCHEMY_SET: station_label.text = "Alchemy Set"
-			AlchemySystem.Station.HOME_WORKSHOP: station_label.text = "Home Workshop"
-			AlchemySystem.Station.TOWN_ALCHEMIST: station_label.text = "Town Alchemist"
+			_AlchemySystem.Station.CAMPFIRE: station_label.text = "Campfire"
+			_AlchemySystem.Station.ALCHEMY_SET: station_label.text = "Alchemy Set"
+			_AlchemySystem.Station.HOME_WORKSHOP: station_label.text = "Home Workshop"
+			_AlchemySystem.Station.TOWN_ALCHEMIST: station_label.text = "Town Alchemist"
 	_populate_recipes()
 
 
@@ -75,7 +77,7 @@ func _populate_recipes() -> void:
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var out_lbl := Label.new()
 		out_lbl.text = "→ %s x%d" % [recipe.get("output_item", "?"), recipe.get("output_count", 1)]
-		var can_make := _alchemy_system.can_brew(recipe.get("id", ""), _station, _player.inventory)
+		var can_make: bool = _alchemy_system.can_brew(recipe.get("id", ""), _station, _player.inventory)
 		var select_btn := Button.new()
 		select_btn.text = "Craft"
 		select_btn.disabled = not can_make

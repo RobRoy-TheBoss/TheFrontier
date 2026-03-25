@@ -1,0 +1,84 @@
+[gd_scene load_steps=2 format=3 uid="uid://29y21ii54ndgk"]
+
+[ext_resource type="Script" path="res://scripts/ui/StorageUI.gd" id="1"]
+
+[node name="StorageUI" type="Control"]
+script = ExtResource("1")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+visible = false
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.1
+anchor_top = 0.05
+anchor_right = 0.9
+anchor_bottom = 0.95
+
+[node name="OuterVBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Panel/OuterVBox"]
+layout_mode = 2
+text = "Home Storage"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+
+[node name="Main" type="HBoxContainer" parent="Panel/OuterVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="InventoryPanel" type="VBoxContainer" parent="Panel/OuterVBox/Main"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="InvLabel" type="Label" parent="Panel/OuterVBox/Main/InventoryPanel"]
+layout_mode = 2
+text = "Your Pack"
+horizontal_alignment = 1
+
+[node name="Scroll" type="ScrollContainer" parent="Panel/OuterVBox/Main/InventoryPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="InventoryList" type="VBoxContainer" parent="Panel/OuterVBox/Main/InventoryPanel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StoreButton" type="Button" parent="Panel/OuterVBox/Main/InventoryPanel"]
+layout_mode = 2
+text = "Store →"
+disabled = true
+
+[node name="Divider" type="VSeparator" parent="Panel/OuterVBox/Main"]
+layout_mode = 2
+
+[node name="StoragePanel" type="VBoxContainer" parent="Panel/OuterVBox/Main"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StorLabel" type="Label" parent="Panel/OuterVBox/Main/StoragePanel"]
+layout_mode = 2
+text = "Home Storage (No Limit)"
+horizontal_alignment = 1
+
+[node name="Scroll" type="ScrollContainer" parent="Panel/OuterVBox/Main/StoragePanel"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="StorageList" type="VBoxContainer" parent="Panel/OuterVBox/Main/StoragePanel/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TakeButton" type="Button" parent="Panel/OuterVBox/Main/StoragePanel"]
+layout_mode = 2
+text = "← Take"
+disabled = true
+
+[node name="CloseButton" type="Button" parent="Panel/OuterVBox"]
+layout_mode = 2
+text = "Close"

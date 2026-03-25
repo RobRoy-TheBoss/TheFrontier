@@ -59,7 +59,7 @@ func _populate_available(s: SettlementManager.SettlementData) -> void:
 		var cost_lbl := Label.new()
 		cost_lbl.text = "%d hire / %d/day" % [h.get("hire_cost", 100), h.get("daily_wage", 5)]
 		var hire_btn := Button.new()
-		var is_hired := hid in active_ids
+		var is_hired: bool = hid in active_ids
 		hire_btn.text = "Hired" if is_hired else "Hire"
 		hire_btn.disabled = is_hired
 		var captured_id: String = hid

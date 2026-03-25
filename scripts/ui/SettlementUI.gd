@@ -39,8 +39,8 @@ func _refresh() -> void:
 	var s := SettlementManager.get_settlement(_current_settlement_id)
 	if s == null:
 		return
-	var tier := GameData.get_tier_by_index(s.tier_index)
-	var next_tier := GameData.get_tier_by_index(s.tier_index + 1)
+	var tier: Dictionary = GameData.get_tier_by_index(s.tier_index)
+	var next_tier: Dictionary = GameData.get_tier_by_index(s.tier_index + 1)
 
 	if title_label:
 		title_label.text = _current_settlement_id.capitalize().replace("_", " ")

@@ -3,13 +3,15 @@
 ## and reminds player they must return to report.
 extends Control
 
+const _SettlementFlag := preload("res://scripts/settlement/SettlementFlag.gd")
+
 @onready var area_label: Label = $Panel/AreaLabel
 @onready var resources_list: VBoxContainer = $Panel/ResourcesList
 @onready var instruction_label: Label = $Panel/InstructionLabel
 @onready var confirm_button: Button = $Panel/ConfirmButton
 
 var _area_id: String = ""
-var _pending_flag: SettlementFlag = null
+var _pending_flag: _SettlementFlag = null
 
 
 func _ready() -> void:
@@ -52,10 +54,10 @@ func _spawn_flag() -> void:
 	var player := get_tree().get_first_node_in_group("player")
 	if player == null:
 		return
-	var flag_scene := load("res://scenes/items/SettlementFlag.tscn")
+	var flag_scene: PackedScene = load("res://scenes/items/SettlementFlag.tscn") as PackedScene
 	if flag_scene == null:
 		return
-	var flag: SettlementFlag = flag_scene.instantiate()
+	var flag: Node = flag_scene.instantiate()
 	flag.initialize(_area_id, _find_purchase_settlement())
 	flag.global_position = player.global_position
 	get_tree().root.add_child(flag)

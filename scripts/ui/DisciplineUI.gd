@@ -74,8 +74,8 @@ func _populate_tabs() -> void:
 			var unlock_btn := Button.new()
 			unlock_btn.text = "Unlock"
 			unlock_btn.visible = DisciplineManager.can_unlock_ability(disc_id, ab["id"])
-			var cap_disc := disc_id
-			var cap_ab := ab["id"]
+			var cap_disc: String = disc_id
+			var cap_ab: String = ab["id"]
 			var cap_gold := int(ab.get("unlock_cost_gold", 0))
 			unlock_btn.pressed.connect(func():
 				if _player and _player.inventory.currency >= cap_gold:
