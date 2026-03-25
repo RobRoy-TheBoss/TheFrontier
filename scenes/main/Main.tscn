@@ -18,14 +18,24 @@
 [ext_resource type="Script" uid="uid://cr63lq34mqgkt" path="res://scripts/ui/AbilityBarUI.gd" id="16"]
 [ext_resource type="Script" uid="uid://bh7ay4revyr37" path="res://scripts/world/AudioManager.gd" id="17"]
 [ext_resource type="Script" uid="uid://cgs3n6tqbfcib" path="res://scripts/settlement/RoadManager.gd" id="18"]
+[ext_resource type="PackedScene" uid="uid://74yv33e57747" path="res://scenes/ui/StorageUI.tscn" id="19"]
+[ext_resource type="PackedScene" uid="uid://coy3xpymmm28u" path="res://scenes/ui/RepairUI.tscn" id="20"]
+[ext_resource type="PackedScene" uid="uid://cbx8w2l5ld50x" path="res://scenes/ui/IdentifyUI.tscn" id="21"]
+[ext_resource type="PackedScene" uid="uid://c3bhqy1jsq73m" path="res://scenes/ui/LandmarkNamingUI.tscn" id="22"]
+[ext_resource type="PackedScene" uid="uid://dhhvy0dtdrlh4" path="res://scenes/ui/SaveSlotUI.tscn" id="23"]
+[ext_resource type="PackedScene" uid="uid://dqwp2n5x8egxk" path="res://scenes/ui/SettingsUI.tscn" id="24"]
+[ext_resource type="PackedScene" uid="uid://8cufjgb4br5w" path="res://scenes/ui/PauseMenuUI.tscn" id="25"]
 [ext_resource type="PackedScene" path="res://scenes/world/EasternFrontier.tscn" id="26"]
-[ext_resource type="PackedScene" path="res://scenes/ui/StorageUI.tscn" id="19"]
-[ext_resource type="PackedScene" path="res://scenes/ui/RepairUI.tscn" id="20"]
-[ext_resource type="PackedScene" path="res://scenes/ui/IdentifyUI.tscn" id="21"]
-[ext_resource type="PackedScene" path="res://scenes/ui/LandmarkNamingUI.tscn" id="22"]
-[ext_resource type="PackedScene" path="res://scenes/ui/SaveSlotUI.tscn" id="23"]
-[ext_resource type="PackedScene" path="res://scenes/ui/SettingsUI.tscn" id="24"]
-[ext_resource type="PackedScene" path="res://scenes/ui/PauseMenuUI.tscn" id="25"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_n12rl"]
+sky_top_color = Color(0.40802884, 0.60338956, 0.9405074, 1)
+
+[sub_resource type="Sky" id="Sky_0cxqb"]
+sky_material = SubResource("ProceduralSkyMaterial_n12rl")
+
+[sub_resource type="Environment" id="Environment_u7tt4"]
+background_mode = 2
+sky = SubResource("Sky_0cxqb")
 
 [node name="Main" type="Node" unique_id=1766299531]
 
@@ -38,14 +48,14 @@ shadow_enabled = true
 shadow_blur = 2.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="World" unique_id=631181544]
+environment = SubResource("Environment_u7tt4")
 
-[node name="EasternFrontier" parent="World" instance=ExtResource("26")]
+[node name="EasternFrontier" parent="World" unique_id=101846306 instance=ExtResource("26")]
 
 [node name="Player" parent="World" unique_id=1764318578 instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="Crestport" parent="World" unique_id=336304502 instance=ExtResource("2")]
-settlement_id = "crestport"
 
 [node name="AudioManager" type="Node" parent="World" unique_id=1303220524]
 script = ExtResource("17")
@@ -74,72 +84,69 @@ anchor_right = 0.7
 anchor_bottom = 0.92
 horizontal_alignment = 1
 
-[node name="HealthBar" type="ProgressBar" parent="UI/HUD"]
+[node name="HealthBar" type="ProgressBar" parent="UI/HUD" unique_id=1075856414]
 layout_mode = 0
 offset_left = 16.0
 offset_top = 16.0
 offset_right = 200.0
 offset_bottom = 32.0
-max_value = 100.0
 value = 100.0
 
-[node name="StaminaBar" type="ProgressBar" parent="UI/HUD"]
+[node name="StaminaBar" type="ProgressBar" parent="UI/HUD" unique_id=1790530954]
 layout_mode = 0
 offset_left = 16.0
 offset_top = 40.0
 offset_right = 200.0
 offset_bottom = 56.0
-max_value = 100.0
 value = 100.0
 
-[node name="Compass" type="Control" parent="UI/HUD"]
-layout_mode = 0
+[node name="Compass" type="Control" parent="UI/HUD" unique_id=1255424413]
+anchors_preset = 0
 offset_left = 880.0
 offset_top = 16.0
 offset_right = 1040.0
 offset_bottom = 64.0
 
-[node name="Needle" type="Control" parent="UI/HUD/Compass"]
-layout_mode = 0
+[node name="Needle" type="Control" parent="UI/HUD/Compass" unique_id=1337982525]
+anchors_preset = 0
 offset_right = 160.0
 offset_bottom = 48.0
 
-[node name="WeaponDisplay" type="Control" parent="UI/HUD"]
-layout_mode = 0
+[node name="WeaponDisplay" type="Control" parent="UI/HUD" unique_id=450927945]
+anchors_preset = 0
 offset_left = 16.0
 offset_top = 880.0
 offset_right = 300.0
 offset_bottom = 920.0
 
-[node name="WeaponName" type="Label" parent="UI/HUD/WeaponDisplay"]
+[node name="WeaponName" type="Label" parent="UI/HUD/WeaponDisplay" unique_id=501376983]
 layout_mode = 0
 offset_right = 284.0
 offset_bottom = 40.0
 text = "Unarmed"
 
-[node name="StatusEffects" type="HBoxContainer" parent="UI/HUD"]
+[node name="StatusEffects" type="HBoxContainer" parent="UI/HUD" unique_id=70307546]
 layout_mode = 0
 offset_left = 16.0
 offset_top = 64.0
 offset_right = 500.0
 offset_bottom = 96.0
 
-[node name="ReloadIndicator" type="Control" parent="UI/HUD"]
-layout_mode = 0
+[node name="ReloadIndicator" type="Control" parent="UI/HUD" unique_id=378907543]
+visible = false
+anchors_preset = 0
 offset_left = 880.0
 offset_top = 880.0
 offset_right = 1040.0
 offset_bottom = 920.0
-visible = false
 
-[node name="ReloadBar" type="ProgressBar" parent="UI/HUD/ReloadIndicator"]
+[node name="ReloadBar" type="ProgressBar" parent="UI/HUD/ReloadIndicator" unique_id=418586416]
 layout_mode = 0
 offset_right = 160.0
 offset_bottom = 40.0
-max_value = 100.0
 
-[node name="Crosshair" type="Control" parent="UI/HUD"]
-layout_mode = 0
+[node name="Crosshair" type="Control" parent="UI/HUD" unique_id=1027402581]
+anchors_preset = 0
 offset_left = 952.0
 offset_top = 532.0
 offset_right = 968.0
@@ -147,6 +154,7 @@ offset_bottom = 548.0
 
 [node name="AbilityBar" type="Control" parent="UI" unique_id=1476517541]
 layout_mode = 3
+anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
@@ -591,16 +599,16 @@ autowrap_mode = 3
 layout_mode = 2
 text = "Understood"
 
-[node name="StorageUI" parent="UI" instance=ExtResource("19")]
+[node name="StorageUI" parent="UI" unique_id=877270053 instance=ExtResource("19")]
 
-[node name="RepairUI" parent="UI" instance=ExtResource("20")]
+[node name="RepairUI" parent="UI" unique_id=2111704081 instance=ExtResource("20")]
 
-[node name="IdentifyUI" parent="UI" instance=ExtResource("21")]
+[node name="IdentifyUI" parent="UI" unique_id=394937185 instance=ExtResource("21")]
 
-[node name="LandmarkNamingUI" parent="UI" instance=ExtResource("22")]
+[node name="LandmarkNamingUI" parent="UI" unique_id=927685943 instance=ExtResource("22")]
 
-[node name="SaveSlotUI" parent="UI" instance=ExtResource("23")]
+[node name="SaveSlotUI" parent="UI" unique_id=432462757 instance=ExtResource("23")]
 
-[node name="SettingsUI" parent="UI" instance=ExtResource("24")]
+[node name="SettingsUI" parent="UI" unique_id=930822021 instance=ExtResource("24")]
 
-[node name="PauseMenuUI" parent="UI" instance=ExtResource("25")]
+[node name="PauseMenuUI" parent="UI" unique_id=792391980 instance=ExtResource("25")]
