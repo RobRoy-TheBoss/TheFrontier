@@ -5,7 +5,6 @@
   "sprint_stamina_drain": 12.0,
   "rest_multiplier": 4.0,
   "injury_threshold": 0.35,
-
   "health": {
     "base_max": 100,
     "regen_rate_per_second": 0.5,
@@ -73,5 +72,17 @@
   "fall_damage": {
     "safe_fall_height": 3.0,
     "damage_per_meter_above_safe": 10.0
-  }
+  },
+  "rest_health_regen_multiplier": 4.0,
+  "hunger_critical_threshold": 10.0,
+  "fatigue_critical_threshold": 90.0,
+  "map_marker_types": {
+    "fox": "Animal sighting",
+    "campsite": "Good camping spot",
+    "portage": "River crossing point",
+    "rapids": "Dangerous rapids",
+    "custom": "Custom note"
+  },
+  "naked_eye_survey_radius": 2,
+  "landmark_visibility_bonus_radius": 2
 }

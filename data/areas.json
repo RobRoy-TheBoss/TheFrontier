@@ -2,6 +2,7 @@
   {
     "id": "crestport_bay",
     "region_id": "eastern_frontier",
+    "biome": "coast",
     "hex_coords": { "q": 0, "r": 0 },
     "neighbors": ["greenwood_vale", "marshfen_crossing"],
     "resource_tags": ["fish", "salt", "timber"],
@@ -21,6 +22,7 @@
   {
     "id": "greenwood_vale",
     "region_id": "eastern_frontier",
+    "biome": "forest",
     "hex_coords": { "q": 1, "r": 0 },
     "neighbors": ["crestport_bay", "ironpeak_ridge", "stonehill_pass"],
     "resource_tags": ["timber", "game", "red_heartleaf"],
@@ -36,6 +38,7 @@
   {
     "id": "ironpeak_ridge",
     "region_id": "eastern_frontier",
+    "biome": "mountain",
     "hex_coords": { "q": 2, "r": -1 },
     "neighbors": ["greenwood_vale", "stonehill_pass"],
     "resource_tags": ["iron", "stone", "coal"],
@@ -54,6 +57,7 @@
   {
     "id": "marshfen_crossing",
     "region_id": "eastern_frontier",
+    "biome": "swamp",
     "hex_coords": { "q": 0, "r": 1 },
     "neighbors": ["crestport_bay", "verdant_reach"],
     "resource_tags": ["clay", "game", "fire_herb"],
@@ -72,6 +76,7 @@
   {
     "id": "stonehill_pass",
     "region_id": "eastern_frontier",
+    "biome": "mountain",
     "hex_coords": { "q": 2, "r": 0 },
     "neighbors": ["greenwood_vale", "ironpeak_ridge", "verdant_reach"],
     "resource_tags": ["stone", "furs", "game"],
@@ -90,6 +95,7 @@
   {
     "id": "verdant_reach",
     "region_id": "eastern_frontier",
+    "biome": "plains",
     "hex_coords": { "q": 1, "r": 1 },
     "neighbors": ["marshfen_crossing", "stonehill_pass"],
     "resource_tags": ["timber", "game", "red_heartleaf", "furs"],

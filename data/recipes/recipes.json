@@ -169,6 +169,19 @@
         { "item_id": "horror_eye", "count": 1 },
         { "item_id": "lurker_venom_sac", "count": 2 }
       ]
-    }
+    },
+   {
+     "id": "campfire_kit",
+     "name": "Campfire Kit",
+     "output_item": "campfire_kit",
+     "output_count": 1,
+     "station": "campfire",
+     "discipline_required": null,
+     "ingredients": [
+       { "item_id": "wood", "count": 3 },
+       { "item_id": "stone", "count": 2 },
+       { "item_id": "fiber", "count": 1 }
+     ]
+   }
   ]
 }

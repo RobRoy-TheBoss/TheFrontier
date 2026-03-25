@@ -12,7 +12,10 @@
       "carry_weight_bonus": 30.0,
       "stays_at_camp": true,
       "travels_with_player": false
-    }
+    },
+    "targetable": false,
+    "killable": false,
+    "backpack_capacity": 40.0
   },
   {
     "id": "hunter",
@@ -28,7 +31,10 @@
       "food_type": "raw_game",
       "stays_at_camp": true,
       "travels_with_player": false
-    }
+    },
+    "targetable": false,
+    "killable": false,
+    "food_on_sleep": 3
   },
   {
     "id": "guide",
@@ -41,11 +47,17 @@
     "daily_wage": 8,
     "capabilities": {
       "reveals_nearby_pois": true,
-      "poi_types": ["precursor_site", "resource_cache", "abandoned_camp"],
+      "poi_types": [
+        "precursor_site",
+        "resource_cache",
+        "abandoned_camp"
+      ],
       "reveal_radius_km": 2.0,
       "stays_at_camp": true,
       "travels_with_player": false
-    }
+    },
+    "targetable": false,
+    "killable": false
   },
   {
     "id": "surveyor",
@@ -60,7 +72,10 @@
       "auto_survey_area_on_sleep": true,
       "stays_at_camp": true,
       "travels_with_player": false
-    }
+    },
+    "targetable": false,
+    "killable": false,
+    "discovers_on_sleep": true
   },
   {
     "id": "cartographer",
@@ -73,10 +88,14 @@
     "daily_wage": 8,
     "capabilities": {
       "produces_maps": true,
-      "map_cost_reduction_percent": 0.60,
+      "map_cost_reduction_percent": 0.6,
       "stays_at_camp": true,
       "travels_with_player": false
-    }
+    },
+    "targetable": false,
+    "killable": false,
+    "tracks_areas": true,
+    "generates_map_on_rest": true
   },
   {
     "id": "healer",
@@ -91,6 +110,10 @@
       "camp_treatment_tier": "town",
       "stays_at_camp": true,
       "travels_with_player": false
-    }
+    },
+    "rest_tier_bonus": 1,
+    "targetable": false,
+    "killable": false,
+    "camp_rest_tier": 3
   }
 ]

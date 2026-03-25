@@ -51,7 +51,7 @@
     "rune_slots": 1,
     "noise": "silent",
     "noise_level": "silent",
-    "block_reduction": 0.10,
+    "block_reduction": 0.1,
     "value": 65,
     "min_settlement_tier": "village",
     "description": "The standard blade of the Old World soldier."
@@ -70,7 +70,7 @@
     "rune_slots": 1,
     "noise": "silent",
     "noise_level": "silent",
-    "block_reduction": 0.10,
+    "block_reduction": 0.1,
     "value": 90,
     "min_settlement_tier": "town",
     "description": "Curved blade built for sweeping cuts."
@@ -96,7 +96,7 @@
   },
   {
     "id": "zweihander",
-    "name": "Zweihänder",
+    "name": "Zweih\u00e4nder",
     "type": "two_handed_blade",
     "weapon_category": "melee_heavy",
     "damage": 80,
@@ -146,7 +146,7 @@
     "rune_slots": 1,
     "noise": "silent",
     "noise_level": "silent",
-    "block_reduction": 0.10,
+    "block_reduction": 0.1,
     "value": 100,
     "min_settlement_tier": "village",
     "description": "Crushes armor and bone alike."
@@ -214,7 +214,12 @@
     "monster_aggro_radius": 80.0,
     "value": 120,
     "min_settlement_tier": "trading_post",
-    "description": "Single shot. High damage. Reload is the danger."
+    "description": "Single shot. High damage. Reload is the danger.",
+    "ammo_type": "pistol_ball",
+    "triggers_sound_alert": true,
+    "alert_radius": 80.0,
+    "condition_loss_per_shot": 0.02,
+    "misfire_threshold": 0.2
   },
   {
     "id": "musket",
@@ -237,7 +242,12 @@
     "monster_aggro_radius": 120.0,
     "value": 220,
     "min_settlement_tier": "village",
-    "description": "Devastating at range. The reload will test your nerve."
+    "description": "Devastating at range. The reload will test your nerve.",
+    "ammo_type": "musket_ball",
+    "triggers_sound_alert": true,
+    "alert_radius": 120.0,
+    "condition_loss_per_shot": 0.02,
+    "misfire_threshold": 0.2
   },
   {
     "id": "buckler",
@@ -253,7 +263,7 @@
     "rune_slots": 1,
     "noise": "silent",
     "noise_level": "silent",
-    "block_reduction": 0.30,
+    "block_reduction": 0.3,
     "value": 50,
     "min_settlement_tier": "trading_post",
     "description": "A small round shield. Parry and deflect incoming blows."

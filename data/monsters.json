@@ -18,16 +18,41 @@
       "detection_range": 20.0,
       "aggro_range": 15.0
     },
-    "fire_reaction": "avoids",
+    "fire_reaction": "avoid",
     "light_reaction": "neutral",
     "is_apex": false,
     "loot_table": [
-      { "item_id": "prowler_hide", "chance": 0.8, "count_range": [1, 2] },
-      { "item_id": "raw_meat", "chance": 0.9, "count_range": [1, 3] },
-      { "rune_id": "rune_swiftness", "chance": 0.04 }
+      {
+        "item_id": "prowler_hide",
+        "chance": 0.8,
+        "count_range": [
+          1,
+          2
+        ]
+      },
+      {
+        "item_id": "raw_meat",
+        "chance": 0.9,
+        "count_range": [
+          1,
+          3
+        ]
+      },
+      {
+        "rune_id": "rune_swiftness",
+        "chance": 0.04
+      }
     ],
     "xp_type": "bow_kill",
-    "audio_cue": "prowler_howl"
+    "audio_cue": "prowler_howl",
+    "health": 60,
+    "move_speed": 6.0,
+    "spawn_weight": 0.35,
+    "detection_range": 12.0,
+    "aggro_range": 8.0,
+    "home_radius": 20.0,
+    "flee_hp_threshold": 0.25,
+    "scannable": true
   },
   {
     "id": "shelled_crawler",
@@ -53,12 +78,36 @@
     "light_reaction": "neutral",
     "is_apex": false,
     "loot_table": [
-      { "item_id": "crawler_shell", "chance": 0.7, "count_range": [1, 2] },
-      { "item_id": "crawler_gland", "chance": 0.5, "count_range": [1, 1] },
-      { "rune_id": "rune_resilience", "chance": 0.06 }
+      {
+        "item_id": "crawler_shell",
+        "chance": 0.7,
+        "count_range": [
+          1,
+          2
+        ]
+      },
+      {
+        "item_id": "crawler_gland",
+        "chance": 0.5,
+        "count_range": [
+          1,
+          1
+        ]
+      },
+      {
+        "rune_id": "rune_resilience",
+        "chance": 0.06
+      }
     ],
     "xp_type": "melee_kill",
-    "audio_cue": "crawler_chittering"
+    "audio_cue": "crawler_chittering",
+    "health": 120,
+    "move_speed": 4.5,
+    "spawn_weight": 0.25,
+    "detection_range": 12.0,
+    "aggro_range": 8.0,
+    "trigger_radius": 5.0,
+    "scannable": true
   },
   {
     "id": "bog_lurker",
@@ -79,19 +128,47 @@
       "detection_range": 12.0,
       "aggro_range": 8.0
     },
-    "fire_reaction": "avoids",
+    "fire_reaction": "avoid",
     "light_reaction": "neutral",
     "is_apex": false,
     "special_attacks": [
-      { "name": "venom_bite", "inflicts_injury": "poisoning", "chance": 0.35 }
+      {
+        "name": "venom_bite",
+        "inflicts_injury": "poisoning",
+        "chance": 0.35
+      }
     ],
     "loot_table": [
-      { "item_id": "lurker_venom_sac", "chance": 0.6, "count_range": [1, 1] },
-      { "item_id": "lurker_hide", "chance": 0.75, "count_range": [1, 2] },
-      { "rune_id": "rune_fleet", "chance": 0.05 }
+      {
+        "item_id": "lurker_venom_sac",
+        "chance": 0.6,
+        "count_range": [
+          1,
+          1
+        ]
+      },
+      {
+        "item_id": "lurker_hide",
+        "chance": 0.75,
+        "count_range": [
+          1,
+          2
+        ]
+      },
+      {
+        "rune_id": "rune_fleet",
+        "chance": 0.05
+      }
     ],
     "xp_type": "melee_kill",
-    "audio_cue": "lurker_gurgle"
+    "audio_cue": "lurker_gurgle",
+    "health": 180,
+    "move_speed": 5.0,
+    "spawn_weight": 0.2,
+    "detection_range": 12.0,
+    "aggro_range": 8.0,
+    "trigger_radius": 5.0,
+    "scannable": true
   },
   {
     "id": "plague_swarm",
@@ -112,7 +189,7 @@
       "detection_range": 15.0,
       "aggro_range": 10.0
     },
-    "fire_reaction": "strongly_avoids",
+    "fire_reaction": "avoid",
     "light_reaction": "neutral",
     "is_apex": false,
     "swarm_behavior": {
@@ -120,11 +197,28 @@
       "min_split_size": 30
     },
     "loot_table": [
-      { "item_id": "insect_chitin", "chance": 0.6, "count_range": [2, 5] },
-      { "reagent_id": "charged_filament", "chance": 0.03 }
+      {
+        "item_id": "insect_chitin",
+        "chance": 0.6,
+        "count_range": [
+          2,
+          5
+        ]
+      },
+      {
+        "reagent_id": "charged_filament",
+        "chance": 0.03
+      }
     ],
     "xp_type": "melee_kill",
-    "audio_cue": "swarm_buzzing"
+    "audio_cue": "swarm_buzzing",
+    "health": 80,
+    "move_speed": 7.0,
+    "spawn_weight": 0.15,
+    "detection_range": 12.0,
+    "aggro_range": 8.0,
+    "flee_group_threshold": 0.4,
+    "scannable": true
   },
   {
     "id": "stone_sentinel",
@@ -150,13 +244,41 @@
     "light_reaction": "neutral",
     "is_apex": false,
     "loot_table": [
-      { "item_id": "sentinel_core", "chance": 0.4, "count_range": [1, 1] },
-      { "item_id": "ancient_metal", "chance": 0.7, "count_range": [1, 3] },
-      { "reagent_id": "precursor_core_fragment", "chance": 0.08 },
-      { "rune_id": "rune_fortitude", "chance": 0.07 }
+      {
+        "item_id": "sentinel_core",
+        "chance": 0.4,
+        "count_range": [
+          1,
+          1
+        ]
+      },
+      {
+        "item_id": "ancient_metal",
+        "chance": 0.7,
+        "count_range": [
+          1,
+          3
+        ]
+      },
+      {
+        "reagent_id": "precursor_core_fragment",
+        "chance": 0.08
+      },
+      {
+        "rune_id": "rune_fortitude",
+        "chance": 0.07
+      }
     ],
     "xp_type": "melee_kill",
-    "audio_cue": "sentinel_grinding"
+    "audio_cue": "sentinel_grinding",
+    "health": 450,
+    "move_speed": 2.5,
+    "spawn_weight": 0.1,
+    "detection_range": 12.0,
+    "aggro_range": 8.0,
+    "home_radius": 20.0,
+    "flee_hp_threshold": 0.25,
+    "scannable": true
   },
   {
     "id": "bonewalker",
@@ -178,17 +300,37 @@
       "aggro_range": 4.0,
       "hearing_range": 35.0
     },
-    "fire_reaction": "avoids",
+    "fire_reaction": "avoid",
     "light_reaction": "attracted",
     "is_apex": false,
     "attracted_to_sound": true,
     "loot_table": [
-      { "item_id": "bonewalker_membrane", "chance": 0.65, "count_range": [1, 2] },
-      { "rune_id": "rune_silence", "chance": 0.06 },
-      { "rune_id": "rune_precursor_ward", "chance": 0.04 }
+      {
+        "item_id": "bonewalker_membrane",
+        "chance": 0.65,
+        "count_range": [
+          1,
+          2
+        ]
+      },
+      {
+        "rune_id": "rune_silence",
+        "chance": 0.06
+      },
+      {
+        "rune_id": "rune_precursor_ward",
+        "chance": 0.04
+      }
     ],
     "xp_type": "stealth_kill",
-    "audio_cue": "bonewalker_clicking"
+    "audio_cue": "bonewalker_clicking",
+    "health": 240,
+    "move_speed": 5.5,
+    "spawn_weight": 0.2,
+    "detection_range": 12.0,
+    "aggro_range": 8.0,
+    "trigger_radius": 5.0,
+    "scannable": true
   },
   {
     "id": "deep_horror",
@@ -211,22 +353,74 @@
       "armor": 25
     },
     "fire_reaction": "neutral",
-    "light_reaction": "neutral",
+    "light_reaction": "repelled",
     "is_apex": true,
-    "immune_to": ["banish", "calm", "stagger", "warcry"],
+    "immune_to": [
+      "banish",
+      "calm",
+      "stagger",
+      "warcry"
+    ],
     "special_attacks": [
-      { "name": "crushing_blow", "inflicts_injury": "reduced_health_pool", "chance": 0.25 },
-      { "name": "ground_tremor", "aoe_radius": 8.0, "damage": 50 }
+      {
+        "name": "crushing_blow",
+        "inflicts_injury": "reduced_health_pool",
+        "chance": 0.25
+      },
+      {
+        "name": "ground_tremor",
+        "aoe_radius": 8.0,
+        "damage": 50
+      }
     ],
     "loot_table": [
-      { "item_id": "horror_hide", "chance": 0.9, "count_range": [2, 4] },
-      { "item_id": "horror_eye", "chance": 0.5, "count_range": [1, 1] },
-      { "reagent_id": "precursor_core_fragment", "chance": 0.15 },
-      { "rune_id": "rune_wrath", "chance": 0.10 },
-      { "rune_id": "rune_mending", "chance": 0.08 }
+      {
+        "item_id": "horror_hide",
+        "chance": 0.9,
+        "count_range": [
+          2,
+          4
+        ]
+      },
+      {
+        "item_id": "horror_eye",
+        "chance": 0.5,
+        "count_range": [
+          1,
+          1
+        ]
+      },
+      {
+        "reagent_id": "precursor_core_fragment",
+        "chance": 0.15
+      },
+      {
+        "rune_id": "rune_wrath",
+        "chance": 0.1
+      },
+      {
+        "rune_id": "rune_mending",
+        "chance": 0.08
+      }
     ],
     "xp_type": "melee_kill",
-    "audio_cue": "horror_ambient"
+    "audio_cue": "horror_ambient",
+    "health": 1200,
+    "move_speed": 4.0,
+    "spawn_weight": 0.05,
+    "detection_range": 12.0,
+    "aggro_range": 8.0,
+    "phases": [
+      {
+        "hp_threshold": 1.0,
+        "attack_pattern": "standard"
+      },
+      {
+        "hp_threshold": 0.5,
+        "attack_pattern": "enraged"
+      }
+    ],
+    "scannable": true
   },
   {
     "id": "ridge_stalker",
@@ -247,20 +441,94 @@
       "detection_range": 30.0,
       "aggro_range": 25.0
     },
-    "fire_reaction": "avoids",
+    "fire_reaction": "avoid",
     "light_reaction": "neutral",
     "is_apex": true,
-    "immune_to": ["banish", "calm"],
+    "immune_to": [
+      "banish",
+      "calm"
+    ],
     "special_attacks": [
-      { "name": "pounce", "damage_multiplier": 2.5, "inflicts_injury": "slowed_movement", "chance": 0.40 }
+      {
+        "name": "pounce",
+        "damage_multiplier": 2.5,
+        "inflicts_injury": "slowed_movement",
+        "chance": 0.4
+      }
     ],
     "loot_table": [
-      { "item_id": "stalker_pelt", "chance": 0.85, "count_range": [1, 1] },
-      { "item_id": "stalker_fang", "chance": 0.6, "count_range": [1, 3] },
-      { "rune_id": "rune_piercing", "chance": 0.09 },
-      { "rune_id": "rune_impact", "chance": 0.07 }
+      {
+        "item_id": "stalker_pelt",
+        "chance": 0.85,
+        "count_range": [
+          1,
+          1
+        ]
+      },
+      {
+        "item_id": "stalker_fang",
+        "chance": 0.6,
+        "count_range": [
+          1,
+          3
+        ]
+      },
+      {
+        "rune_id": "rune_piercing",
+        "chance": 0.09
+      },
+      {
+        "rune_id": "rune_impact",
+        "chance": 0.07
+      }
     ],
     "xp_type": "melee_kill",
-    "audio_cue": "stalker_roar"
+    "audio_cue": "stalker_roar",
+    "health": 650,
+    "move_speed": 9.0,
+    "spawn_weight": 0.05,
+    "detection_range": 12.0,
+    "aggro_range": 8.0,
+    "phases": [
+      {
+        "hp_threshold": 1.0,
+        "attack_pattern": "standard"
+      },
+      {
+        "hp_threshold": 0.5,
+        "attack_pattern": "enraged"
+      }
+    ],
+    "scannable": true
+  },
+  {
+    "id": "grave_titan",
+    "name": "Grave Titan",
+    "model_path": "res://assets/monsters/grave_titan.glb",
+    "hp": 600,
+    "health": 600,
+    "damage": 55,
+    "speed": 3.5,
+    "move_speed": 3.5,
+    "description": "A massive undead colossus that charges when enraged.",
+    "category": "undead",
+    "behavior_type": "heavy",
+    "difficulty": "elite",
+    "stats": {
+      "armor": 30,
+      "stagger_threshold": 80
+    },
+    "fire_reaction": "neutral",
+    "light_reaction": "neutral",
+    "is_apex": false,
+    "loot_table": "elite_undead",
+    "xp_type": "elite",
+    "audio_cue": "grave_titan_ambient",
+    "spawn_weight": 0.05,
+    "detection_range": 18.0,
+    "aggro_range": 10.0,
+    "charge_damage": 90.0,
+    "flee_hp_threshold": 0.0,
+    "scannable": true
   }
 ]

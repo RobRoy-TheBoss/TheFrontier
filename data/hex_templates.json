@@ -1,66 +1,12 @@
 [
   {
-    "template_id": "forest_dense",
+    "template_id": "default",
     "biome_type": "forest",
-    "scene_path": "res://scenes/map/hex_forest_dense.tscn",
-    "passable": true,
-    "movement_cost": 2,
-    "tags": ["forest", "dense"]
+    "scene_path": "scenes/forest.tscn"
   },
   {
-    "template_id": "forest_sparse",
-    "biome_type": "forest",
-    "scene_path": "res://scenes/map/hex_forest_sparse.tscn",
-    "passable": true,
-    "movement_cost": 1,
-    "tags": ["forest"]
-  },
-  {
-    "template_id": "plains",
-    "biome_type": "plains",
-    "scene_path": "res://scenes/map/hex_plains.tscn",
-    "passable": true,
-    "movement_cost": 1,
-    "tags": ["plains", "open"]
-  },
-  {
-    "template_id": "hills",
-    "biome_type": "hills",
-    "scene_path": "res://scenes/map/hex_hills.tscn",
-    "passable": true,
-    "movement_cost": 2,
-    "tags": ["hills"]
-  },
-  {
-    "template_id": "mountain",
-    "biome_type": "mountain",
-    "scene_path": "res://scenes/map/hex_mountain.tscn",
-    "passable": false,
-    "movement_cost": 9999,
-    "tags": ["mountain", "impassable"]
-  },
-  {
-    "template_id": "river",
-    "biome_type": "river",
-    "scene_path": "res://scenes/map/hex_river.tscn",
-    "passable": true,
-    "movement_cost": 3,
-    "tags": ["river", "water"]
-  },
-  {
-    "template_id": "swamp",
-    "biome_type": "swamp",
-    "scene_path": "res://scenes/map/hex_swamp.tscn",
-    "passable": true,
-    "movement_cost": 3,
-    "tags": ["swamp", "wet"]
-  },
-  {
-    "template_id": "ruins",
-    "biome_type": "ruins",
-    "scene_path": "res://scenes/map/hex_ruins.tscn",
-    "passable": true,
-    "movement_cost": 2,
-    "tags": ["ruins", "precursor"]
+    "template_id": "desert",
+    "biome_type": "desert",
+    "scene_path": "scenes/desert.tscn"
   }
 ]
