@@ -18,6 +18,14 @@
 [ext_resource type="Script" uid="uid://cr63lq34mqgkt" path="res://scripts/ui/AbilityBarUI.gd" id="16"]
 [ext_resource type="Script" uid="uid://bh7ay4revyr37" path="res://scripts/world/AudioManager.gd" id="17"]
 [ext_resource type="Script" uid="uid://cgs3n6tqbfcib" path="res://scripts/settlement/RoadManager.gd" id="18"]
+[ext_resource type="PackedScene" path="res://scenes/world/EasternFrontier.tscn" id="26"]
+[ext_resource type="PackedScene" path="res://scenes/ui/StorageUI.tscn" id="19"]
+[ext_resource type="PackedScene" path="res://scenes/ui/RepairUI.tscn" id="20"]
+[ext_resource type="PackedScene" path="res://scenes/ui/IdentifyUI.tscn" id="21"]
+[ext_resource type="PackedScene" path="res://scenes/ui/LandmarkNamingUI.tscn" id="22"]
+[ext_resource type="PackedScene" path="res://scenes/ui/SaveSlotUI.tscn" id="23"]
+[ext_resource type="PackedScene" path="res://scenes/ui/SettingsUI.tscn" id="24"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PauseMenuUI.tscn" id="25"]
 
 [node name="Main" type="Node" unique_id=1766299531]
 
@@ -30,6 +38,8 @@ shadow_enabled = true
 shadow_blur = 2.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="World" unique_id=631181544]
+
+[node name="EasternFrontier" parent="World" instance=ExtResource("26")]
 
 [node name="Player" parent="World" unique_id=1764318578 instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -52,6 +62,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("3")
 
 [node name="MessageLabel" type="Label" parent="UI/HUD" unique_id=863244150]
@@ -136,8 +147,8 @@ offset_bottom = 548.0
 
 [node name="AbilityBar" type="Control" parent="UI" unique_id=1476517541]
 layout_mode = 3
-anchors_preset = 13
 anchor_left = 0.5
+anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -240.0
@@ -190,26 +201,30 @@ anchor_top = 0.05
 anchor_right = 0.9
 anchor_bottom = 0.95
 
-[node name="WeightLabel" type="Label" parent="UI/InventoryUI/Panel" unique_id=451764973]
+[node name="VBox" type="VBoxContainer" parent="UI/InventoryUI/Panel" unique_id=900000001]
+layout_mode = 2
+
+[node name="WeightLabel" type="Label" parent="UI/InventoryUI/Panel/VBox" unique_id=451764973]
 layout_mode = 2
 text = "Weight: 0 / 50 kg"
 
-[node name="CurrencyLabel" type="Label" parent="UI/InventoryUI/Panel" unique_id=55649813]
+[node name="CurrencyLabel" type="Label" parent="UI/InventoryUI/Panel/VBox" unique_id=55649813]
 layout_mode = 2
 text = "Silver: 50"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="UI/InventoryUI/Panel" unique_id=1438992253]
-layout_mode = 2
-
-[node name="ItemList" type="VBoxContainer" parent="UI/InventoryUI/Panel/ScrollContainer" unique_id=1853906054]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="EquipmentSlots" type="GridContainer" parent="UI/InventoryUI/Panel" unique_id=1924882672]
+[node name="EquipmentSlots" type="GridContainer" parent="UI/InventoryUI/Panel/VBox" unique_id=1924882672]
 layout_mode = 2
 columns = 4
 
-[node name="RunePanel" type="Control" parent="UI/InventoryUI/Panel" unique_id=1606589667]
+[node name="ScrollContainer" type="ScrollContainer" parent="UI/InventoryUI/Panel/VBox" unique_id=1438992253]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ItemList" type="VBoxContainer" parent="UI/InventoryUI/Panel/VBox/ScrollContainer" unique_id=1853906054]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RunePanel" type="Control" parent="UI/InventoryUI/Panel/VBox" unique_id=1606589667]
 layout_mode = 2
 
 [node name="JournalUI" type="Control" parent="UI" unique_id=1945594605]
@@ -575,3 +590,17 @@ autowrap_mode = 3
 [node name="ConfirmButton" type="Button" parent="UI/FlagConfirmUI/Panel" unique_id=1293728565]
 layout_mode = 2
 text = "Understood"
+
+[node name="StorageUI" parent="UI" instance=ExtResource("19")]
+
+[node name="RepairUI" parent="UI" instance=ExtResource("20")]
+
+[node name="IdentifyUI" parent="UI" instance=ExtResource("21")]
+
+[node name="LandmarkNamingUI" parent="UI" instance=ExtResource("22")]
+
+[node name="SaveSlotUI" parent="UI" instance=ExtResource("23")]
+
+[node name="SettingsUI" parent="UI" instance=ExtResource("24")]
+
+[node name="PauseMenuUI" parent="UI" instance=ExtResource("25")]
