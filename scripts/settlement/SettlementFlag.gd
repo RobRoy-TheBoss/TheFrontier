@@ -1,6 +1,7 @@
 ## SettlementFlag
 ## The physical flag object planted in the world by the player.
 ## Tracks pending founding state and is destroyed if player dies before reporting.
+class_name SettlementFlag
 extends Node3D
 
 var area_id: String = ""

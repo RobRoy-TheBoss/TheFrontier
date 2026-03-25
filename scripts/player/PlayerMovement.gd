@@ -1,6 +1,7 @@
 ## PlayerMovement
 ## Handles first-person movement: walk, sprint, jump, crouch, swim.
 ## Consumes stamina from PlayerHealth on sprint/jump.
+class_name PlayerMovement
 extends Node
 
 const WALK_SPEED := 4.5
@@ -13,6 +14,8 @@ const GRAVITY := 9.8
 var _player: CharacterBody3D
 var _health: PlayerHealth
 var _survival: PlayerSurvival
+var _camera_pivot: Node3D
+var _body_mesh: Node3D
 var _is_crouching: bool = false
 var _is_swimming: bool = false
 var _road_speed_bonus: float = 0.0
@@ -23,6 +26,8 @@ func _ready() -> void:
 	await _player.ready
 	_health = _player.health
 	_survival = _player.survival
+	_camera_pivot = _player.camera_pivot
+	_body_mesh = _player.character_model
 
 
 func _physics_process(delta: float) -> void:
@@ -47,9 +52,14 @@ func _handle_movement(delta: float) -> void:
 	if Input.is_action_just_pressed("crouch"):
 		_is_crouching = not _is_crouching
 
-	# Direction
+	# Direction — camera-relative
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
-	var direction := (_player.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	var direction := Vector3.ZERO
+	if input_dir != Vector2.ZERO:
+		var cb := _camera_pivot.global_transform.basis
+		var fwd := Vector3(-cb.z.x, 0, -cb.z.z).normalized()
+		var right := Vector3(cb.x.x, 0, cb.x.z).normalized()
+		direction = (right * input_dir.x - fwd * input_dir.y).normalized()
 
 	# Speed selection
 	var is_sprinting := Input.is_action_pressed("sprint") and not _is_crouching
@@ -77,6 +87,9 @@ func _handle_movement(delta: float) -> void:
 	if direction != Vector3.ZERO:
 		_player.velocity.x = direction.x * speed
 		_player.velocity.z = direction.z * speed
+		# Rotate body mesh to face movement direction (player node stays unrotated)
+		var target_y := atan2(-direction.x, -direction.z) + PI
+		_body_mesh.rotation.y = lerp_angle(_body_mesh.rotation.y, target_y, min(1.0, 10.0 * delta))
 		# Fatigue gain from movement
 		_survival.accumulate_fatigue(GameData.survival_params.get("fatigue", {}).get("gain_per_second_active", 0.003) * delta)
 	else:

@@ -1,6 +1,7 @@
 ## CampDeployer
 ## Handles the player deploying camp equipment (tent, campfire, alchemy set).
 ## Attached to Player node.
+class_name CampDeployer
 extends Node
 
 const CAMP_SCENE := "res://scenes/camp/PlayerCamp.tscn"
@@ -30,13 +31,13 @@ func _toggle_camp() -> void:
 
 
 func _deploy_camp() -> void:
-	var has_tent := _player.inventory.has_item("tent")
-	var has_campfire := _player.inventory.has_item("campfire_kit")
-	var has_alchemy := _player.inventory.has_item("alchemy_set")
+	var has_tent: bool = _player.inventory.has_item("tent")
+	var has_campfire: bool = _player.inventory.has_item("campfire_kit")
+	var has_alchemy: bool = _player.inventory.has_item("alchemy_set")
 
 	if not has_tent and not has_campfire:
 		# Nothing to deploy
-		var hud := get_tree().get_first_node_in_group("hud")
+		var hud: Node = get_tree().get_first_node_in_group("hud")
 		if hud and hud.has_method("show_message"):
 			hud.show_message("You need a tent or campfire kit to make camp.")
 		return
@@ -49,7 +50,7 @@ func _deploy_camp() -> void:
 	if has_alchemy:
 		_player.inventory.remove_item("alchemy_set", 1)
 
-	var camp_res := load(CAMP_SCENE)
+	var camp_res: PackedScene = load(CAMP_SCENE) as PackedScene
 	var camp: Node
 	if camp_res:
 		camp = camp_res.instantiate()
@@ -66,9 +67,9 @@ func _deploy_camp() -> void:
 
 	_current_camp = camp
 
-	var hud := get_tree().get_first_node_in_group("hud")
+	var hud: Node = get_tree().get_first_node_in_group("hud")
 	if hud and hud.has_method("show_message"):
-		var msg := "Camp established."
+		var msg: String = "Camp established."
 		if has_campfire:
 			msg += " Campfire lit."
 		if has_alchemy:

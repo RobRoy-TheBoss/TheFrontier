@@ -93,7 +93,7 @@ func discover_precursor_site(site_id: String) -> void:
 func attune_to_site(site_id: String) -> bool:
 	if not precursor_sites.has(site_id):
 		return false
-	var site := precursor_sites[site_id]
+	var site: Dictionary = precursor_sites[site_id]
 	if not site.get("discovered", false):
 		return false
 	var disc_id: String = site.get("discipline_id", "")

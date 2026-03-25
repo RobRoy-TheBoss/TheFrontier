@@ -65,15 +65,9 @@ func _recalculate_max() -> void:
 
 
 func take_damage(amount: float, attacker: Node = null) -> void:
-	var hp_params: Dictionary = _params.get("health", {})
 	current_health -= amount
 	current_health = max(0.0, current_health)
 	health_changed.emit(current_health, max_health)
-
-	# Check injury chance
-	var threshold: float = hp_params.get("injury_threshold_percent", 0.35) * max_health
-	if current_health < threshold and randf() < 0.15:
-		_try_inflict_random_injury()
 
 	# Second Wind (Warrior) auto-trigger
 	if current_health / max_health <= 0.25:
@@ -81,6 +75,16 @@ func take_damage(amount: float, attacker: Node = null) -> void:
 
 	if current_health <= 0.0:
 		player_died.emit()
+
+
+## Called by combat sources (monsters, traps) after dealing damage to attempt
+## a random injury roll. Separated from take_damage so non-combat callers
+## (survival drains, test helpers) do not trigger injury rolls.
+func try_combat_injury_roll() -> void:
+	var hp_params: Dictionary = _params.get("health", {})
+	var threshold: float = hp_params.get("injury_threshold_percent", 0.35) * max_health
+	if current_health < threshold and randf() < 0.15:
+		_try_inflict_random_injury()
 
 
 func heal(amount: float) -> void:

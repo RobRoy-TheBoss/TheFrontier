@@ -1,6 +1,7 @@
-## SpawnManager
-## Manages monster spawning for a specific Area. Reads spawn table from area data,
+## AreaSpawnManager
+## Per-area monster spawning component. Reads spawn table from area data,
 ## applies east-west difficulty scalar, respects settlement suppression and safe zones.
+class_name AreaSpawnManager
 extends Node3D
 
 @export var area_id: String = ""
@@ -13,7 +14,7 @@ const SPAWN_INTERVAL := 30.0
 const MIN_SPAWN_DIST_FROM_PLAYER := 30.0
 
 var _active_monsters: Array = []
-var _spawn_timer: float = 0.0
+var _spawn_timer: float = SPAWN_INTERVAL
 var _suppression_percent: float = 0.0
 var _settlement_in_area: String = ""
 
@@ -49,7 +50,7 @@ func recalculate_suppression() -> void:
 		var s: SettlementManager.SettlementData = SettlementManager.settlements[sid]
 		if s.area_id == area_id:
 			_settlement_in_area = sid
-			var tier := GameData.get_tier_by_index(s.tier_index)
+			var tier := DataLoader.get_tier_by_index(s.tier_index)
 			_suppression_percent = tier.get("area_suppression_percent", 25) / 100.0
 			return
 
@@ -70,8 +71,8 @@ func _try_spawn() -> void:
 
 	var monster_instance := MONSTER_SCENE.instantiate()
 	monster_instance.monster_id = monster_id
-	monster_instance.global_position = spawn_pos
 	get_tree().root.add_child(monster_instance)
+	monster_instance.global_position = spawn_pos
 	monster_instance.connect("died", _on_monster_died)
 	_active_monsters.append(monster_instance)
 
@@ -85,7 +86,8 @@ func _pick_monster_from_table() -> String:
 	var total_weight := 0.0
 	var weighted_table := []
 	for entry in spawn_table:
-		var monster_data := GameData.get_monster(entry.get("id", ""))
+		var mid: String = entry.get("monster_id", entry.get("id", ""))
+		var monster_data: Dictionary = DataLoader.get_monster(mid)
 		if monster_data.is_empty():
 			continue
 		# Difficulty filter: east-west scalar
@@ -94,7 +96,7 @@ func _pick_monster_from_table() -> String:
 		if east_west_scalar < min_scalar:
 			continue
 		var weight: float = entry.get("weight", 1.0) * season_modifier
-		weighted_table.append({ "id": entry["id"], "weight": weight })
+		weighted_table.append({ "id": mid, "weight": weight })
 		total_weight += weight
 
 	if weighted_table.is_empty():
@@ -129,7 +131,7 @@ func _find_spawn_position() -> Vector3:
 func _in_safe_zone(pos: Vector3) -> bool:
 	for sid in SettlementManager.settlements:
 		var s: SettlementManager.SettlementData = SettlementManager.settlements[sid]
-		var tier := GameData.get_tier_by_index(s.tier_index)
+		var tier := DataLoader.get_tier_by_index(s.tier_index)
 		var safe_radius: float = tier.get("safe_zone_radius", 40.0)
 		if pos.distance_to(s.position) < safe_radius:
 			return true

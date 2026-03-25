@@ -63,7 +63,7 @@ func _load_defaults() -> void:
 		return
 	var text := file.get_as_text()
 	file.close()
-	var parsed := JSON.parse_string(text)
+	var parsed: Variant = JSON.parse_string(text)
 	if parsed == null or not (parsed is Dictionary):
 		push_error("[InputManager] Failed to parse default input config.")
 		return
@@ -80,7 +80,7 @@ func _load_user_config() -> void:
 		return
 	var text := file.get_as_text()
 	file.close()
-	var parsed := JSON.parse_string(text)
+	var parsed: Variant = JSON.parse_string(text)
 	if parsed == null or not (parsed is Dictionary):
 		push_warning("[InputManager] User config parse failed — using defaults.")
 		return

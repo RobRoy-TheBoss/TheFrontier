@@ -1,7 +1,10 @@
 ## AbilitySystem
 ## Manages active ability execution, cooldowns, channeling, and reagent consumption.
 ## Attached to the Player node.
+class_name AbilitySystem
 extends Node
+
+const _AlchemySystem := preload("res://scripts/alchemy/AlchemySystem.gd")
 
 signal ability_activated(discipline_id: String, ability_id: String)
 signal ability_channel_started(discipline_id: String, ability_id: String, duration: float)
@@ -222,10 +225,10 @@ func _place_trap(data: Dictionary) -> void:
 	if not _player.inventory.has_item(item_id):
 		return
 	_player.inventory.remove_item(item_id, 1)
-	var trap_scene := load("res://scenes/items/SnareTrap.tscn")
+	var trap_scene: PackedScene = load("res://scenes/items/SnareTrap.tscn") as PackedScene
 	if trap_scene == null:
 		return
-	var trap := trap_scene.instantiate()
+	var trap: Node = trap_scene.instantiate()
 	trap.global_position = _player.global_position
 	get_tree().root.add_child(trap)
 	DisciplineManager.add_xp("survivalist", "trap_check")
@@ -257,9 +260,9 @@ func _place_ward(data: Dictionary) -> void:
 	var radius: float = data.get("radius", 3.0)
 	var duration: float = data.get("duration", 60.0)
 	var target_pos := _get_target_position(8.0)
-	var ward_scene := load("res://scenes/combat/Ward.tscn")
+	var ward_scene: PackedScene = load("res://scenes/combat/Ward.tscn") as PackedScene
 	if ward_scene:
-		var ward := ward_scene.instantiate()
+		var ward: Node = ward_scene.instantiate()
 		ward.global_position = target_pos
 		ward.setup(radius, duration)
 		get_tree().root.add_child(ward)
@@ -385,14 +388,16 @@ func _open_crafting_ui(recipe_ids: Array) -> void:
 
 func _place_spike_trap(data: Dictionary) -> void:
 	var recipe_id := "spike_trap"
-	var alchemy := AlchemySystem.new()
-	if not alchemy.can_brew(recipe_id, AlchemySystem.Station.HOME_WORKSHOP, _player.inventory):
+	var alchemy: Node = _AlchemySystem.new()
+	if not alchemy.can_brew(recipe_id, _AlchemySystem.Station.HOME_WORKSHOP, _player.inventory):
+		alchemy.free()
 		return
-	alchemy.brew(recipe_id, AlchemySystem.Station.HOME_WORKSHOP, _player.inventory)
-	var trap_scene := load("res://scenes/items/SpikeTrap.tscn")
+	alchemy.brew(recipe_id, _AlchemySystem.Station.HOME_WORKSHOP, _player.inventory)
+	alchemy.free()
+	var trap_scene: PackedScene = load("res://scenes/items/SpikeTrap.tscn") as PackedScene
 	if trap_scene == null:
 		return
-	var trap := trap_scene.instantiate()
+	var trap: Node = trap_scene.instantiate()
 	trap.global_position = _get_target_position(3.0)
 	trap.damage = data.get("damage", 80.0)
 	get_tree().root.add_child(trap)
@@ -455,16 +460,16 @@ func _cast_force_push(data: Dictionary) -> void:
 	var cone_angle: float = data.get("cone_angle", 60.0)
 	var knockback: float = data.get("knockback_force", 15.0)
 	var stagger: float = data.get("stagger_duration", 1.5)
-	var monsters := get_tree().get_nodes_in_group("monster")
-	var forward := -_player.global_transform.basis.z
+	var monsters: Array = get_tree().get_nodes_in_group("monster")
+	var forward: Vector3 = -_player.global_transform.basis.z
 	for m in monsters:
-		var to_monster := (m.global_position - _player.global_position).normalized()
-		var angle := rad_to_deg(forward.angle_to(to_monster))
+		var to_monster: Vector3 = (m.global_position - _player.global_position).normalized()
+		var angle: float = rad_to_deg(forward.angle_to(to_monster))
 		if angle > cone_angle / 2.0:
 			continue
 		if m.global_position.distance_to(_player.global_position) > 10.0:
 			continue
-		var push_dir := to_monster
+		var push_dir: Vector3 = to_monster
 		push_dir.y = 0.3
 		m.velocity += push_dir * knockback
 		if m.has_method("apply_stagger"):
@@ -481,15 +486,15 @@ func _cast_lightning_arc(data: Dictionary) -> void:
 	var targets_hit := [first_target]
 	first_target.take_damage(damage, _player) if first_target.has_method("take_damage") else null
 	# Chain to nearby monsters
-	var all_monsters := get_tree().get_nodes_in_group("monster")
-	var last_pos := first_target.global_position
+	var all_monsters: Array = get_tree().get_nodes_in_group("monster")
+	var last_pos: Vector3 = first_target.global_position
 	while targets_hit.size() < max_targets:
 		var next: Node = null
-		var next_dist := INF
+		var next_dist: float = INF
 		for m in all_monsters:
 			if m in targets_hit:
 				continue
-			var d := m.global_position.distance_to(last_pos)
+			var d: float = m.global_position.distance_to(last_pos)
 			if d < chain_range and d < next_dist:
 				next_dist = d
 				next = m
@@ -540,23 +545,23 @@ func _consume_reagent(ab: Dictionary) -> bool:
 
 func _get_target_position(max_dist: float) -> Vector3:
 	var cam: Camera3D = _player.camera
-	var space := _player.get_world_3d().direct_space_state
-	var origin := cam.global_position
-	var end := origin + (-cam.global_transform.basis.z * max_dist)
-	var query := PhysicsRayQueryParameters3D.create(origin, end)
+	var space: PhysicsDirectSpaceState3D = _player.get_world_3d().direct_space_state
+	var origin: Vector3 = cam.global_position
+	var end: Vector3 = origin + (-cam.global_transform.basis.z * max_dist)
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, end)
 	query.exclude = [_player]
-	var result := space.intersect_ray(query)
+	var result: Dictionary = space.intersect_ray(query)
 	if result.is_empty():
 		return end
 	return result["position"]
 
 
 func _get_closest_monster(max_dist: float) -> Node:
-	var monsters := get_tree().get_nodes_in_group("monster")
+	var monsters: Array = get_tree().get_nodes_in_group("monster")
 	var closest: Node = null
-	var closest_dist := max_dist
+	var closest_dist: float = max_dist
 	for m in monsters:
-		var d := m.global_position.distance_to(_player.global_position)
+		var d: float = m.global_position.distance_to(_player.global_position)
 		if d < closest_dist:
 			closest_dist = d
 			closest = m
@@ -565,13 +570,13 @@ func _get_closest_monster(max_dist: float) -> Node:
 
 func _get_ranged_target(max_range: float) -> Node:
 	var cam: Camera3D = _player.camera
-	var space := _player.get_world_3d().direct_space_state
-	var origin := cam.global_position
-	var end := origin + (-cam.global_transform.basis.z * max_range)
-	var query := PhysicsRayQueryParameters3D.create(origin, end)
+	var space: PhysicsDirectSpaceState3D = _player.get_world_3d().direct_space_state
+	var origin: Vector3 = cam.global_position
+	var end: Vector3 = origin + (-cam.global_transform.basis.z * max_range)
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, end)
 	query.exclude = [_player]
 	query.collision_mask = 0b10
-	var result := space.intersect_ray(query)
+	var result: Dictionary = space.intersect_ray(query)
 	if result.is_empty():
 		return null
 	return result.get("collider")

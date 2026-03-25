@@ -1,6 +1,7 @@
 ## AlchemySystem
 ## Handles recipe lookup, ingredient validation, and brewing execution.
 ## Works at campfire (basic), alchemy set (advanced), and home workshop (all).
+class_name AlchemySystem
 extends Node
 
 enum Station { CAMPFIRE, ALCHEMY_SET, HOME_WORKSHOP, TOWN_ALCHEMIST }

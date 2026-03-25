@@ -45,7 +45,7 @@ func _process(delta: float) -> void:
 	if not _fading:
 		return
 	_fade_elapsed += delta
-	var t := clampf(_fade_elapsed / CROSSFADE_DURATION, 0.0, 1.0)
+	var t: float = clampf(_fade_elapsed / CROSSFADE_DURATION, 0.0, 1.0)
 
 	_inactive_player.volume_db = linear_to_db(t)          # fade in
 	_active_player.volume_db   = linear_to_db(1.0 - t)    # fade out

@@ -138,6 +138,11 @@ func equip(item_id: String, slot: String) -> bool:
 	return true
 
 
+func unequip(slot: String) -> void:
+	_unequip_slot(slot)
+	inventory_changed.emit()
+
+
 func _unequip_slot(slot: String) -> void:
 	if equipped[slot].is_empty():
 		return

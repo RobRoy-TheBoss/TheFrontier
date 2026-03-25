@@ -1,6 +1,7 @@
 ## SurveyingTool
 ## Handles the three surveying tools: naked eye, spyglass, theodolite.
 ## Extends effective visual range for resource discovery.
+class_name SurveyingTool
 extends Node
 
 enum SurveyTool { NAKED_EYE, SPYGLASS, THEODOLITE }
@@ -51,7 +52,7 @@ func survey_area(area_id: String) -> void:
 	for node in resource_nodes:
 		if not is_instance_valid(node):
 			continue
-		var dist := node.global_position.distance_to(_player.global_position)
+		var dist: float = node.global_position.distance_to(_player.global_position)
 		if dist <= get_survey_range():
 			if node.has_method("interact"):
 				# Auto-discover resource

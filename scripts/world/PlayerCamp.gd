@@ -40,10 +40,10 @@ func _notify_nearby_monsters() -> void:
 	for m in monsters:
 		if not is_instance_valid(m):
 			continue
-		var dist := m.global_position.distance_to(global_position)
+		var dist: float = m.global_position.distance_to(global_position)
 		if dist > 30.0:
 			continue
-		var data := GameData.get_monster(m.monster_id)
+		var data: Dictionary = GameData.get_monster(m.monster_id)
 		match data.get("fire_reaction", "neutral"):
 			"avoids", "strongly_avoids":
 				# Drive monster away

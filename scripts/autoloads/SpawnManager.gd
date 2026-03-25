@@ -14,7 +14,7 @@ const SPAWN_INTERVAL := 30.0
 const MIN_SPAWN_DIST_FROM_PLAYER := 30.0
 
 var _active_monsters: Array = []
-var _spawn_timer: float = 0.0
+var _spawn_timer: float = SPAWN_INTERVAL
 var _suppression_percent: float = 0.0
 var _settlement_in_area: String = ""
 
@@ -71,8 +71,8 @@ func _try_spawn() -> void:
 
 	var monster_instance := MONSTER_SCENE.instantiate()
 	monster_instance.monster_id = monster_id
-	monster_instance.global_position = spawn_pos
 	get_tree().root.add_child(monster_instance)
+	monster_instance.global_position = spawn_pos
 	monster_instance.connect("died", _on_monster_died)
 	_active_monsters.append(monster_instance)
 
@@ -86,7 +86,7 @@ func _pick_monster_from_table() -> String:
 	var total_weight := 0.0
 	var weighted_table := []
 	for entry in spawn_table:
-		var monster_data := GameData.get_monster(entry.get("id", ""))
+		var monster_data: Dictionary = GameData.get_monster(entry.get("id", ""))
 		if monster_data.is_empty():
 			continue
 		# Difficulty filter: east-west scalar
@@ -110,11 +110,12 @@ func _pick_monster_from_table() -> String:
 
 
 func _find_spawn_position() -> Vector3:
-	var player := get_tree().get_first_node_in_group("player")
+	var player: Node = get_tree().get_first_node_in_group("player")
+	var player_pos: Vector3 = player.global_position if player else Vector3.ZERO
 	var attempts := 10
 	while attempts > 0:
-		var offset := Vector3(randf_range(-60, 60), 0, randf_range(-60, 60))
-		var pos := global_position + offset
+		var offset: Vector3 = Vector3(randf_range(-60, 60), 0, randf_range(-60, 60))
+		var pos: Vector3 = player_pos + offset
 		# Not too close to player
 		if player and pos.distance_to(player.global_position) < MIN_SPAWN_DIST_FROM_PLAYER:
 			attempts -= 1

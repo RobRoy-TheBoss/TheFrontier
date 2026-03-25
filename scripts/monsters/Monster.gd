@@ -147,9 +147,7 @@ func _telegraph_attack() -> void:
 
 
 func _perform_attack(target: Node) -> void:
-	if not target.has_method("health"):
-		return
-	var player_health: PlayerHealth = target.health if target.has("health") else null
+	var player_health: PlayerHealth = target.get("health") as PlayerHealth
 	if player_health == null:
 		return
 
@@ -170,6 +168,7 @@ func _perform_attack(target: Node) -> void:
 
 	if damage > 0.0:
 		player_health.take_damage(damage, self)
+		player_health.try_combat_injury_roll()
 
 	# Special attacks
 	for special in _data.get("special_attacks", []):
@@ -239,7 +238,7 @@ func _drop_loot() -> void:
 			continue
 		if entry.has("item_id"):
 			var count_range: Array = entry.get("count_range", [1, 1])
-			var count := randi_range(count_range[0], count_range[1])
+			var count: int = randi_range(int(count_range[0]), int(count_range[1]))
 			player.add_item_to_inventory(entry["item_id"], count)
 		elif entry.has("rune_id"):
 			player.add_item_to_inventory(entry["rune_id"], 1)

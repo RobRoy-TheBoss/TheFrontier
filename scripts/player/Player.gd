@@ -4,20 +4,25 @@ extends CharacterBody3D
 
 const INTERACTION_DISTANCE := 2.5
 
-@onready var camera: Camera3D = $Head/Camera3D
-@onready var head: Node3D = $Head
+@onready var camera: Camera3D = $CameraPivot/SpringArm3D/Camera3D
+@onready var camera_pivot: Node3D = $CameraPivot
+@onready var spring_arm: SpringArm3D = $CameraPivot/SpringArm3D
+@onready var character_model: Node3D = $CharacterModel
+@onready var weapon_holder: Node3D = $WeaponHolder
 @onready var movement: PlayerMovement = $PlayerMovement
 @onready var health: PlayerHealth = $PlayerHealth
 @onready var survival: PlayerSurvival = $PlayerSurvival
 @onready var inventory: PlayerInventory = $PlayerInventory
 @onready var combat: PlayerCombat = $PlayerCombat
-@onready var interaction_ray: RayCast3D = $Head/Camera3D/InteractionRay
+@onready var interaction_ray: RayCast3D = $CameraPivot/SpringArm3D/Camera3D/InteractionRay
 @onready var ability_system: AbilitySystem = $AbilitySystem
 @onready var camp_deployer: CampDeployer = $CampDeployer
 @onready var surveying_tool: SurveyingTool = $SurveyingTool
 
 # Mouse sensitivity
 var mouse_sensitivity: float = 0.002
+# Keyboard look speed (radians per second)
+const KEY_TURN_SPEED := 1.8
 
 
 func _ready() -> void:
@@ -25,13 +30,15 @@ func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	_give_starting_items()
 	health.player_died.connect(_on_player_died)
+	inventory.inventory_changed.connect(_update_weapon_display)
+	_update_weapon_display()
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		rotate_y(-event.relative.x * mouse_sensitivity)
-		head.rotate_x(-event.relative.y * mouse_sensitivity)
-		head.rotation.x = clamp(head.rotation.x, deg_to_rad(-85), deg_to_rad(85))
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion and not GameState.is_paused_for_ui:
+		camera_pivot.rotate_y(-event.relative.x * mouse_sensitivity)
+		spring_arm.rotate_x(-event.relative.y * mouse_sensitivity)
+		spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(-60), deg_to_rad(20))
 
 	if event.is_action_pressed("interact"):
 		_try_interact()
@@ -59,7 +66,17 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
-	pass
+	if GameState.is_paused_for_ui or GameState.is_sleeping:
+		return
+	var turn := Input.get_axis("turn_left", "turn_right")
+	var look := Input.get_axis("look_up", "look_down")
+	if turn != 0.0:
+		camera_pivot.rotate_y(-turn * KEY_TURN_SPEED * delta)
+	if look != 0.0:
+		spring_arm.rotate_x(-look * KEY_TURN_SPEED * delta)
+		spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(-60), deg_to_rad(20))
+	# Keep weapon aligned with character body (not camera)
+	weapon_holder.rotation.y = character_model.rotation.y
 
 
 func _try_interact() -> void:
@@ -160,6 +177,10 @@ func in_settlement() -> bool:
 	return _is_near_settlement()
 
 
+func _update_weapon_display() -> void:
+	weapon_holder.visible = not inventory.equipped.get("weapon", {}).is_empty()
+
+
 func _give_starting_items() -> void:
 	inventory.add_item("compass", 1)
 	inventory.add_item("field_journal", 1)
@@ -167,6 +188,8 @@ func _give_starting_items() -> void:
 	inventory.add_item("waterskin", 1)
 	inventory.add_item("hunting_knife", 1)
 	inventory.add_item("bandage", 3)
+	inventory.add_item("zweihander", 1)
+	inventory.equip("zweihander", "weapon")
 
 
 func add_item_to_inventory(item_id: String, count: int) -> void:
@@ -191,7 +214,7 @@ func _perform_scan() -> void:
 	var result := space.intersect_ray(query)
 	if result.is_empty():
 		return
-	var collider := result.get("collider")
+	var collider: Variant = result.get("collider")
 	if collider == null or not collider.is_in_group("scannable"):
 		return
 	var journal_node := get_node_or_null("FieldJournal")

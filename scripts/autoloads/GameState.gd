@@ -22,8 +22,8 @@ var weather_transition_timer: float = 0.0
 var weather_duration: float = 600.0  # seconds
 
 # World
-var current_area_id: String = ""
-var current_region_id: String = ""
+var current_area_id: String = "crestport_bay"
+var current_region_id: String = "eastern_frontier"
 var player_position: Vector3 = Vector3.ZERO
 
 # Economy
@@ -44,6 +44,9 @@ var named_landmarks: Dictionary = {}  # landmark_id -> player-given name
 # Home Storage — single global dict accessible at any owned home (LINV-008)
 # No capacity limit (LINV-009). Items stored as Array[{item_id, count, ...}].
 var home_storage: Array = []
+
+# Unlocked experimental recipes (set by IdentifyUI when items are identified)
+var unlocked_recipes: Array = []
 
 const EXPORT_THRESHOLDS := {
 	"low": 0,
@@ -168,3 +171,12 @@ func set_precursor_assignment(site_id: String, discipline_id: String) -> void:
 
 func get_precursor_assignment(site_id: String) -> String:
 	return precursor_assignments.get(site_id, "")
+
+
+func unlock_recipe(recipe_id: String) -> void:
+	if not recipe_id in unlocked_recipes:
+		unlocked_recipes.append(recipe_id)
+
+
+func is_recipe_unlocked(recipe_id: String) -> bool:
+	return recipe_id in unlocked_recipes

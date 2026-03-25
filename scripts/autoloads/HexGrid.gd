@@ -89,9 +89,9 @@ func _axial_round(q_f: float, r_f: float) -> Vector2i:
 	var rq := roundi(q_f)
 	var rr := roundi(r_f)
 	var rs := roundi(s_f)
-	var dq := abs(rq - q_f)
-	var dr := abs(rr - r_f)
-	var ds := abs(rs - s_f)
+	var dq: float = abs(rq - q_f)
+	var dr: float = abs(rr - r_f)
+	var ds: float = abs(rs - s_f)
 	if dq > dr and dq > ds:
 		rq = -rr - rs
 	elif dr > ds:

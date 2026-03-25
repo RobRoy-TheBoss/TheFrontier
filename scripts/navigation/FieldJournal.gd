@@ -1,6 +1,7 @@
 ## FieldJournal
 ## Manages all journal entries: creature observations, ingredient notes,
 ## precursor site records, and freeform player notes.
+class_name FieldJournal
 extends Node
 
 signal entry_added(entry: Dictionary)

@@ -1,6 +1,7 @@
 ## Road
 ## Visual road connection between two settlements.
 ## Quality (and visuals) determined by the lower tier of the two connected settlements.
+class_name Road
 extends Path3D
 
 @export var settlement_a_id: String = ""

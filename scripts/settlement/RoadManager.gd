@@ -3,10 +3,12 @@
 ## Tracks which road the player is currently on for speed bonuses.
 extends Node
 
+const _Road := preload("res://scripts/settlement/Road.gd")
+
 signal road_speed_changed(multiplier: float)
 
 var _roads: Dictionary = {}  # "id_a:id_b" -> Road node
-var _player_on_road: Road = null
+var _player_on_road: Node = null
 
 const ROAD_SCENE := "res://scenes/settlement/Road.tscn"
 
@@ -73,7 +75,7 @@ func _spawn_road(edge_key: String) -> void:
 		_roads[edge_key] = road
 		return
 
-	var road: Road = road_res.instantiate()
+	var road: Node =road_res.instantiate()
 	road.settlement_a_id = sid_a
 	road.settlement_b_id = sid_b
 	road.curve = Curve3D.new()
@@ -87,10 +89,10 @@ func _check_player_road() -> void:
 	var player := get_tree().get_first_node_in_group("player")
 	if player == null:
 		return
-	var player_pos := player.global_position
-	var on_road: Road = null
+	var player_pos: Vector3 = player.global_position
+	var on_road: Node = null
 	for key in _roads:
-		var road: Road = _roads[key]
+		var road: Node =_roads[key]
 		if not is_instance_valid(road):
 			continue
 		if road.is_player_on_road(player_pos):
@@ -98,7 +100,7 @@ func _check_player_road() -> void:
 			break
 	if on_road != _player_on_road:
 		_player_on_road = on_road
-		var mult := on_road.get_speed_multiplier() if on_road != null else 1.0
+		var mult: float = on_road.get_speed_multiplier() if on_road != null else 1.0
 		player.movement.set_road_speed_bonus(mult - 1.0)
 		road_speed_changed.emit(mult)
 

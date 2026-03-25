@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://player_scene"]
+[gd_scene load_steps=13 format=3 uid="uid://player_scene"]
 
 [ext_resource type="Script" path="res://scripts/player/Player.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/player/PlayerMovement.gd" id="2"]
@@ -10,6 +10,8 @@
 [ext_resource type="Script" path="res://scripts/world/CampDeployer.gd" id="8"]
 [ext_resource type="Script" path="res://scripts/navigation/SurveyingTool.gd" id="9"]
 [ext_resource type="Script" path="res://scripts/navigation/FieldJournal.gd" id="10"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_animated-characters-1/Model/characterMedium.fbx" id="11"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_fantasy-town-kit/Models/FBX format/blade.fbx" id="12"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.4
@@ -22,18 +24,31 @@ script = ExtResource("1")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_1")
 
-[node name="Head" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+[node name="CharacterModel" parent="." instance=ExtResource("11")]
 
-[node name="Camera3D" type="Camera3D" parent="Head"]
+[node name="WeaponHolder" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.966, 0.259, 0, -0.259, 0.966, 0.32, 0.78, -0.1)
+visible = false
+
+[node name="WeaponModel" parent="WeaponHolder" instance=ExtResource("12")]
+
+[node name="CameraPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 0, 0)
+spring_length = 4.0
+collision_mask = 1
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D"]
 current = true
 fov = 75.0
 
-[node name="InteractionRay" type="RayCast3D" parent="Head/Camera3D"]
+[node name="InteractionRay" type="RayCast3D" parent="CameraPivot/SpringArm3D/Camera3D"]
 target_position = Vector3(0, 0, -2.5)
 enabled = true
 
-[node name="ScanRay" type="RayCast3D" parent="Head/Camera3D"]
+[node name="ScanRay" type="RayCast3D" parent="CameraPivot/SpringArm3D/Camera3D"]
 target_position = Vector3(0, 0, -10.0)
 enabled = true
 
