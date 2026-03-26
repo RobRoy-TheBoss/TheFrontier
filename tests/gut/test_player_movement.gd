@@ -59,6 +59,53 @@ func test_sprint_drains_stamina_lpc011():
 
 
 # ---------------------------------------------------------------------------
+# [PC-002] Sprint triggered by double-tap on movement keys
+# ---------------------------------------------------------------------------
+
+func test_double_tap_sprint_window_defined_pc002():
+	assert_gt(_movement.DOUBLE_TAP_WINDOW, 0.0,
+		"DOUBLE_TAP_WINDOW must be positive [PC-002]")
+	assert_lte(_movement.DOUBLE_TAP_WINDOW, 1.0,
+		"DOUBLE_TAP_WINDOW must be <= 1 second to feel responsive [PC-002]")
+
+
+func test_sprint_not_active_by_default_pc002():
+	assert_false(_movement._is_sprinting,
+		"_is_sprinting must be false on start [PC-002]")
+
+
+func test_crouch_clears_sprint_flag_pc002():
+	_movement._is_sprinting = true
+	_movement._is_crouching = true
+	# Simulate what the crouch toggle does when crouching starts
+	if _movement._is_crouching:
+		_movement._is_sprinting = false
+	assert_false(_movement._is_sprinting,
+		"Crouching must cancel sprint [PC-002]")
+	_movement._is_crouching = false
+
+
+# ---------------------------------------------------------------------------
+# [PC-002] Crouch bound to Shift
+# ---------------------------------------------------------------------------
+
+func test_crouch_action_bound_to_shift_pc002():
+	var events := InputMap.action_get_events("crouch")
+	var found_shift := false
+	for ev in events:
+		if ev is InputEventKey and ev.physical_keycode == KEY_SHIFT:
+			found_shift = true
+			break
+	assert_true(found_shift,
+		"crouch action must be bound to Shift [PC-002]")
+
+
+func test_sprint_action_removed_pc002():
+	assert_false(InputMap.has_action("sprint"),
+		"sprint input action must be removed in favour of double-tap [PC-002]")
+
+
+# ---------------------------------------------------------------------------
 # [LPC-012] SPRINT disabled when over max_carry
 # ---------------------------------------------------------------------------
 

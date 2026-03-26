@@ -75,7 +75,7 @@ func _populate_keybindings() -> void:
 
 	var actions := [
 		"move_forward", "move_backward", "move_left", "move_right",
-		"jump", "sprint", "interact", "attack", "block",
+		"jump", "interact", "attack", "block",
 		"open_inventory", "open_map", "open_journal",
 		"use_ability_1", "use_ability_2", "use_ability_3", "use_ability_4",
 		"sleep", "deploy_camp", "scan"
