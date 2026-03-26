@@ -149,6 +149,15 @@ func is_over_encumbered() -> bool:
 	return current_weight > get_max_carry_weight()
 
 
+func get_hard_carry_limit() -> float:
+	var enc_params: Dictionary = _params.get("encumbrance", {})
+	return enc_params.get("max_carry_weight", 100.0)
+
+
+func is_at_hard_cap() -> bool:
+	return current_weight >= get_hard_carry_limit()
+
+
 func get_stamina_regen_multiplier() -> float:
 	var mult := 1.0
 	var h_params: Dictionary = _params.get("hunger", {})
