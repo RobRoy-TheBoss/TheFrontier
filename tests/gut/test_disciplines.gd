@@ -86,7 +86,7 @@ func test_enhancement_npc_ui_ldsys008():
 	assert_has(disc, "abilities", "Discipline must list abilities [LDSYS-008]")
 	var abilities: Array = disc["abilities"]
 	assert_gt(abilities.size(), 0, "Discipline must have at least one ability [LDSYS-008]")
-	assert_has(abilities[0], "xp_cost", "Ability must define xp_cost [LDSYS-008]")
+	assert_has(abilities[0], "unlock_cost_xp", "Ability must define unlock_cost_xp [LDSYS-008]")
 
 
 # [LDSYS-009] Enhancement purchase deducts XP and gold, increments unlocked

@@ -141,6 +141,10 @@ func accumulate_trade_score(settlement_id: String, amount: float) -> void:
 	_check_tier_advance(settlement_id)
 
 
+func check_tier_advance(settlement_id: String) -> void:
+	_check_tier_advance(settlement_id)
+
+
 func _check_tier_advance(settlement_id: String) -> void:
 	var s: SettlementData = settlements[settlement_id]
 	var next_tier_index: int = s.tier_index + 1

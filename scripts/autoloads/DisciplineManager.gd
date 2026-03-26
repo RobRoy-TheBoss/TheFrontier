@@ -125,7 +125,8 @@ func get_passive_effect(ability_id: String) -> Dictionary:
 		if is_ability_unlocked(disc_id, ability_id):
 			var ab := _get_ability(disc_id, ability_id)
 			if ab.get("type", "") == "passive":
-				return ab.get("effect_data", {})
+				# Return effect_data if present (nested), otherwise the ability dict itself
+				return ab.get("effect_data", ab)
 	return {}
 
 

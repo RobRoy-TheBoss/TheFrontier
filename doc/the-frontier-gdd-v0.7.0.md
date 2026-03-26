@@ -1,5 +1,5 @@
 # THE FRONTIER
-## Game Design Document -- Version 9
+## Game Design Document -- Version 0.7.0
 
 **PC | Single Player | Godot 4 (GDScript) | Pure Sandbox**
 **March 2026**
@@ -240,16 +240,21 @@ All time values configurable in JSON.
 
 When the player decides to camp, the game nudges toward an appropriate site: "You think there may be a good spot north of here." Player walks there. 2-second setup cutscene. No teleportation. Player can only pack up camp items while at the campsite.
 
+**One camp at a time.** The player cannot own more than one tent. Settlement shops refuse tent sale if the player has a tent in inventory or an active camp exists. Only after abandoning an existing camp can a new tent be purchased.
+
+**Abandoning camp** destroys all camp items (tent, campfire kit, cooking kit, alchemy set, camp chest) and dismisses all hirelings. If founding is in progress, abandoning camp cancels founding and the Surveyor is teleported to the origin settlement.
+
 ### Camp Equipment
 
 All separate weighted inventory items:
 
 | Item | Weight | Source | Function |
 |---|---|---|---|
-| Tent | Moderate | Purchased | Required to set up camp. Shelter for sleeping. Cold tents heavier (post-launch with seasons). |
+| Tent | Moderate | Purchased (one at a time) | Required to set up camp. Shelter for sleeping. Cold tents heavier (post-launch with seasons). |
 | Campfire Kit | Heavy | Built from wood (axe + trees) | Warmth, light, boil water, monster deterrent. Does NOT enable cooking meat. |
 | Cooking Kit | Heavy | Purchased | Enables cooking meat/fish at a campfire. Requires campfire kit to be present. |
 | Alchemy Set | Heavy | Purchased | Portable brewing station. Requires campfire kit. |
+| Camp Chest | Moderate | Purchased | Storage container at camp. Items inside destroyed on abandon. |
 
 **Building a campfire:** Chop trees with axe to get wood (wood is heavy). Use wood to build a campfire kit at your campsite. Campfire kits can also be found or purchased but are heavy to carry.
 
@@ -476,6 +481,12 @@ Post-launch disciplines bring total to 9 disciplines, 61 abilities, 84 possible 
 | Settlement Meals | Eat at Village+ | Best | Superior buffs | N/A | Only at settlements. |
 
 **Design intent:** Half a day of foraging/hunting yields ~1 day of food. Cooked meat lasts ~2 in-game days. Rations are the optimal choice for pushing deep. Running out forces you to slow down and hunt, costing daylight.
+
+**Ration buff stacking:** Eating a new ration resets the buff timer. Buffs do not stack. One ration = one half-day buff period.
+
+**Fishing:** 1-second interaction with animation at a water body. Requires fishing rod. Yields 1 fish. Interruptible by damage (animation cancels, no fish).
+
+**Butchering:** 1-second interaction with animation at a docile animal corpse. Yields base meat (more with Survivalist Field Dressing). Interruptible by damage (animation cancels, no meat).
 
 **Raw meat** risks Gut Sickness. **Unboiled water** risks Gut Sickness.
 
