@@ -12,8 +12,6 @@ func _ready() -> void:
 	add_to_group("item_cache")
 	if has_meta("items"):
 		cached_items = get_meta("items")
-	if cached_items.is_empty():
-		queue_free()
 
 
 func interact(player: Node) -> void:

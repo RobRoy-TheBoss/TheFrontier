@@ -28,6 +28,7 @@ const KEY_TURN_SPEED := 1.8
 func _ready() -> void:
 	add_to_group("player")
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	interaction_ray.add_exception(self)
 	_give_starting_items()
 	health.player_died.connect(_on_player_died)
 	inventory.inventory_changed.connect(_update_weapon_display)
@@ -80,16 +81,24 @@ func _process(delta: float) -> void:
 
 
 func _try_interact() -> void:
+	var hud := get_tree().get_first_node_in_group("hud")
 	if not interaction_ray.is_colliding():
+		if hud: hud.show_message("interact: no collision", 2.0)
 		return
 	var collider := interaction_ray.get_collider()
 	if collider == null:
+		if hud: hud.show_message("interact: collider null", 2.0)
 		return
 	var dist := global_position.distance_to(interaction_ray.get_collision_point())
 	if dist > INTERACTION_DISTANCE:
+		if hud: hud.show_message("interact: too far (%.1f)" % dist, 2.0)
 		return
-	if collider.has_method("interact"):
-		collider.interact(self)
+	var target: Node = collider if collider.has_method("interact") else collider.get_parent()
+	if target and target.has_method("interact"):
+		if hud: hud.show_message("interact: calling %s" % target.name, 2.0)
+		target.interact(self)
+	else:
+		if hud: hud.show_message("interact: no interact on %s" % collider.name, 2.0)
 
 
 func _toggle_inventory() -> void:

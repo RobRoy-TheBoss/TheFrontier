@@ -37,6 +37,9 @@ func _handle_death() -> void:
 	# Drop all items at death location
 	_drop_items_at_death(player)
 
+	# LPC-037/038: cancel any in-progress founding and return surveyor
+	SettlementManager.cancel_founding_on_death()
+
 	# Destroy any planted flags
 	var flags := get_tree().get_nodes_in_group("settlement_flag")
 	for flag in flags:
@@ -59,19 +62,23 @@ func _handle_death() -> void:
 
 
 func _drop_items_at_death(player: Node) -> void:
-	var death_pos: Vector3 = player.global_position
-	# Spawn a loot cache at death position with all inventory items
+	# LPC-032: destroy any previous death drop bag
+	for existing in get_tree().get_nodes_in_group("death_drop"):
+		existing.queue_free()
+
+	var items_to_drop: Array = player.inventory.items.duplicate(true)
+	player.inventory.items.clear()
+	player.inventory.inventory_changed.emit()
+
+	# LPC-030/031: always spawn bag at death position; contains items if any
 	var cache_scene: PackedScene = load("res://scenes/items/ItemCache.tscn") as PackedScene
 	if cache_scene == null:
 		return
 	var cache: Node = cache_scene.instantiate()
-	cache.global_position = death_pos
-	# Transfer inventory to cache
-	var items_to_drop: Array = player.inventory.items.duplicate(true)
 	cache.set_meta("items", items_to_drop)
-	player.inventory.items.clear()
-	player.inventory.inventory_changed.emit()
 	get_tree().root.add_child(cache)
+	cache.global_position = player.global_position
+	cache.add_to_group("death_drop")
 
 
 func _find_last_rested_settlement() -> String:
@@ -90,6 +97,7 @@ func _on_respawn_pressed() -> void:
 	if s:
 		player.global_position = s.position + Vector3(2, 1, 2)
 	# Restore minimal health
+	player.health.is_dead = false
 	player.health.current_health = player.health.max_health * 0.3
 	player.health.health_changed.emit(player.health.current_health, player.health.max_health)
 	visible = false

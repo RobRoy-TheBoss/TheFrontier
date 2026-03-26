@@ -20,6 +20,7 @@ const BUS_SFX    := 2
 
 func _ready() -> void:
 	add_to_group("settings_ui")
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	master_slider.value_changed.connect(_on_master_changed)
 	music_slider.value_changed.connect(_on_music_changed)

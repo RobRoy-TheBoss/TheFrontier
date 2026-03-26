@@ -256,7 +256,7 @@ func _step_injury_healing() -> void:
 	var player := get_tree().get_first_node_in_group("player")
 	if player == null:
 		return
-	var player_health: PlayerHealth = player.health if player.has("health") else null
+	var player_health: PlayerHealth = player.get("health") as PlayerHealth
 	if player_health and player_health.has_method("on_sleep"):
 		player_health.on_sleep(_player_is_in_settlement(player))
 	await get_tree().process_frame
@@ -267,7 +267,7 @@ func _step_fatigue_reset() -> void:
 	var player := get_tree().get_first_node_in_group("player")
 	if player == null:
 		return
-	var survival: PlayerSurvival = player.survival if player.has("survival") else null
+	var survival: PlayerSurvival = player.get("survival") as PlayerSurvival
 	if survival and survival.has_method("reset_fatigue"):
 		survival.reset_fatigue()
 	await get_tree().process_frame
@@ -278,7 +278,7 @@ func _step_hunger_thirst_deduct() -> void:
 	var player := get_tree().get_first_node_in_group("player")
 	if player == null:
 		return
-	var survival: PlayerSurvival = player.survival if player.has("survival") else null
+	var survival: PlayerSurvival = player.get("survival") as PlayerSurvival
 	if survival and survival.has_method("apply_sleep_hunger_thirst"):
 		survival.apply_sleep_hunger_thirst()
 	await get_tree().process_frame

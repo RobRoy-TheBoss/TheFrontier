@@ -25,6 +25,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_1")
 
 [node name="CharacterModel" parent="." instance=ExtResource("11")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 
 [node name="WeaponHolder" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.966, 0.259, 0, -0.259, 0.966, 0.32, 0.78, -0.1)
@@ -45,8 +46,9 @@ current = true
 fov = 75.0
 
 [node name="InteractionRay" type="RayCast3D" parent="CameraPivot/SpringArm3D/Camera3D"]
-target_position = Vector3(0, 0, -2.5)
+target_position = Vector3(0, 0, -6.5)
 enabled = true
+collide_with_areas = true
 
 [node name="ScanRay" type="RayCast3D" parent="CameraPivot/SpringArm3D/Camera3D"]
 target_position = Vector3(0, 0, -10.0)
