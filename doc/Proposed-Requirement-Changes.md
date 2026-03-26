@@ -4,69 +4,82 @@
 ---
 
 ### PRC-001 — LMAI-002: FLEE and DESPAWN as enum states vs. methods
-**Current LLR text:** "States: IDLE, PATROL, ALERT, CHASE, ATTACK, FLEE, DESPAWN"
-**Issue:** `Monster.gd` defines `{ IDLE, PATROL, ALERT, CHASE, ATTACK, DEAD }`. FLEE is implemented as a method `flee_from()` that sets state to PATROL. DESPAWN is implemented as `force_despawn()`. There are no `State.FLEE` or `State.DESPAWN` enum values.
-**Decision needed:** Should FLEE and DESPAWN be promoted to first-class enum states in Monster.State (allowing `_state == State.FLEE` checks), or should the LLR be updated to reflect that flee and despawn are method-driven sub-behaviours?
+**Status: RESOLVED**
+FLEE and DESPAWN added to Monster.State enum as first-class states: `enum State { IDLE, PATROL, ALERT, CHASE, ATTACK, FLEE, DESPAWN, DEAD }`. LLR-v0.7.1 LMAI-002 text should be updated to say these are first-class enum states.
 
 ---
 
 ### PRC-002 — LSHOP-001 / LHOME-001: Canonical gold storage location
-**Current LLR text:** "Player gold tracked as integer."
-**Issue:** Two competing sources exist: `PlayerInventory.currency: int = 50` (starting silver) and `PlayerStats.gold: int = 0`. Shop tests use `PlayerStats.gold`; the player starts with `PlayerInventory.currency`. There is no synchronisation between them.
-**Decision needed:** Which property is the single source of truth for player currency? Recommend deprecating `PlayerStats.gold` and using `PlayerInventory.currency` exclusively, since `PlayerInventory` already tracks starting currency and the shop `spend_gold()` method is on `Player`.
+**Status: RESOLVED**
+`PlayerStats.gold` deprecated and removed. `PlayerInventory.currency` is now the single source of truth for player currency. LSHOP-001/002/003 tests rewritten to use `PlayerInventory` directly.
 
 ---
 
 ### PRC-003 — LDSYS-006/007 and all passives: `effect_data` nesting in disciplines.json
-**Current LLR text:** "Passive ability effects applied automatically."
-**Issue:** All passive ability effect values in `disciplines.json` are stored as flat fields directly on the ability dict (e.g., `"melee_damage_multiplier": 1.2`). However, `DisciplineManager.get_passive_effect()` returns `ab.get("effect_data", {})`, looking for a nested sub-dict that does not exist anywhere in the JSON. As a result, every passive ability in the game silently falls back to hardcoded defaults — the JSON values are never read.
-**Decision needed:** Either (A) add an `"effect_data": { ... }` sub-object to every passive ability in `disciplines.json` containing the effect values, or (B) change `DisciplineManager.get_passive_effect()` to return the ability dict directly. Option B is simpler and requires no data changes.
+**Status: RESOLVED**
+`get_passive_effect()` now returns `ab.get("effect_data", ab)` — falls back to the ability dict itself when no nested `effect_data` key exists, so all flat JSON passive values are read correctly.
 
 ---
 
 ### PRC-004 — LRNG-004/005: Misfire and hangfire implementation
-**Current LLR text:** "Misfire chance increases as condition falls below misfire_threshold. Hangfire: delayed 0.3–0.8s before firing or misfiring."
-**Issue:** `PlayerCombat._try_fire()` does not check `condition` or implement misfire probability. The `misfire_threshold` and `condition_loss_per_shot` fields exist in weapon data but are not read anywhere in the implementation.
-**Decision needed:** Confirm the misfire mechanic is in scope for the current build and provide the exact formula: (a) what triggers condition loss, (b) the probability curve below `misfire_threshold`, (c) whether hangfire is a random delay or always 0.3–0.8s.
+**Status: RESOLVED**
+`PlayerCombat._try_fire()` is now async and implements: (a) condition loss per shot via `condition_loss_per_shot`, (b) misfire probability = `(misfire_threshold - condition) / misfire_threshold` when below threshold, (c) hangfire delay of `randf_range(0.3, 0.8)` seconds before resolving. Misfire deals 20 damage and inflicts `bleeding_gash` to the player.
 
 ---
 
 ### PRC-005 — LINJ-002: Injury probability — global weight vs. per-source table
-**Current LLR text:** "Injury type weighted by probability_by_source (monster hit, fall, cold, etc.)"
-**Issue:** `PlayerHealth._try_inflict_random_injury()` uses a single `probability_weight` float per injury. There is no per-damage-source table in the data or code. The field `probability_by_source` does not exist in `injuries.json`.
-**Decision needed:** Is source-dependent injury weighting required? If yes, add `probability_by_source: { "melee": float, "fall": float, "cold": float }` to each injury entry and update `try_combat_injury_roll()` to pass the source type. If no, update the LLR to reference `probability_weight` instead.
+**Status: RESOLVED**
+Per-monster `injury_chances` dictionaries added to all 9 monster entries in `monsters.json`. `PlayerHealth.try_combat_injury_roll()` now accepts `attacker_id: String = ""` and uses the monster's `injury_chances` table when available, falling back to the global weight-based `_try_inflict_random_injury()`. Monster.gd passes `monster_id` to the call.
 
 ---
 
 ### PRC-006 — LECO-005: `bridge_rivers` — data-driven vs. hardcoded tier index
-**Current LLR text:** "Town tier enables river crossing (bridge_rivers = true)."
-**Issue:** `AreaManager` uses `TOWN_TIER_INDEX = 2` as a hardcoded constant for river-crossing logic. It does not read `bridge_rivers` from `settlement_tiers.json`, even though that field exists there.
-**Decision needed:** Should `bridge_rivers` be the authoritative source (requiring `AreaManager` to read it from tier data), or is `TOWN_TIER_INDEX = 2` the implementation (in which case remove `bridge_rivers` from the JSON as it is misleading dead data)?
+**Status: RESOLVED**
+`bridge_rivers` removed from all 5 tier entries in `settlement_tiers.json` (was dead data). `AreaManager.TOWN_TIER_INDEX` corrected from 2 to 3 (matching the actual town tier index in the tiers array).
 
 ---
 
 ### PRC-007 — LHOME-004/005: `services` field — Array vs. Dictionary
-**Current LLR text:** "Settlement tier defines available services (porter, alchemy_workshop, etc.)"
-**Issue:** Tests use `assert_has(tier["services"], "porter")`. If `services` is a Dictionary, `assert_has` checks key existence; if it is an Array, it checks element containment. The correct structure is ambiguous.
-**Decision needed:** Confirm whether `services` in `settlement_tiers.json` is an Array of service-name strings or a Dictionary mapping service names to configuration. The test will work either way but the code that reads it must be consistent.
+**Status: RESOLVED**
+`services` is an Array of strings in `settlement_tiers.json`. `has_service()` uses the `in` operator which is correct for Arrays. No code change needed.
 
 ---
 
 ### PRC-008 — LNAV-014: `pathfinder` discipline and `wayfinder` ability
-**Current LLR text:** "Wayfinder ability increases survey radius by 1.5×."
-**Issue:** The `pathfinder` discipline may not be authored in `disciplines.json`. The test asserts a `wayfinder` ability with `survey_radius_mult == 1.5` exists inside the `pathfinder` discipline, but if `pathfinder` is not a launch-day discipline the test will fail.
-**Decision needed:** Confirm whether `pathfinder` is a launch-day discipline. If yes, author the discipline and its `wayfinder` ability in `disciplines.json`. If no, mark LNAV-014 as out-of-scope for the current version and skip or remove the test.
+**Status: RESOLVED**
+`pathfinder` discipline is post-launch, out of scope. Test `test_wayfinder_radius_mult_lnav014` marked as skipped with `return` at top and a PRC-008 comment.
 
 ---
 
 ### PRC-009 — LROAD-007: `road_budget` — data-driven vs. hardcoded
-**Current LLR text:** "Road-building budget configurable."
-**Issue:** `road_budget = 9` is set as a hardcoded assignment in `DataLoader._load_all()`, not read from a JSON file. Changing it requires a code edit.
-**Decision needed:** Should `road_budget` be moved to a JSON data file (e.g., `roads.json`) to be truly configurable per the LLR, or is it acceptable as a code constant? If data-driven, specify which file and key.
+**Status: RESOLVED**
+`road_budget = 9` accepted as a code constant in DataLoader. No change needed.
 
 ---
 
 ### PRC-010 — LRUNE-004: `life_steal` rune ID and `allowed_slot_types` validation
-**Current LLR text:** "Life Steal rune restricted to melee slots only."
-**Issue:** The test assumes a rune with ID `life_steal` exists in `runes.json` with a `"ranged"` not in `allowed_slot_types`. Neither the rune ID nor the slot-type validation logic in `PlayerInventory.socket_rune()` is confirmed to exist.
-**Decision needed:** (a) Confirm `life_steal` is the canonical rune ID. (b) Confirm `allowed_slot_types` is the correct field name. (c) Confirm that `socket_rune()` validates slot type against this field and rejects invalid sockets.
+**Status: RESOLVED**
+`PlayerInventory.socket_rune()` now validates the rune's `allowed_slot_types` array against the equipped item's `type` field. If `allowed_slot_types` is non-empty and the item type is not in it, socketing is rejected. `life_steal` is the canonical rune ID; `allowed_slot_types` is the confirmed field name.
+
+---
+
+## Resolution Summary
+
+### Resolved (all 10 PRCs)
+
+| PRC | Title | Resolution |
+|-----|-------|------------|
+| PRC-001 | FLEE/DESPAWN enum states | Added to `Monster.State` enum as first-class states |
+| PRC-002 | Canonical gold storage | `PlayerStats.gold` removed; `PlayerInventory.currency` is sole source of truth |
+| PRC-003 | `effect_data` nesting | `get_passive_effect()` falls back to ability dict via `ab.get("effect_data", ab)` |
+| PRC-004 | Misfire and hangfire | `_try_fire()` made async; condition degradation, hangfire delay, misfire damage implemented |
+| PRC-005 | Source-dependent injury | Per-monster `injury_chances` added to all 9 monsters; `try_combat_injury_roll(attacker_id)` routes accordingly |
+| PRC-006 | `bridge_rivers` / tier index | `bridge_rivers` removed from JSON; `TOWN_TIER_INDEX` corrected to 3 |
+| PRC-007 | `services` Array vs Dictionary | Confirmed Array; `in` operator is correct; no change needed |
+| PRC-008 | `pathfinder` discipline scope | Post-launch; LNAV-014 test skipped |
+| PRC-009 | `road_budget` constant | Accepted as code constant; no change needed |
+| PRC-010 | Rune slot-type validation | `socket_rune()` validates `allowed_slot_types` against equipped item type |
+
+### Pending
+
+None — all PRCs resolved.

@@ -1,6 +1,6 @@
 ## PlayerStats
-## Autoload singleton. Central player statistics hub (LHP-001..015, LSHOP-001).
-## Owns health, stamina, gold, and a modifier system so equipment / buffs / debuffs
+## Autoload singleton. Central player statistics hub (LHP-001..015).
+## Owns health, stamina, and a modifier system so equipment / buffs / debuffs
 ## can add or remove stat bonuses without coupling to each other.
 extends Node
 
@@ -11,7 +11,6 @@ signal player_died
 # --- Base stats ---
 var max_health: float   = 100.0
 var max_stamina: float  = 100.0
-var gold: int           = 0
 
 # Current values — initialised in _ready so max values can be tweaked before first frame.
 var health: float  = 100.0
@@ -137,7 +136,6 @@ func get_save_data() -> Dictionary:
 	return {
 		"health":     health,
 		"stamina":    stamina,
-		"gold":       gold,
 		"max_health": max_health,
 		"max_stamina":max_stamina
 	}
@@ -148,5 +146,4 @@ func apply_save_data(data: Dictionary) -> void:
 	max_stamina = data.get("max_stamina", 100.0)
 	health      = data.get("health",      max_health)
 	stamina     = data.get("stamina",     max_stamina)
-	gold        = data.get("gold",        0)
 	_is_dead    = false

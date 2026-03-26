@@ -384,28 +384,30 @@ func test_road_speed_zone_lroad019():
 # Shops and Homes — LSHOP-001..003, LHOME-001..006
 # ---------------------------------------------------------------------------
 
-# [LSHOP-001] PlayerStats tracks gold as integer
+# [LSHOP-001] PlayerInventory tracks currency as integer
 func test_gold_tracked_as_integer_lshop001():
-	assert_true(PlayerStats.gold is int,
-		"PlayerStats.gold must be an integer [LSHOP-001]")
+	var inv := PlayerInventory.new()
+	add_child_autofree(inv)
+	assert_true(inv.currency is int, "Player currency must be an integer [LSHOP-001]")
 
 
-# [LSHOP-002] Selling items increases gold
+# [LSHOP-002] Selling items increases currency
 func test_selling_increases_gold_lshop002():
-	var before: int = PlayerStats.gold
-	PlayerStats.gold += 100
-	assert_gt(PlayerStats.gold, before,
-		"Adding to gold must increase PlayerStats.gold [LSHOP-002]")
-	PlayerStats.gold = before  # restore
+	var inv := PlayerInventory.new()
+	add_child_autofree(inv)
+	var before: int = inv.currency
+	inv.currency += 100
+	assert_gt(inv.currency, before, "Adding currency must increase balance [LSHOP-002]")
 
 
-# [LSHOP-003] Purchasing items decreases gold
+# [LSHOP-003] Purchasing items decreases currency
 func test_purchasing_decreases_gold_lshop003():
-	PlayerStats.gold = 200
-	var before: int = PlayerStats.gold
-	PlayerStats.gold -= 50
-	assert_lt(PlayerStats.gold, before,
-		"Deducting from gold must decrease PlayerStats.gold [LSHOP-003]")
+	var inv := PlayerInventory.new()
+	add_child_autofree(inv)
+	inv.currency = 200
+	var before: int = inv.currency
+	inv.currency -= 50
+	assert_lt(inv.currency, before, "Deducting currency must decrease balance [LSHOP-003]")
 
 
 # [LHOME-001] Homes purchasable at Village+

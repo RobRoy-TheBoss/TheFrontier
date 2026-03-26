@@ -185,7 +185,7 @@ func _perform_attack(target: Node) -> void:
 
 	if damage > 0.0:
 		player_health.take_damage(damage, self)
-		player_health.try_combat_injury_roll()
+		player_health.try_combat_injury_roll(monster_id)
 
 	# Special attacks
 	for special in _data.get("special_attacks", []):
