@@ -28,6 +28,7 @@ const KEY_TURN_SPEED := 1.8
 func _ready() -> void:
 	add_to_group("player")
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	interaction_ray.add_exception(self)
 	_give_starting_items()
 	health.player_died.connect(_on_player_died)
 	inventory.inventory_changed.connect(_update_weapon_display)
