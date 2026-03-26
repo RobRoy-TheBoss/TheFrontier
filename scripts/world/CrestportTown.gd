@@ -252,6 +252,15 @@ func _build_dock() -> void:
 		for ix: float in [-1.5, -0.5, 0.5, 1.5]:
 			_p("planks", Vector3(ix, 0, iz))
 		iz += 1.0
+	# Single collision box covering the full boardwalk (x: -2..2, z: -14..12)
+	var dock_body := StaticBody3D.new()
+	var dock_col  := CollisionShape3D.new()
+	var dock_box  := BoxShape3D.new()
+	dock_box.size = Vector3(4.0, 0.2, 27.0)
+	dock_col.shape    = dock_box
+	dock_col.position = Vector3(0.0, -0.05, -1.0)
+	dock_body.add_child(dock_col)
+	add_child(dock_body)
 
 
 # ---------------------------------------------------------------------------
@@ -297,6 +306,7 @@ func _build_forest_ring() -> void:
 				if n:
 					n.rotation.y = rng.randf_range(0.0, TAU)
 					n.scale = Vector3.ONE * rng.randf_range(0.85, 1.5)
+					_add_tree_collision(n)
 			gz += step
 		gx += step
 
@@ -312,6 +322,7 @@ func _build_forest_ring() -> void:
 		if n:
 			n.rotation.y = rng.randf_range(0.0, TAU)
 			n.scale = Vector3.ONE * rng.randf_range(0.8, 1.3)
+			_add_tree_collision(n)
 
 
 # ---------------------------------------------------------------------------
@@ -333,3 +344,31 @@ func _scatter_rocks() -> void:
 		var n := _p(rk, Vector3(px, 0, pz))
 		if n:
 			n.rotation.y = rng.randf_range(0.0, TAU)
+			_add_rock_collision(n, rk == "rock_large")
+
+
+# ---------------------------------------------------------------------------
+# Collision helpers
+# ---------------------------------------------------------------------------
+
+func _add_tree_collision(tree_node: Node3D) -> void:
+	var body  := StaticBody3D.new()
+	var cnode := CollisionShape3D.new()
+	var cap   := CapsuleShape3D.new()
+	cap.radius = 0.2
+	cap.height = 1.5
+	cnode.shape    = cap
+	cnode.position = Vector3(0.0, 0.75, 0.0)
+	body.add_child(cnode)
+	tree_node.add_child(body)
+
+
+func _add_rock_collision(rock_node: Node3D, is_large: bool) -> void:
+	var body  := StaticBody3D.new()
+	var cnode := CollisionShape3D.new()
+	var sphere := SphereShape3D.new()
+	sphere.radius = 0.6 if is_large else 0.3
+	cnode.shape    = sphere
+	cnode.position = Vector3(0.0, sphere.radius * 0.5, 0.0)
+	body.add_child(cnode)
+	rock_node.add_child(body)

@@ -3,6 +3,9 @@
 extends CharacterBody3D
 
 const INTERACTION_DISTANCE := 2.5
+const ZOOM_MIN := 1.5
+const ZOOM_MAX := 8.0
+const ZOOM_STEP := 0.4
 
 @onready var camera: Camera3D = $CameraPivot/SpringArm3D/Camera3D
 @onready var camera_pivot: Node3D = $CameraPivot
@@ -40,6 +43,12 @@ func _input(event: InputEvent) -> void:
 		camera_pivot.rotate_y(-event.relative.x * mouse_sensitivity)
 		spring_arm.rotate_x(-event.relative.y * mouse_sensitivity)
 		spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(-60), deg_to_rad(20))
+
+	if event is InputEventMouseButton and not GameState.is_paused_for_ui:
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			_adjust_zoom(-ZOOM_STEP)
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			_adjust_zoom(ZOOM_STEP)
 
 	if event.is_action_pressed("interact"):
 		_try_interact()
@@ -282,3 +291,8 @@ func apply_save_data(data: Dictionary) -> void:
 	survival.apply_save_data(data.get("survival", {}))
 	inventory.apply_save_data(data.get("inventory", {}))
 	combat.apply_save_data(data.get("combat", {}))
+
+
+func _adjust_zoom(delta: float) -> void:
+	spring_arm.spring_length = clamp(spring_arm.spring_length + delta, ZOOM_MIN, ZOOM_MAX)
+	interaction_ray.target_position.z = -(spring_arm.spring_length + INTERACTION_DISTANCE)
