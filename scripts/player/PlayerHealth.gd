@@ -82,11 +82,36 @@ func take_damage(amount: float, attacker: Node = null) -> void:
 ## Called by combat sources (monsters, traps) after dealing damage to attempt
 ## a random injury roll. Separated from take_damage so non-combat callers
 ## (survival drains, test helpers) do not trigger injury rolls.
-func try_combat_injury_roll() -> void:
+func try_combat_injury_roll(attacker_id: String = "") -> void:
 	var hp_params: Dictionary = _params.get("health", {})
 	var threshold: float = hp_params.get("injury_threshold_percent", 0.35) * max_health
-	if current_health < threshold and randf() < 0.15:
-		_try_inflict_random_injury()
+	if current_health >= threshold or randf() >= 0.15:
+		return
+	if attacker_id != "":
+		var monster_data: Dictionary = DataLoader.get_monster(attacker_id)
+		var chances: Dictionary = monster_data.get("injury_chances", {})
+		if not chances.is_empty():
+			_try_inflict_injury_from_chances(chances)
+			return
+	_try_inflict_random_injury()
+
+
+func _try_inflict_injury_from_chances(chances: Dictionary) -> void:
+	var total := 0.0
+	for inj_id in chances:
+		if inj_id not in active_injuries:
+			total += chances[inj_id]
+	if total <= 0.0:
+		return
+	var roll := randf() * total
+	var cumulative := 0.0
+	for inj_id in chances:
+		if inj_id in active_injuries:
+			continue
+		cumulative += chances[inj_id]
+		if roll <= cumulative:
+			inflict_injury(inj_id)
+			return
 
 
 func heal(amount: float) -> void:

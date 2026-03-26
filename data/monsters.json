@@ -52,7 +52,8 @@
     "aggro_range": 8.0,
     "home_radius": 20.0,
     "flee_hp_threshold": 0.25,
-    "scannable": true
+    "scannable": true,
+    "injury_chances": {"bleeding_gash": 0.5, "torn_muscle": 0.3}
   },
   {
     "id": "shelled_crawler",
@@ -107,7 +108,8 @@
     "detection_range": 12.0,
     "aggro_range": 8.0,
     "trigger_radius": 5.0,
-    "scannable": true
+    "scannable": true,
+    "injury_chances": {"cracked_ribs": 0.4, "deep_wound": 0.35}
   },
   {
     "id": "bog_lurker",
@@ -168,7 +170,8 @@
     "detection_range": 12.0,
     "aggro_range": 8.0,
     "trigger_radius": 5.0,
-    "scannable": true
+    "scannable": true,
+    "injury_chances": {"venom": 0.5, "bleeding_gash": 0.25}
   },
   {
     "id": "plague_swarm",
@@ -218,7 +221,8 @@
     "detection_range": 12.0,
     "aggro_range": 8.0,
     "flee_group_threshold": 0.4,
-    "scannable": true
+    "scannable": true,
+    "injury_chances": {"gut_sickness": 0.5, "venom": 0.3}
   },
   {
     "id": "stone_sentinel",
@@ -278,7 +282,8 @@
     "aggro_range": 8.0,
     "home_radius": 20.0,
     "flee_hp_threshold": 0.25,
-    "scannable": true
+    "scannable": true,
+    "injury_chances": {"cracked_ribs": 0.6, "deep_wound": 0.3}
   },
   {
     "id": "bonewalker",
@@ -330,7 +335,8 @@
     "detection_range": 12.0,
     "aggro_range": 8.0,
     "trigger_radius": 5.0,
-    "scannable": true
+    "scannable": true,
+    "injury_chances": {"deep_wound": 0.45, "torn_muscle": 0.35}
   },
   {
     "id": "deep_horror",
@@ -420,7 +426,8 @@
         "attack_pattern": "enraged"
       }
     ],
-    "scannable": true
+    "scannable": true,
+    "injury_chances": {"venom": 0.5, "deep_wound": 0.35}
   },
   {
     "id": "ridge_stalker",
@@ -499,7 +506,8 @@
         "attack_pattern": "enraged"
       }
     ],
-    "scannable": true
+    "scannable": true,
+    "injury_chances": {"bleeding_gash": 0.4, "torn_muscle": 0.35}
   },
   {
     "id": "grave_titan",
@@ -529,6 +537,7 @@
     "aggro_range": 10.0,
     "charge_damage": 90.0,
     "flee_hp_threshold": 0.0,
-    "scannable": true
+    "scannable": true,
+    "injury_chances": {"cracked_ribs": 0.65, "deep_wound": 0.4}
   }
 ]

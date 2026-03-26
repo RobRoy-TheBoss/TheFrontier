@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://death_ui"]
+
+[ext_resource type="Script" path="res://scripts/ui/DeathUI.gd" id="1"]
+
+[node name="DeathUI" type="Control"]
+script = ExtResource("1")
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Panel" type="PanelContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="DeathLabel" type="Label" parent="Panel"]
+text = "You have fallen."
+
+[node name="RespawnLabel" type="Label" parent="Panel"]
+text = "Respawn at: ..."
+
+[node name="RespawnButton" type="Button" parent="Panel"]
+text = "Respawn"

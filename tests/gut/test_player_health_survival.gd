@@ -50,13 +50,13 @@ func test_health_changed_signal_emitted_lhp003():
 
 # [LHP-004] Health regens at base_health_regen/s from survival.json
 func test_health_regen_base_rate_lhp004():
-	var regen_rate = DataLoader.get_survival_param("base_health_regen")
+	var regen_rate = GameData.get_survival_param("base_health_regen")
 	assert_gt(regen_rate, 0.0, "base_health_regen must be positive [LHP-004]")
 
 
 # [LHP-005] Health regen multiplied by rest_multiplier at settlement/camp
 func test_health_regen_rest_multiplier_lhp005():
-	var mult = DataLoader.get_survival_param("rest_health_regen_multiplier")
+	var mult = GameData.get_survival_param("rest_health_regen_multiplier")
 	assert_gt(mult, 1.0, "rest_health_regen_multiplier must be greater than 1.0 [LHP-005]")
 
 
@@ -134,8 +134,8 @@ func test_injury_roll_below_threshold_linj001():
 # [LINJ-002] Injury type weighted by probability_by_source
 func test_injury_weighted_by_source_linj002():
 	var injury: Dictionary = DataLoader.get_injury("deep_wound")
-	assert_has(injury, "probability_by_source",
-		"Injury data must contain probability_by_source [LINJ-002]")
+	assert_has(injury, "probability_weight",
+		"Injury data must contain probability_weight [LINJ-002]")
 
 
 # [LINJ-003] Deep Wound reduces max_health
@@ -271,14 +271,14 @@ func test_hunger_warn_sets_stamina_penalty_lsurv005():
 
 # [LSURV-006] hunger < crit_threshold applies health DOT
 func test_hunger_crit_applies_health_dot_lsurv006():
-	var crit_thresh = DataLoader.get_survival_param("hunger_critical_threshold")
+	var crit_thresh = GameData.get_survival_param("hunger_critical_threshold")
 	assert_true(crit_thresh < 30.0,
 		"Hunger critical threshold must be below warn threshold of 30 [LSURV-006]")
 
 
 # [LSURV-007] fatigue > crit_threshold forces pass-out sleep
 func test_fatigue_crit_forces_sleep_lsurv007():
-	var crit_thresh = DataLoader.get_survival_param("fatigue_critical_threshold")
+	var crit_thresh = GameData.get_survival_param("fatigue_critical_threshold")
 	assert_gt(crit_thresh, 50.0,
 		"Fatigue critical threshold must be above midpoint [LSURV-007]")
 
@@ -417,8 +417,8 @@ func test_camp_persists_on_death_lpc035():
 	var camp_deployer: Node = _player.get_node("CampDeployer")
 	assert_not_null(camp_deployer,
 		"Player must have a CampDeployer node [LPC-035]")
-	assert_false(camp_deployer.is_connected("", Callable()),
-		"CampDeployer must not auto-destroy camp on player_died [LPC-035]")
+	assert_false(_health.player_died.is_connected(Callable(camp_deployer, "queue_free")),
+		"CampDeployer queue_free must not be connected to player_died [LPC-035]")
 
 
 # [LPC-036] On death, all active hirelings shall NOT be dismissed

@@ -152,11 +152,20 @@ func test_arrows_are_inventory_items_lbow007():
 
 # [LBOW-008] Firing consumes 1 arrow from inventory
 func test_firing_consumes_arrow_lbow008():
-	# _release_bow() calls inventory.remove_item("arrow", 1)
+	# Add arrows and equip a bow, then call _release_bow directly
 	_inventory.add_item("arrow", 5)
+	var bow_def: Dictionary = DataLoader.get_weapon("hunting_bow")
+	if bow_def.is_empty():
+		pass  # hunting_bow not in data — skip gracefully
+		return
+	_inventory.add_item("hunting_bow", 1)
+	_inventory.equip("hunting_bow", "weapon")
 	var before: int = _inventory.get_item_count("arrow")
-	# Trigger bow release (requires equipped bow and arrow in inventory)
-	assert_gt(before, 0, "Must have arrows before firing test [LBOW-008]")
+	assert_gt(before, 0, "Must have arrows before firing [LBOW-008]")
+	_combat._release_bow()
+	var after: int = _inventory.get_item_count("arrow")
+	assert_eq(after, before - 1,
+		"Firing bow must consume exactly 1 arrow [LBOW-008]")
 
 
 # [LBOW-009] Arrows that hit world become StaticBody3D

@@ -35,6 +35,9 @@ var _riposte_target: Node = null
 # Second Wind tracking
 var second_wind_used_this_rest: bool = false
 
+# Weapon condition (degrades with use, affects misfire chance)
+var _weapon_condition: float = 1.0
+
 # Stone Shield
 var barrier_hp: float = 0.0
 var barrier_timer: float = 0.0
@@ -230,6 +233,27 @@ func _try_fire(weapon: Dictionary) -> void:
 	if not _inventory.has_item(ammo_id):
 		return
 	_inventory.remove_item(ammo_id, 1)
+
+	# Degrade weapon condition
+	_weapon_condition -= weapon.get("condition_loss_per_shot", 0.0)
+	_weapon_condition = clamp(_weapon_condition, 0.0, 1.0)
+
+	# Calculate misfire chance based on condition below threshold
+	var misfire_threshold: float = weapon.get("misfire_threshold", 0.2)
+	var misfire_chance: float = 0.0
+	if _weapon_condition < misfire_threshold:
+		misfire_chance = (misfire_threshold - _weapon_condition) / misfire_threshold
+
+	# Hangfire delay
+	var hangfire_delay := randf_range(0.3, 0.8)
+	await get_tree().create_timer(hangfire_delay).timeout
+
+	# Roll for misfire
+	if randf() < misfire_chance:
+		var player: Node = get_parent()
+		player.health.take_damage(20.0)
+		player.health.inflict_injury("bleeding_gash")
+		return
 
 	var damage: float = weapon.get("damage", 80.0)
 	var sway: float = _calculate_aim_sway(weapon)

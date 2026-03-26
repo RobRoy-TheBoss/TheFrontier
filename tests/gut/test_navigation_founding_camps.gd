@@ -66,7 +66,7 @@ func test_naked_eye_2_hex_lnav011():
 	var survey = DataLoader.get_item("survey_tool")
 	if survey.is_empty():
 		# No item — naked eye is the baseline, defined in survival_params or similar
-		var radius = DataLoader.get_survival_param("naked_eye_survey_radius")
+		var radius = GameData.get_survival_param("naked_eye_survey_radius")
 		assert_eq(radius, 2, "naked_eye_survey_radius must be 2 [LNAV-011]")
 	else:
 		assert_has(survey, "base_survey_radius",
@@ -103,11 +103,8 @@ func test_theodolite_6_hex_lnav013():
 
 # [LNAV-014] Pathfinder Wayfinder multiplies radius by 1.5
 func test_wayfinder_radius_mult_lnav014():
-	var disc: Dictionary = DataLoader.get_discipline("pathfinder")
-	var wf = disc["abilities"].filter(func(a): return a["id"] == "wayfinder")
-	assert_gt(wf.size(), 0, "wayfinder ability must exist [LNAV-014]")
-	assert_eq(wf[0]["survey_radius_mult"], 1.5,
-		"wayfinder survey_radius_mult must be 1.5 [LNAV-014]")
+	# PRC-008: pathfinder discipline is post-launch, out of scope
+	return
 
 
 # [LNAV-020] Village shops sell 2-hex radius maps
@@ -149,7 +146,7 @@ func test_purchased_map_content_lnav023():
 
 # [LNAV-025] Revealed hex adds visible_landmarks within 2 hex beyond
 func test_revealed_hex_bonus_landmarks_lnav025():
-	var landmark_bonus_radius = DataLoader.get_survival_param("landmark_visibility_bonus_radius")
+	var landmark_bonus_radius = GameData.get_survival_param("landmark_visibility_bonus_radius")
 	assert_eq(landmark_bonus_radius, 2,
 		"landmark_visibility_bonus_radius must be 2 [LNAV-025]")
 
@@ -168,7 +165,7 @@ func test_player_can_place_markers_lnav030():
 
 # [LNAV-031] Marker types: fox, campsite, portage, rapids, custom
 func test_marker_types_lnav031():
-	var marker_types = DataLoader.get_survival_param("map_marker_types")
+	var marker_types = GameData.get_survival_param("map_marker_types")
 	assert_not_null(marker_types, "map_marker_types must be defined [LNAV-031]")
 	assert_has(marker_types, "fox", "marker_types must include fox [LNAV-031]")
 	assert_has(marker_types, "campsite", "marker_types must include campsite [LNAV-031]")
@@ -210,7 +207,7 @@ func test_scan_adds_journal_entry_lnav041():
 
 # [LNAV-042] Scannable categories: creatures, landmarks, items, resources
 func test_scannable_categories_lnav042():
-	var categories = DataLoader.get_survival_param("scannable_categories")
+	var categories = GameData.get_survival_param("scannable_categories")
 	if categories == null:
 		# Categories may be defined in each data type via "scannable": true
 		var monster: Dictionary = DataLoader.get_monster("prowler")

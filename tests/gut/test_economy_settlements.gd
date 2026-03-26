@@ -18,7 +18,7 @@ func before_each() -> void:
 	_saved_settlements = SettlementManager.settlements.duplicate(true)
 	_saved_roads = SettlementManager.road_network.duplicate(true)
 	_saved_port_routing = SettlementManager.port_routing.duplicate(true)
-	_saved_trade_graph_adjacency = TradeGraph._adjacency.duplicate(true)
+	_saved_trade_graph_adjacency = JSON.parse_string(JSON.stringify(TradeGraph._adjacency))
 	_saved_trade_graph_dirty = TradeGraph.is_dirty
 
 
@@ -214,16 +214,22 @@ func test_tier_advance_required_resources_lscore008():
 
 # [LSCORE-009] tier_changed signal emitted on advancement
 func test_tier_changed_signal_lscore009():
-	watch_signals(SettlementManager)
-	# Force a tier advance by setting score above threshold and calling check
 	var crestport = SettlementManager.get_settlement("crestport")
+	assert_not_null(crestport, "crestport must exist [LSCORE-009]")
+	assert_true(SettlementManager.has_signal("settlement_tier_changed"),
+		"SettlementManager must have settlement_tier_changed signal [LSCORE-009]")
+	watch_signals(SettlementManager)
+	# Force score above threshold and trigger advance check
 	var village_tier: Dictionary = DataLoader.get_tier("village")
-	var threshold: float = village_tier.get("advance_score_threshold", 999999.0)
+	var threshold: float = village_tier.get("trade_score_threshold", 999999.0)
 	crestport.trade_score = threshold + 1.0
-	# Trigger tier check — method must exist
-	assert_true(SettlementManager.has_method("_check_tier_advance") or
-		SettlementManager.has_method("check_tier_advance"),
-		"SettlementManager must implement tier advance check [LSCORE-009]")
+	if SettlementManager.has_method("check_tier_advance"):
+		SettlementManager.check_tier_advance("crestport")
+		assert_signal_emitted(SettlementManager, "settlement_tier_changed",
+			"Advancing tier must emit settlement_tier_changed [LSCORE-009]")
+	else:
+		assert_true(false,
+			"SettlementManager must implement check_tier_advance [LSCORE-009]")
 
 
 # [LSCORE-010] tier_changed triggers road re-evaluation
@@ -378,28 +384,30 @@ func test_road_speed_zone_lroad019():
 # Shops and Homes — LSHOP-001..003, LHOME-001..006
 # ---------------------------------------------------------------------------
 
-# [LSHOP-001] PlayerStats tracks gold as integer
+# [LSHOP-001] PlayerInventory tracks currency as integer
 func test_gold_tracked_as_integer_lshop001():
-	assert_true(PlayerStats.gold is int,
-		"PlayerStats.gold must be an integer [LSHOP-001]")
+	var inv := PlayerInventory.new()
+	add_child_autofree(inv)
+	assert_true(inv.currency is int, "Player currency must be an integer [LSHOP-001]")
 
 
-# [LSHOP-002] Selling items increases gold
+# [LSHOP-002] Selling items increases currency
 func test_selling_increases_gold_lshop002():
-	var before: int = PlayerStats.gold
-	PlayerStats.gold += 100
-	assert_gt(PlayerStats.gold, before,
-		"Adding to gold must increase PlayerStats.gold [LSHOP-002]")
-	PlayerStats.gold = before  # restore
+	var inv := PlayerInventory.new()
+	add_child_autofree(inv)
+	var before: int = inv.currency
+	inv.currency += 100
+	assert_gt(inv.currency, before, "Adding currency must increase balance [LSHOP-002]")
 
 
-# [LSHOP-003] Purchasing items decreases gold
+# [LSHOP-003] Purchasing items decreases currency
 func test_purchasing_decreases_gold_lshop003():
-	PlayerStats.gold = 200
-	var before: int = PlayerStats.gold
-	PlayerStats.gold -= 50
-	assert_lt(PlayerStats.gold, before,
-		"Deducting from gold must decrease PlayerStats.gold [LSHOP-003]")
+	var inv := PlayerInventory.new()
+	add_child_autofree(inv)
+	inv.currency = 200
+	var before: int = inv.currency
+	inv.currency -= 50
+	assert_lt(inv.currency, before, "Deducting currency must decrease balance [LSHOP-003]")
 
 
 # [LHOME-001] Homes purchasable at Village+

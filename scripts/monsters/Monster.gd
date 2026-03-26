@@ -3,7 +3,7 @@
 ## combat, loot, and XP trigger reporting.
 extends CharacterBody3D
 
-enum State { IDLE, PATROL, ALERT, CHASE, ATTACK, DEAD }
+enum State { IDLE, PATROL, ALERT, CHASE, ATTACK, FLEE, DESPAWN, DEAD }
 
 @export var monster_id: String = "prowler"
 @export var static_mode: bool = false  # If true: no AI, no movement, no attacks
@@ -185,7 +185,7 @@ func _perform_attack(target: Node) -> void:
 
 	if damage > 0.0:
 		player_health.take_damage(damage, self)
-		player_health.try_combat_injury_roll()
+		player_health.try_combat_injury_roll(monster_id)
 
 	# Special attacks
 	for special in _data.get("special_attacks", []):

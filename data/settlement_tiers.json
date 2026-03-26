@@ -20,7 +20,6 @@
     "services": [],
     "road_budget": 9,
     "visual_ref": "hamlet_visual",
-    "bridge_rivers": false,
     "advance_score_threshold": 0,
     "sleep_cost": 0
   },
@@ -53,7 +52,6 @@
     "visual_ref": "settlement_trading_post",
     "exploitation_pct": 1.0,
     "monster_suppression": 0.25,
-    "bridge_rivers": false,
     "advance_score_threshold": 200,
     "sleep_cost": 0
   },
@@ -95,7 +93,6 @@
     "visual_ref": "settlement_village",
     "exploitation_pct": 1.0,
     "monster_suppression": 0.5,
-    "bridge_rivers": false,
     "advance_score_threshold": 800,
     "sleep_cost": 0
   },
@@ -143,7 +140,6 @@
     "visual_ref": "settlement_town",
     "exploitation_pct": 1.0,
     "monster_suppression": 0.75,
-    "bridge_rivers": true,
     "advance_score_threshold": 2500,
     "sleep_cost": 0
   },
@@ -189,7 +185,6 @@
     "visual_ref": "settlement_city",
     "exploitation_pct": 1.0,
     "monster_suppression": 1.0,
-    "bridge_rivers": true,
     "advance_score_threshold": 0,
     "sleep_cost": 0
   }

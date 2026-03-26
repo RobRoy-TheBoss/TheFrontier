@@ -169,6 +169,13 @@ func socket_rune(slot: String, rune_id: String) -> bool:
 	var current_runes: Array = equipped[slot]["runes"]
 	if current_runes.size() >= max_slots:
 		return false
+	# Slot-type validation (LPC-RUNE-004): check rune's allowed_slot_types against equipped weapon type
+	var rune_def := DataLoader.get_rune(rune_id)
+	var allowed: Array = rune_def.get("allowed_slot_types", [])
+	if allowed.size() > 0:
+		var item_type: String = def.get("type", "")
+		if item_type not in allowed:
+			return false
 	if not has_item(rune_id):
 		return false
 	remove_item(rune_id, 1)

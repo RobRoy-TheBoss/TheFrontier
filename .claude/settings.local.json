@@ -130,7 +130,12 @@
       "Bash(find /root -name godot_mcp*)",
       "Bash(timeout 3 bash -c 'echo \"\"\"\" > /dev/tcp/host.docker.internal/3000')",
       "Bash(git merge:*)",
-      "Bash(/workspace/scripts/world/CrestportTown.gd:*)"
+      "Bash(/workspace/scripts/world/CrestportTown.gd:*)",
+      "Bash(find /workspace/scenes -name *cache* -o -name *chest* -o -name *ItemCache*)",
+      "Bash(find /workspace -name conftest.py -o -name pytest.ini -o -name *.py -path */tests/*)",
+      "Bash(find /workspace -name *.sh -o -name Makefile -o -name run_tests*)",
+      "Bash(python -m pytest tests/test_data_schemas.py tests/test_game_logic.py tests/test_project_structure.py -v)",
+      "Bash(python -m pytest tests/test_data_schemas.py tests/test_game_logic.py tests/test_project_structure.py -q)"
     ]
   }
 }

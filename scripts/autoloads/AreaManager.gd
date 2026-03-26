@@ -20,7 +20,7 @@ const IMPASSABLE_EDGE_FEATURES: Array = ["cliff"]
 const WATER_EDGE_FEATURES: Array     = ["river"]
 const FORD_TAG: String               = "ford"
 # Tier index at which a river edge becomes passable without a ford tag
-const TOWN_TIER_INDEX: int           = 2
+const TOWN_TIER_INDEX: int           = 3
 
 
 func _ready() -> void:
