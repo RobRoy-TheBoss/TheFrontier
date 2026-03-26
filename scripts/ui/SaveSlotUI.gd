@@ -17,6 +17,7 @@ var _caller: Node = null
 
 func _ready() -> void:
 	add_to_group("save_slot_ui")
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	save_button.pressed.connect(_on_save)
 	load_button.pressed.connect(_on_load)
