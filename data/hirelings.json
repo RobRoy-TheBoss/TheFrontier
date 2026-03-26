@@ -75,7 +75,8 @@
     },
     "targetable": false,
     "killable": false,
-    "discovers_on_sleep": true
+    "discovers_on_sleep": true,
+    "origin_settlement": "crestport"
   },
   {
     "id": "cartographer",

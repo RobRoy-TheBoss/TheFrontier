@@ -10,7 +10,8 @@ signal firearm_discharged(weapon_id: String)
 signal reload_step_completed(steps_remaining: int)
 signal reload_completed()
 
-const ATTACK_RANGE := 2.5
+const SPRING_ARM_LENGTH := 4.0  # Camera offset behind player
+const UNARMED_REACH := 0.8
 const BOW_RANGE := 60.0
 
 # Cooldowns and state
@@ -116,27 +117,24 @@ func _try_attack() -> void:
 func _melee_unarmed() -> void:
 	if not _health.try_consume_stamina(10.0):
 		return
-	var target: Node = _get_melee_target()
+	_set_attack_cooldown(1.0)
+	var target: Node = _get_melee_target(UNARMED_REACH)
 	if target == null:
 		return
-	var damage: float = 10.0
-	_deal_damage(target, damage)
-	_set_attack_cooldown(1.0)
+	_deal_damage(target, 10.0)
 
 
 func _melee_attack(weapon: Dictionary) -> void:
 	var stamina_cost: float = weapon.get("stamina_cost", 15.0)
 	if not _health.try_consume_stamina(stamina_cost):
 		return
-
-	var target: Node = _get_melee_target()
+	_set_attack_cooldown(1.0 / weapon.get("attack_speed", 1.0))
+	var target: Node = _get_melee_target(weapon.get("melee_range", 1.0))
 	if target == null:
-		_set_attack_cooldown(1.0 / weapon.get("attack_speed", 1.0))
 		return
 
 	var damage: float = _calculate_melee_damage(weapon)
 	_deal_damage(target, damage)
-	_set_attack_cooldown(1.0 / weapon.get("attack_speed", 1.0))
 
 	# Swordsman Bleed on crit
 	if randf() < 0.1 and DisciplineManager.is_ability_unlocked("swordsman", "bleed"):
@@ -157,11 +155,12 @@ func _calculate_melee_damage(weapon: Dictionary) -> float:
 	return base
 
 
-func _get_melee_target() -> Node:
+func _get_melee_target(weapon_reach: float) -> Node:
 	var camera: Camera3D = _player.camera
 	var space: PhysicsDirectSpaceState3D = _player.get_world_3d().direct_space_state
 	var origin: Vector3 = camera.global_position
-	var end: Vector3 = origin + (-camera.global_transform.basis.z * ATTACK_RANGE)
+	var range: float = SPRING_ARM_LENGTH + weapon_reach
+	var end: Vector3 = origin + (-camera.global_transform.basis.z * range)
 	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, end)
 	query.exclude = [_player]
 	query.collision_mask = 0b10  # Monster layer

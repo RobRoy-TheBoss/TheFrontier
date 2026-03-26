@@ -6,6 +6,7 @@ extends CharacterBody3D
 enum State { IDLE, PATROL, ALERT, CHASE, ATTACK, DEAD }
 
 @export var monster_id: String = "prowler"
+@export var static_mode: bool = false  # If true: no AI, no movement, no attacks
 
 var _data: Dictionary = {}
 var _stats: Dictionary = {}
@@ -25,6 +26,7 @@ var _bleed_stacks: int = 0
 var _bleed_timer: float = 0.0
 var _deathmark_active: bool = false
 var _deathmark_cripple_count: int = 0
+var _mesh_material: StandardMaterial3D = null
 
 const GRAVITY := 9.8
 
@@ -41,6 +43,12 @@ func _ready() -> void:
 	_stats = _data.get("stats", {})
 	_max_health = _stats.get("max_health", 60.0)
 	_health = _max_health
+	var mesh: MeshInstance3D = get_node_or_null("MeshInstance3D")
+	if mesh:
+		var mat := mesh.get_surface_override_material(0)
+		if mat:
+			_mesh_material = mat.duplicate() as StandardMaterial3D
+			mesh.set_surface_override_material(0, _mesh_material)
 
 
 func _physics_process(delta: float) -> void:
@@ -65,6 +73,8 @@ func _tick_timers(delta: float) -> void:
 
 
 func _run_ai(delta: float) -> void:
+	if static_mode:
+		return
 	var player := get_tree().get_first_node_in_group("player")
 	if player == null:
 		return
@@ -74,6 +84,11 @@ func _run_ai(delta: float) -> void:
 	var aggro_range: float = _stats.get("aggro_range", 15.0)
 
 	# Detection
+	var player_health: PlayerHealth = player.get("health") as PlayerHealth
+	if player_health and player_health.is_dead:
+		_target = null
+		_state = State.IDLE
+		return
 	if dist_to_player <= detection_range:
 		if _can_see_player(player):
 			_has_detected_player = true
@@ -147,8 +162,10 @@ func _telegraph_attack() -> void:
 
 
 func _perform_attack(target: Node) -> void:
+	if _state == State.DEAD:
+		return
 	var player_health: PlayerHealth = target.get("health") as PlayerHealth
-	if player_health == null:
+	if player_health == null or player_health.is_dead:
 		return
 
 	var damage: float = _stats.get("damage", 10.0)
@@ -157,7 +174,7 @@ func _perform_attack(target: Node) -> void:
 		damage *= 1.30
 
 	# Block reduction via player combat
-	var player_combat: PlayerCombat = target.combat if target.has("combat") else null
+	var player_combat: PlayerCombat = target.combat if "combat" in target else null
 	if player_combat:
 		damage = player_combat.receive_attack_for_block(damage, self)
 		damage = player_combat.receive_damage_check_barrier(damage)
@@ -207,6 +224,8 @@ func take_damage(amount: float, attacker: Node = null) -> void:
 	_health -= total_damage
 	_health = max(0.0, _health)
 
+	_flash_hit()
+
 	if attacker != null and _state == State.IDLE:
 		_target = attacker
 		_state = State.CHASE
@@ -221,9 +240,10 @@ func _die() -> void:
 	_has_detected_player = false
 	died.emit(monster_id, global_position)
 	_drop_loot()
-	# Disable collision, play death animation, then queue_free after delay
 	set_physics_process(false)
-	await get_tree().create_timer(3.0).timeout
+	if _mesh_material:
+		_mesh_material.albedo_color = Color(0.15, 0.15, 0.15)
+	await get_tree().create_timer(1.5).timeout
 	queue_free()
 
 
@@ -326,3 +346,12 @@ func alert_to_sound(position: Vector3) -> void:
 
 func is_apex() -> bool:
 	return _data.get("is_apex", false)
+
+
+func _flash_hit() -> void:
+	if _mesh_material == null:
+		return
+	var original: Color = _mesh_material.albedo_color
+	_mesh_material.albedo_color = Color.WHITE
+	await get_tree().create_timer(0.1).timeout
+	_mesh_material.albedo_color = original

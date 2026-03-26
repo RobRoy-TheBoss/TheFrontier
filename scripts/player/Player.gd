@@ -80,16 +80,24 @@ func _process(delta: float) -> void:
 
 
 func _try_interact() -> void:
+	var hud := get_tree().get_first_node_in_group("hud")
 	if not interaction_ray.is_colliding():
+		if hud: hud.show_message("interact: no collision", 2.0)
 		return
 	var collider := interaction_ray.get_collider()
 	if collider == null:
+		if hud: hud.show_message("interact: collider null", 2.0)
 		return
 	var dist := global_position.distance_to(interaction_ray.get_collision_point())
 	if dist > INTERACTION_DISTANCE:
+		if hud: hud.show_message("interact: too far (%.1f)" % dist, 2.0)
 		return
-	if collider.has_method("interact"):
-		collider.interact(self)
+	var target: Node = collider if collider.has_method("interact") else collider.get_parent()
+	if target and target.has_method("interact"):
+		if hud: hud.show_message("interact: calling %s" % target.name, 2.0)
+		target.interact(self)
+	else:
+		if hud: hud.show_message("interact: no interact on %s" % collider.name, 2.0)
 
 
 func _toggle_inventory() -> void:

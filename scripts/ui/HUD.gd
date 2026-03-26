@@ -31,6 +31,8 @@ func _ready() -> void:
 		_player_combat.reload_step_completed.connect(_on_reload_step)
 		_player_combat.reload_completed.connect(_on_reload_complete)
 		_player.inventory.inventory_changed.connect(_update_weapon_display)
+	SaveManager.save_completed.connect(_on_save_completed)
+	SaveManager.save_failed.connect(_on_save_failed)
 
 
 func _process(delta: float) -> void:
@@ -114,3 +116,11 @@ func show_message(text: String, duration: float = 3.0) -> void:
 		msg_label.visible = true
 		await get_tree().create_timer(duration).timeout
 		msg_label.visible = false
+
+
+func _on_save_completed(slot: String) -> void:
+	show_message("Game saved. [%s]" % slot, 3.0)
+
+
+func _on_save_failed(reason: String) -> void:
+	show_message("Save FAILED: %s" % reason, 5.0)

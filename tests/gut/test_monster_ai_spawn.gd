@@ -210,6 +210,12 @@ func test_no_spawns_in_safe_zone_lspn003():
 		"SpawnManager must track suppression_percent [LSPN-003]")
 
 
+# [LSPN-003] Monster can flee (flee_from method exists for future safe-zone enforcement)
+func test_monster_has_flee_method_lspn003():
+	assert_true(_monster.has_method("flee_from"),
+		"Monster must implement flee_from for safe-zone boundary enforcement [LSPN-003]")
+
+
 # [LSPN-004] Suppression pct read from settlement tier data
 func test_suppression_from_tier_data_lspn004():
 	var hamlet_tier: Dictionary = DataLoader.get_tier("hamlet")

@@ -14,6 +14,7 @@ var current_health: float = 100.0
 var max_stamina: float = 100.0
 var stamina: float = 100.0
 var active_injuries: Array = []  # List of injury_id strings
+var is_dead: bool = false
 
 # Passive buffs from runes/disciplines
 var _health_bonus: float = 0.0
@@ -73,7 +74,8 @@ func take_damage(amount: float, attacker: Node = null) -> void:
 	if current_health / max_health <= 0.25:
 		_check_second_wind()
 
-	if current_health <= 0.0:
+	if current_health <= 0.0 and not is_dead:
+		is_dead = true
 		player_died.emit()
 
 
@@ -146,7 +148,8 @@ func _process_injury_effects(delta: float) -> void:
 			current_health -= debuffs["health_drain_per_second"] * delta
 			current_health = max(0.0, current_health)
 			health_changed.emit(current_health, max_health)
-			if current_health <= 0.0:
+			if current_health <= 0.0 and not is_dead:
+				is_dead = true
 				player_died.emit()
 
 

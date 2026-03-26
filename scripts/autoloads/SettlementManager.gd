@@ -219,3 +219,20 @@ func apply_save_data(data: Dictionary) -> void:
 		settlements[sid] = s
 	road_network = data.get("road_network", {})
 	recalculate_trade_routes()
+
+
+## LPC-037/038: Cancel any in-progress founding on player death.
+## Clears pending_foundings and returns any active surveyor to its origin settlement.
+func cancel_founding_on_death() -> void:
+	if pending_foundings.is_empty():
+		return
+	pending_foundings.clear()
+	# LPC-038: return surveyor hireling to origin settlement
+	var hireling_data: Dictionary = DataLoader.get_hireling("surveyor")
+	var origin: String = hireling_data.get("origin_settlement", "crestport")
+	for sid in settlements:
+		var s: SettlementData = settlements[sid]
+		if "surveyor" in s.hireling_ids and sid != origin:
+			s.hireling_ids.erase("surveyor")
+			if origin in settlements:
+				settlements[origin].hireling_ids.append("surveyor")
