@@ -12,6 +12,7 @@ extends Control
 @onready var status_label: Label = $Panel/VBox/StatusLabel
 
 var _selected_slot: String = ""
+var _caller: Node = null
 
 
 func _ready() -> void:
@@ -24,7 +25,8 @@ func _ready() -> void:
 	_set_buttons_enabled(false)
 
 
-func open() -> void:
+func open(caller: Node = null) -> void:
+	_caller = caller
 	_refresh_slots()
 	status_label.text = ""
 	slot_name_input.text = ""
@@ -97,3 +99,6 @@ func _set_buttons_enabled(on: bool) -> void:
 
 func _close() -> void:
 	visible = false
+	if _caller and is_instance_valid(_caller):
+		_caller.visible = true
+	_caller = null

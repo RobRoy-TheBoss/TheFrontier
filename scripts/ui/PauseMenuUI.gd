@@ -45,7 +45,8 @@ func _resume() -> void:
 func _open_save_slot() -> void:
 	var ui = get_tree().get_first_node_in_group("save_slot_ui")
 	if ui:
-		ui.open()
+		visible = false
+		ui.open(self)
 
 
 func _open_settings() -> void:
