@@ -131,6 +131,8 @@ func equip(item_id: String, slot: String) -> bool:
 		return false
 
 	var actual_slot := valid_slot if slot == "auto" else slot
+	if actual_slot == "" or not equipped.has(actual_slot):
+		return false
 	if not equipped[actual_slot].is_empty():
 		_unequip_slot(actual_slot)
 
@@ -250,6 +252,16 @@ func equip_to_weapon_slot(item_id: String, slot: int) -> bool:
 	weapon_slots[slot] = { "item_id": item_id, "runes": [] }
 	inventory_changed.emit()
 	return true
+
+
+func unequip_weapon_slot(slot: int) -> void:
+	if slot < 0 or slot >= weapon_slots.size():
+		return
+	if weapon_slots[slot].is_empty():
+		return
+	add_item(weapon_slots[slot]["item_id"], 1)
+	weapon_slots[slot] = {}
+	inventory_changed.emit()
 
 
 func swap_weapon_slot() -> void:

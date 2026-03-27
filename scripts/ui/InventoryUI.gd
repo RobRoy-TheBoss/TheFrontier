@@ -70,8 +70,18 @@ func _populate_item_list() -> void:
 		row.add_child(count_label)
 		row.add_child(weight_label_node)
 
-		var is_equippable := def.has("type") or def.has("armor_class")
-		if is_equippable:
+		var item_type: String = def.get("type", "")
+		const WEAPON_TYPES := ["one_handed_blade", "two_handed_blade", "blunt", "bow", "pistol", "musket"]
+		if item_type in WEAPON_TYPES:
+			var main_btn := Button.new()
+			main_btn.text = "Main"
+			main_btn.pressed.connect(func(): _inventory.equip_to_weapon_slot(item_id, 0))
+			var backup_btn := Button.new()
+			backup_btn.text = "Backup"
+			backup_btn.pressed.connect(func(): _inventory.equip_to_weapon_slot(item_id, 1))
+			row.add_child(main_btn)
+			row.add_child(backup_btn)
+		elif def.has("armor_class") or def.get("slot", "") != "":
 			var equip_btn := Button.new()
 			equip_btn.text = "Equip"
 			equip_btn.pressed.connect(func(): _inventory.equip(item_id, "auto"))
@@ -86,42 +96,51 @@ func _populate_equipment_slots() -> void:
 	for child in equipment_slots.get_children():
 		child.queue_free()
 
-	var slot_names := ["weapon", "offhand", "head", "chest", "hands", "legs", "feet"]
-	for slot in slot_names:
+	# Weapon slots (LPC-020)
+	var weapon_slot_labels := ["Main Weapon", "Backup Weapon"]
+	for i in range(2):
+		var slot_container := VBoxContainer.new()
+		var slot_label := Label.new()
+		slot_label.text = weapon_slot_labels[i]
+		var ws: Dictionary = _inventory.weapon_slots[i]
+		var item_label := Label.new()
+		if ws.is_empty():
+			item_label.text = "—"
+		else:
+			var def: Dictionary = GameData.get_weapon(ws.get("item_id", ""))
+			item_label.text = def.get("name", ws.get("item_id", ""))
+			if i == _inventory.active_weapon_slot:
+				item_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
+		slot_container.add_child(slot_label)
+		slot_container.add_child(item_label)
+		if not ws.is_empty():
+			var unequip_btn := Button.new()
+			unequip_btn.text = "Unequip"
+			var wi := i
+			unequip_btn.pressed.connect(func(): _inventory.unequip_weapon_slot(wi))
+			slot_container.add_child(unequip_btn)
+		equipment_slots.add_child(slot_container)
+
+	# Armour slots
+	var armour_slots := ["head", "chest", "hands", "legs", "feet"]
+	for slot in armour_slots:
 		var slot_container := VBoxContainer.new()
 		var slot_label := Label.new()
 		slot_label.text = slot.capitalize()
-
 		var equipped: Dictionary = _inventory.equipped.get(slot, {})
 		var item_label := Label.new()
 		if equipped.is_empty():
 			item_label.text = "—"
 		else:
-			var def: Dictionary = GameData.get_weapon(equipped.get("item_id", ""))
-			if def.is_empty():
-				def = GameData.get_armor(equipped.get("item_id", ""))
+			var def: Dictionary = GameData.get_armor(equipped.get("item_id", ""))
 			item_label.text = def.get("name", equipped.get("item_id", ""))
-
-		# Rune slots display
-		if not equipped.is_empty():
-			var any_def: Dictionary = GameData.get_weapon(equipped.get("item_id", ""))
-			if any_def.is_empty():
-				any_def = GameData.get_armor(equipped.get("item_id", ""))
-			var max_rune_slots: int = any_def.get("rune_slots", 0)
-			var runes: Array = equipped.get("runes", [])
-			var rune_label := Label.new()
-			rune_label.text = "Runes: %d/%d" % [runes.size(), max_rune_slots]
-			slot_container.add_child(rune_label)
-
 		slot_container.add_child(slot_label)
 		slot_container.add_child(item_label)
-
 		if not equipped.is_empty():
 			var unequip_btn := Button.new()
 			unequip_btn.text = "Unequip"
 			unequip_btn.pressed.connect(func(): _inventory.unequip(slot))
 			slot_container.add_child(unequip_btn)
-
 		equipment_slots.add_child(slot_container)
 
 
