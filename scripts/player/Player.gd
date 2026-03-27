@@ -207,26 +207,45 @@ func in_settlement() -> bool:
 const _FT := "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/"
 const _RM := "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/"
 
+# Native GLB sizes (measured):
+#   blade.glb          X=0.111  Y=2.000  Z=0.430  (upright — Y is blade length)
+#   planks-half.glb    X=0.500  Y=0.060  Z=1.000  (flat — rotate 90°X to stand up)
+#   planks.glb         X=1.000  Y=0.060  Z=1.000  (flat — rotate 90°X to stand up)
+#   column-wood.glb    X=0.300  Y=1.000  Z=0.300  (upright column)
+#   structure-pole.glb X=0.100  Y=1.000  Z=0.100  (single thin pole, upright)
+#   poles-horizontal   X=0.100  Y=1.000  Z=1.000  (use Z as barrel axis)
+#
+# planks rot(90,0,0) remaps: world-Y = native-Z, world-Z = native-Y (thin)
+# Scale is applied before rotation in Godot, so scale against native axes.
+
 const WEAPON_MESH_CONFIG := {
-	"hunting_knife":   { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.08, 0.08, 0.30) },
-	"shortsword":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.10, 0.10, 0.55) },
-	"arming_sword":    { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.10, 0.10, 0.75) },
-	"cavalry_saber":   { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.10, 0.12, 0.80) },
-	"greatsword":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.12, 0.12, 1.10) },
-	"zweihander":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.14, 0.14, 1.40) },
-	"woodcutters_axe": { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.15, 0.50, 0.15) },
-	"warhammer":       { "mesh": "column-wood.glb",      "pack": "RM", "scale": Vector3(0.20, 0.20, 0.40) },
-	"hunting_bow":     { "mesh": "poles.glb",            "pack": "FT", "scale": Vector3(0.05, 0.90, 0.05) },
-	"longbow":         { "mesh": "poles.glb",            "pack": "FT", "scale": Vector3(0.05, 1.20, 0.05) },
-	"pistol":          { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.08, 0.15, 0.25) },
-	"musket":          { "mesh": "poles-horizontal.glb", "pack": "FT", "scale": Vector3(0.08, 0.08, 1.10) },
-	"buckler":         { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.40, 0.40, 0.05) },
-	"kite_shield":     { "mesh": "planks.glb",           "pack": "FT", "scale": Vector3(0.45, 0.70, 0.05) },
+	# blade.glb — scale Y for length, X for width, Z ultra-thin
+	"hunting_knife":   { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.18, 0.125, 0.012), "rot": Vector3.ZERO },
+	"shortsword":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.23, 0.300, 0.014), "rot": Vector3.ZERO },
+	"arming_sword":    { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.27, 0.430, 0.016), "rot": Vector3.ZERO },
+	"cavalry_saber":   { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.32, 0.450, 0.016), "rot": Vector3.ZERO },
+	"greatsword":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.36, 0.600, 0.018), "rot": Vector3.ZERO },
+	"zweihander":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.40, 0.750, 0.020), "rot": Vector3.ZERO },
+	# planks-half rot90X → world: X=native-X*s, Y=native-Z*s, Z=native-Y*s (6cm thin)
+	# axe head ~30cm wide × 40cm tall × 6cm deep
+	"woodcutters_axe": { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.60, 1.00, 0.40),  "rot": Vector3(90, 0, 0) },
+	# pistol block ~15cm wide × 25cm tall × 6cm deep
+	"pistol":          { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.30, 1.00, 0.25),  "rot": Vector3(90, 0, 0) },
+	# buckler ~40cm × 40cm × 6cm
+	"buckler":         { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.80, 1.00, 0.40),  "rot": Vector3(90, 0, 0) },
+	# column-wood — scale Y for handle length, X/Z for head girth
+	"warhammer":       { "mesh": "column-wood.glb",      "pack": "RM", "scale": Vector3(0.50, 0.55, 0.50),  "rot": Vector3.ZERO },
+	# structure-pole — single thin pole, perfect for bows
+	"hunting_bow":     { "mesh": "structure-pole.glb",   "pack": "RM", "scale": Vector3(0.40, 1.20, 0.40),  "rot": Vector3.ZERO },
+	"longbow":         { "mesh": "structure-pole.glb",   "pack": "RM", "scale": Vector3(0.40, 1.50, 0.40),  "rot": Vector3.ZERO },
+	# poles-horizontal — use Z as barrel axis, squash Y to barrel height
+	"musket":          { "mesh": "poles-horizontal.glb", "pack": "FT", "scale": Vector3(0.40, 0.06, 1.20),  "rot": Vector3.ZERO },
+	# planks rot90X → kite shield ~45cm wide × 70cm tall × 6cm deep
+	"kite_shield":     { "mesh": "planks.glb",           "pack": "FT", "scale": Vector3(0.45, 1.00, 0.70),  "rot": Vector3(90, 0, 0) },
 }
 
 
 func _update_weapon_display() -> void:
-	# Clear previous mesh
 	for child in weapon_holder.get_children():
 		child.queue_free()
 
@@ -249,6 +268,7 @@ func _update_weapon_display() -> void:
 
 	var mesh_instance: Node3D = packed.instantiate()
 	mesh_instance.scale = cfg["scale"]
+	mesh_instance.rotation_degrees = cfg["rot"]
 	weapon_holder.add_child(mesh_instance)
 	weapon_holder.visible = true
 
