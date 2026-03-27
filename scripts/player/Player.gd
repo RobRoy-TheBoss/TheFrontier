@@ -219,13 +219,13 @@ const _RM := "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/"
 # Scale is applied before rotation in Godot, so scale against native axes.
 
 const WEAPON_MESH_CONFIG := {
-	# blade.glb — scale Y for length, X for width, Z ultra-thin
-	"hunting_knife":   { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.18, 0.125, 0.012), "rot": Vector3.ZERO },
-	"shortsword":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.23, 0.300, 0.014), "rot": Vector3.ZERO },
-	"arming_sword":    { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.27, 0.430, 0.016), "rot": Vector3.ZERO },
-	"cavalry_saber":   { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.32, 0.450, 0.016), "rot": Vector3.ZERO },
-	"greatsword":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.36, 0.600, 0.018), "rot": Vector3.ZERO },
-	"zweihander":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.40, 0.750, 0.020), "rot": Vector3.ZERO },
+	# blade.glb — zweihander=(0.40,1.00,1.20) is reference; others scaled by real-world length ratio
+	"hunting_knife":   { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.06, 0.16, 0.19), "rot": Vector3.ZERO },
+	"shortsword":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.16, 0.41, 0.49), "rot": Vector3.ZERO },
+	"arming_sword":    { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.21, 0.53, 0.64), "rot": Vector3.ZERO },
+	"cavalry_saber":   { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.24, 0.59, 0.71), "rot": Vector3.ZERO },
+	"greatsword":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.32, 0.81, 0.97), "rot": Vector3.ZERO },
+	"zweihander":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.40, 1.00, 1.20), "rot": Vector3.ZERO },
 	# planks-half rot90X → world: X=native-X*s, Y=native-Z*s, Z=native-Y*s (6cm thin)
 	# axe head ~30cm wide × 40cm tall × 6cm deep
 	"woodcutters_axe": { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.60, 1.00, 0.40),  "rot": Vector3(90, 0, 0) },
