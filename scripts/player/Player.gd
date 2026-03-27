@@ -77,6 +77,10 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("scan"):
 		_perform_scan()
 
+	if event.is_action_pressed("weapon_swap"):
+		inventory.swap_weapon_slot()
+		_update_weapon_display()
+
 
 func _process(delta: float) -> void:
 	if GameState.is_paused_for_ui or GameState.is_sleeping:
@@ -199,7 +203,7 @@ func in_settlement() -> bool:
 
 
 func _update_weapon_display() -> void:
-	weapon_holder.visible = not inventory.equipped.get("weapon", {}).is_empty()
+	weapon_holder.visible = not inventory.get_active_weapon().is_empty()
 
 
 func _give_starting_items() -> void:

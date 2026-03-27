@@ -44,7 +44,20 @@ var named_landmarks: Dictionary = {}  # landmark_id -> player-given name
 # Home Storage — single global dict accessible at any owned home (LINV-008)
 # No capacity limit (LINV-009). Items stored as Array[{item_id, count, ...}].
 var home_storage: Array = [
-	{ "item_id": "iron_ore", "count": 100, "runes": [] }
+	{ "item_id": "hunting_knife", "count": 1, "runes": [] },
+	{ "item_id": "shortsword", "count": 1, "runes": [] },
+	{ "item_id": "arming_sword", "count": 1, "runes": [] },
+	{ "item_id": "cavalry_saber", "count": 1, "runes": [] },
+	{ "item_id": "greatsword", "count": 1, "runes": [] },
+	{ "item_id": "zweihander", "count": 1, "runes": [] },
+	{ "item_id": "woodcutters_axe", "count": 1, "runes": [] },
+	{ "item_id": "warhammer", "count": 1, "runes": [] },
+	{ "item_id": "hunting_bow", "count": 1, "runes": [] },
+	{ "item_id": "longbow", "count": 1, "runes": [] },
+	{ "item_id": "pistol", "count": 1, "runes": [] },
+	{ "item_id": "musket", "count": 1, "runes": [] },
+	{ "item_id": "buckler", "count": 1, "runes": [] },
+	{ "item_id": "kite_shield", "count": 1, "runes": [] },
 ]
 
 # Unlocked experimental recipes (set by IdentifyUI when items are identified)

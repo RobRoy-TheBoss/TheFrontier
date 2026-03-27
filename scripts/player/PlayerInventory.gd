@@ -23,6 +23,10 @@ var equipped: Dictionary = {
 	"feet": {}
 }
 
+# Two main-hand weapon slots (LPC-020). No off-hand at launch (LPC-045).
+var weapon_slots: Array = [{}, {}]
+var active_weapon_slot: int = 0
+
 var currency: int = 50  # Starting silver
 
 
@@ -229,6 +233,32 @@ func _get_any_item_def(item_id: String) -> Dictionary:
 	if def.is_empty():
 		def = DataLoader.get_rune(item_id)
 	return def
+
+
+func equip_to_weapon_slot(item_id: String, slot: int) -> bool:
+	if slot < 0 or slot >= weapon_slots.size():
+		return false
+	if not has_item(item_id):
+		return false
+	var def := _get_any_item_def(item_id)
+	if def.is_empty():
+		return false
+	# Return existing item in that slot to inventory
+	if not weapon_slots[slot].is_empty():
+		add_item(weapon_slots[slot]["item_id"], 1)
+	remove_item(item_id, 1)
+	weapon_slots[slot] = { "item_id": item_id, "runes": [] }
+	inventory_changed.emit()
+	return true
+
+
+func swap_weapon_slot() -> void:
+	active_weapon_slot = 1 - active_weapon_slot
+	inventory_changed.emit()
+
+
+func get_active_weapon() -> Dictionary:
+	return weapon_slots[active_weapon_slot]
 
 
 func get_save_data() -> Dictionary:
