@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://home_chest"]
+
+[ext_resource type="Script" path="res://scripts/world/HomeChest.gd" id="1"]
+
+[sub_resource type="BoxMesh" id="Mesh_chest"]
+size = Vector3(0.8, 0.6, 0.5)
+
+[sub_resource type="BoxShape3D" id="Shape_chest"]
+size = Vector3(0.8, 0.6, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="Mat_chest"]
+albedo_color = Color(0.55, 0.35, 0.12, 1)
+
+[node name="HomeChest" type="StaticBody3D"]
+script = ExtResource("1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh_chest")
+surface_material_override/0 = SubResource("Mat_chest")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("Shape_chest")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)

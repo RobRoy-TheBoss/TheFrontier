@@ -8,11 +8,13 @@ extends Control
 @onready var store_button: Button = $Panel/OuterVBox/Main/InventoryPanel/StoreButton
 @onready var take_button: Button = $Panel/OuterVBox/Main/StoragePanel/TakeButton
 @onready var close_button: Button = $Panel/OuterVBox/CloseButton
+@onready var weight_label: Label = $Panel/OuterVBox/WeightLabel
 
 var _storage: Array = []
 var _inventory = null
 var _selected_inv_index: int = -1
 var _selected_stor_index: int = -1
+var _active_panel: String = "inventory"  # "inventory" or "storage"
 
 
 func _ready() -> void:
@@ -25,19 +27,74 @@ func _ready() -> void:
 	take_button.disabled = true
 
 
-func open(storage: Array, inventory) -> void:
-	_storage = storage
-	_inventory = inventory
-	_selected_inv_index = -1
-	_selected_stor_index = -1
-	visible = true
+func _unhandled_input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event.is_action_pressed("ui_up") or event.is_action_pressed("move_forward"):
+		_navigate(-1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_down") or event.is_action_pressed("move_backward"):
+		_navigate(1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("move_left"):
+		_active_panel = "inventory"
+		if _selected_stor_index >= 0:
+			_selected_stor_index = -1
+			if _inventory and not _inventory.items.is_empty():
+				_selected_inv_index = 0
+		_refresh()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("move_right"):
+		_active_panel = "storage"
+		if _selected_inv_index >= 0:
+			_selected_inv_index = -1
+			if not _storage.is_empty():
+				_selected_stor_index = 0
+		_refresh()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("interact"):
+		if _active_panel == "inventory" and _selected_inv_index >= 0:
+			_store_selected()
+		elif _active_panel == "storage" and _selected_stor_index >= 0:
+			_take_selected()
+		get_viewport().set_input_as_handled()
+
+
+func _navigate(direction: int) -> void:
+	if _active_panel == "inventory":
+		if _inventory == null or _inventory.items.is_empty():
+			return
+		_selected_inv_index = wrapi(_selected_inv_index + direction, 0, _inventory.items.size())
+	else:
+		if _storage.is_empty():
+			return
+		_selected_stor_index = wrapi(_selected_stor_index + direction, 0, _storage.size())
 	_refresh()
 
 
+func open(storage: Array, inventory) -> void:
+	_storage = storage
+	_inventory = inventory
+	_selected_stor_index = -1
+	_active_panel = "inventory"
+	_selected_inv_index = 0 if (inventory and not inventory.items.is_empty()) else -1
+	if _inventory and not _inventory.weight_changed.is_connected(_on_weight_changed):
+		_inventory.weight_changed.connect(_on_weight_changed)
+	visible = true
+	GameState.is_paused_for_ui = true
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	_refresh()
+	_update_weight_label()
+
+
 func close() -> void:
+	if _inventory and _inventory.weight_changed.is_connected(_on_weight_changed):
+		_inventory.weight_changed.disconnect(_on_weight_changed)
 	visible = false
 	_storage = []
 	_inventory = null
+	GameState.is_paused_for_ui = false
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 
 func _refresh() -> void:
@@ -68,6 +125,7 @@ func _populate_inventory() -> void:
 			if event is InputEventMouseButton and event.pressed:
 				_selected_inv_index = idx
 				_selected_stor_index = -1
+				_active_panel = "inventory"
 				_refresh()
 		)
 		inventory_list.add_child(row)
@@ -92,6 +150,7 @@ func _populate_storage() -> void:
 			if event is InputEventMouseButton and event.pressed:
 				_selected_stor_index = idx
 				_selected_inv_index = -1
+				_active_panel = "storage"
 				_refresh()
 		)
 		storage_list.add_child(row)
@@ -127,10 +186,9 @@ func _store_selected() -> void:
 	if _selected_inv_index < 0 or _inventory == null:
 		return
 	var entry: Dictionary = _inventory.items[_selected_inv_index].duplicate()
-	_inventory.items.remove_at(_selected_inv_index)
-	_inventory.inventory_changed.emit()
+	_inventory.remove_item(entry["item_id"], entry.get("count", 1))
 	_storage.append(entry)
-	_selected_inv_index = -1
+	_selected_inv_index = mini(_selected_inv_index, _inventory.items.size() - 1)
 	_refresh()
 
 
@@ -140,5 +198,18 @@ func _take_selected() -> void:
 	var entry: Dictionary = _storage[_selected_stor_index]
 	_storage.remove_at(_selected_stor_index)
 	_inventory.add_item(entry["item_id"], entry.get("count", 1))
-	_selected_stor_index = -1
+	_selected_stor_index = mini(_selected_stor_index, _storage.size() - 1)
 	_refresh()
+
+
+func _update_weight_label() -> void:
+	if _inventory == null:
+		return
+	var current: float = _inventory.get_total_weight()
+	var player: Node = _inventory.get_parent()
+	var maximum: float = player.survival.get_max_carry_weight() if player and player.survival else 50.0
+	weight_label.text = "Carrying: %.1f / %.1f kg" % [current, maximum]
+
+
+func _on_weight_changed(current: float, maximum: float) -> void:
+	weight_label.text = "Carrying: %.1f / %.1f kg" % [current, maximum]

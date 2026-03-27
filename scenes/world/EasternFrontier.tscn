@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/world/CrestportTown.tscn" id="2"]
 [ext_resource type="Script" path="res://scripts/world/MonsterSpawner.gd" id="3"]
 [ext_resource type="Script" path="res://scripts/world/Bed.gd" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/world/HomeChest.tscn" id="5"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_coast"]
 albedo_color = Color(0.93, 0.87, 0.62, 1)
@@ -181,5 +182,8 @@ surface_material_override/0 = SubResource("Mat_bed")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Bed"]
 shape = SubResource("Shape_bed")
+
+[node name="HomeChest" parent="." instance=ExtResource("5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0, -2)
 
 [node name="CrestportTown" parent="." instance=ExtResource("2")]
