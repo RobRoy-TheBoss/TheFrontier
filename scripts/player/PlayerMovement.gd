@@ -21,13 +21,13 @@ var _is_swimming: bool = false
 var _is_sprinting: bool = false
 var _road_speed_bonus: float = 0.0
 
-# Double-tap sprint detection
+# Double-tap dodge detection
 const DOUBLE_TAP_WINDOW := 0.3
 var _last_tap_time: Dictionary = {
 	"move_forward": -1.0, "move_backward": -1.0,
 	"move_left": -1.0, "move_right": -1.0
 }
-var _sprint_actions: Array[String] = ["move_forward", "move_backward", "move_left", "move_right"]
+var _dodge_actions: Array[String] = ["move_forward", "move_backward", "move_left", "move_right"]
 
 
 func _ready() -> void:
@@ -57,14 +57,17 @@ func _handle_movement(delta: float) -> void:
 		if _health.try_consume_stamina(10.0):
 			_player.velocity.y = JUMP_VELOCITY
 
-	# Crouch toggle (Shift)
+	# Crouch toggle
 	if Input.is_action_just_pressed("crouch"):
 		_is_crouching = not _is_crouching
 		if _is_crouching:
 			_is_sprinting = false
 
-	# Double-tap sprint detection
-	_update_double_tap_sprint()
+	# Sprint (Shift held)
+	_is_sprinting = Input.is_action_pressed("sprint") and not _is_crouching
+
+	# Double-tap dodge
+	_update_double_tap_dodge()
 
 	# Direction — camera-relative
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
@@ -122,16 +125,34 @@ func _handle_movement(delta: float) -> void:
 	_player.move_and_slide()
 
 
-func _update_double_tap_sprint() -> void:
+func _update_double_tap_dodge() -> void:
 	if _is_crouching:
 		return
 	var now := Time.get_ticks_msec() / 1000.0
-	for action in _sprint_actions:
+	for action in _dodge_actions:
 		if Input.is_action_just_pressed(action):
 			var last: float = _last_tap_time[action]
 			if last >= 0.0 and (now - last) <= DOUBLE_TAP_WINDOW:
-				_is_sprinting = true
+				_trigger_dodge(action)
 			_last_tap_time[action] = now
+
+
+func _trigger_dodge(action: String) -> void:
+	var combat: Node = _player.get_node_or_null("PlayerCombat")
+	if combat == null:
+		return
+	combat._try_dodge()
+	# Velocity impulse in the dodged direction (camera-relative)
+	var cb := _camera_pivot.global_transform.basis
+	var fwd := Vector3(-cb.z.x, 0, -cb.z.z).normalized()
+	var right := Vector3(cb.x.x, 0, cb.x.z).normalized()
+	var impulse := Vector3.ZERO
+	match action:
+		"move_forward":  impulse = -fwd
+		"move_backward": impulse = fwd
+		"move_left":     impulse = -right
+		"move_right":    impulse = right
+	_player.velocity += impulse * SPRINT_SPEED * 1.5
 
 
 func set_road_speed_bonus(bonus: float) -> void:

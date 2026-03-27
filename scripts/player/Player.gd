@@ -50,20 +50,25 @@ func _input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			_adjust_zoom(ZOOM_STEP)
 
+	# UI toggles work in both directions regardless of paused state
+	if event.is_action_pressed("inventory"):
+		_toggle_inventory()
+		return
+	if event.is_action_pressed("journal"):
+		_toggle_journal()
+		return
+	if event.is_action_pressed("disciplines"):
+		_toggle_disciplines()
+		return
+	if event.is_action_pressed("map"):
+		_toggle_map()
+		return
+
 	if GameState.is_paused_for_ui:
 		return
 
 	if event.is_action_pressed("interact"):
 		_try_interact()
-
-	if event.is_action_pressed("inventory"):
-		_toggle_inventory()
-
-	if event.is_action_pressed("journal"):
-		_toggle_journal()
-
-	if event.is_action_pressed("map"):
-		_toggle_map()
 
 	if event.is_action_pressed("sleep"):
 		_try_sleep()
@@ -71,11 +76,12 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("plant_flag"):
 		_try_plant_flag()
 
-	if event.is_action_pressed("disciplines"):
-		_toggle_disciplines()
-
 	if event.is_action_pressed("scan"):
 		_perform_scan()
+
+	if event.is_action_pressed("weapon_swap"):
+		inventory.swap_weapon_slot()
+		_update_weapon_display()
 
 
 func _process(delta: float) -> void:
@@ -198,8 +204,73 @@ func in_settlement() -> bool:
 	return _is_near_settlement()
 
 
+const _FT := "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/"
+const _RM := "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/"
+
+# Native GLB sizes (measured):
+#   blade.glb          X=0.111  Y=2.000  Z=0.430  (upright — Y is blade length)
+#   planks-half.glb    X=0.500  Y=0.060  Z=1.000  (flat — rotate 90°X to stand up)
+#   planks.glb         X=1.000  Y=0.060  Z=1.000  (flat — rotate 90°X to stand up)
+#   column-wood.glb    X=0.300  Y=1.000  Z=0.300  (upright column)
+#   structure-pole.glb X=0.100  Y=1.000  Z=0.100  (single thin pole, upright)
+#   poles-horizontal   X=0.100  Y=1.000  Z=1.000  (use Z as barrel axis)
+#
+# planks rot(90,0,0) remaps: world-Y = native-Z, world-Z = native-Y (thin)
+# Scale is applied before rotation in Godot, so scale against native axes.
+
+const WEAPON_MESH_CONFIG := {
+	# blade.glb — zweihander=(0.40,1.00,1.20) is reference; others scaled by real-world length ratio
+	"hunting_knife":   { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.06, 0.16, 0.19), "rot": Vector3.ZERO },
+	"shortsword":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.16, 0.41, 0.49), "rot": Vector3.ZERO },
+	"arming_sword":    { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.21, 0.53, 0.64), "rot": Vector3.ZERO },
+	"cavalry_saber":   { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.24, 0.59, 0.71), "rot": Vector3.ZERO },
+	"greatsword":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.32, 0.81, 0.97), "rot": Vector3.ZERO },
+	"zweihander":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.40, 1.00, 1.20), "rot": Vector3.ZERO },
+	# planks-half rot90X → world: X=native-X*s, Y=native-Z*s, Z=native-Y*s (6cm thin)
+	# axe head ~30cm wide × 40cm tall × 6cm deep
+	"woodcutters_axe": { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.60, 1.00, 0.40),  "rot": Vector3(90, 0, 0) },
+	# pistol block ~15cm wide × 25cm tall × 6cm deep
+	"pistol":          { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.30, 1.00, 0.25),  "rot": Vector3(90, 0, 0) },
+	# buckler ~40cm × 40cm × 6cm
+	"buckler":         { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.80, 1.00, 0.40),  "rot": Vector3(90, 0, 0) },
+	# column-wood — scale Y for handle length, X/Z for head girth
+	"warhammer":       { "mesh": "column-wood.glb",      "pack": "RM", "scale": Vector3(0.50, 0.55, 0.50),  "rot": Vector3.ZERO },
+	# structure-pole — single thin pole, perfect for bows
+	"hunting_bow":     { "mesh": "structure-pole.glb",   "pack": "RM", "scale": Vector3(0.40, 1.20, 0.40),  "rot": Vector3.ZERO },
+	"longbow":         { "mesh": "structure-pole.glb",   "pack": "RM", "scale": Vector3(0.40, 1.50, 0.40),  "rot": Vector3.ZERO },
+	# poles-horizontal — use Z as barrel axis, squash Y to barrel height
+	"musket":          { "mesh": "poles-horizontal.glb", "pack": "FT", "scale": Vector3(0.40, 0.06, 1.20),  "rot": Vector3.ZERO },
+	# planks rot90X → kite shield ~45cm wide × 70cm tall × 6cm deep
+	"kite_shield":     { "mesh": "planks.glb",           "pack": "FT", "scale": Vector3(0.45, 1.00, 0.70),  "rot": Vector3(90, 0, 0) },
+}
+
+
 func _update_weapon_display() -> void:
-	weapon_holder.visible = not inventory.equipped.get("weapon", {}).is_empty()
+	for child in weapon_holder.get_children():
+		child.queue_free()
+
+	var active: Dictionary = inventory.get_active_weapon()
+	if active.is_empty():
+		weapon_holder.visible = false
+		return
+
+	var weapon_id: String = active.get("item_id", "")
+	var cfg: Dictionary = WEAPON_MESH_CONFIG.get(weapon_id, {})
+	if cfg.is_empty():
+		weapon_holder.visible = false
+		return
+
+	var base_path: String = _FT if cfg["pack"] == "FT" else _RM
+	var packed: PackedScene = load(base_path + cfg["mesh"])
+	if packed == null:
+		weapon_holder.visible = false
+		return
+
+	var mesh_instance: Node3D = packed.instantiate()
+	mesh_instance.scale = cfg["scale"]
+	mesh_instance.rotation_degrees = cfg["rot"]
+	weapon_holder.add_child(mesh_instance)
+	weapon_holder.visible = true
 
 
 func _give_starting_items() -> void:
@@ -207,10 +278,11 @@ func _give_starting_items() -> void:
 	inventory.add_item("field_journal", 1)
 	inventory.add_item("hardtack", 5)
 	inventory.add_item("waterskin", 1)
-	inventory.add_item("hunting_knife", 1)
 	inventory.add_item("bandage", 3)
 	inventory.add_item("zweihander", 1)
-	inventory.equip("zweihander", "weapon")
+	inventory.add_item("hunting_knife", 1)
+	inventory.equip_to_weapon_slot("zweihander", 0)
+	inventory.equip_to_weapon_slot("hunting_knife", 1)
 
 
 func add_item_to_inventory(item_id: String, count: int) -> void:
