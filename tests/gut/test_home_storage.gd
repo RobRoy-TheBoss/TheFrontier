@@ -191,7 +191,7 @@ func test_partial_take_splits_storage_stack():
 
 func test_keyboard_navigation_wraps_inventory():
 	_player.inventory.add_item("iron_ore", 1)
-	_player.inventory.add_item("wood_log", 1)
+	_player.inventory.add_item("bandage", 1)
 	_storage_ui.open(GameState.home_storage, _player.inventory)
 	assert_eq(_storage_ui._selected_inv_index, 0,
 		"First item must be selected on open")
@@ -205,7 +205,7 @@ func test_keyboard_navigation_wraps_inventory():
 
 func test_quantity_mode_ws_cancels_and_navigates():
 	_player.inventory.add_item("iron_ore", 5)
-	_player.inventory.add_item("wood_log", 1)
+	_player.inventory.add_item("bandage", 1)
 	_storage_ui.open(GameState.home_storage, _player.inventory)
 	_storage_ui._quantity_mode = true
 	_storage_ui._pending_quantity = 5
