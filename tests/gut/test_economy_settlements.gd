@@ -72,8 +72,11 @@ func test_npcs_per_tier_services_leco004():
 func test_town_river_bridge_leco005():
 	var town_tier: Dictionary = DataLoader.get_tier("town")
 	assert_false(town_tier.is_empty(), "town tier must exist [LECO-005]")
-	# bridge_rivers removed from data per PRC-006; town tier is the canonical bridge authority
-	assert_true(true, "LECO-005: bridge_rivers removed per PRC-006, town tier is authoritative [LECO-005]")
+	# bridge_rivers removed from JSON per PRC-006 — logic uses AreaManager.TOWN_TIER_INDEX instead
+	assert_false(town_tier.has("bridge_rivers"),
+		"bridge_rivers must not exist in tier data — river logic uses TOWN_TIER_INDEX [LECO-005]")
+	assert_eq(AreaManager.TOWN_TIER_INDEX, 3,
+		"TOWN_TIER_INDEX must be 3 (town) to gate river crossings [LECO-005]")
 
 
 # [LECO-010] Crestport starts as Village (tier 2) with Deep Water Port
@@ -347,8 +350,11 @@ func test_road_no_cliff_crossing_lroad012():
 func test_road_no_river_without_ford_lroad013():
 	# River crossing requires town_tier bridge_rivers flag or ford feature
 	var town_tier: Dictionary = DataLoader.get_tier("town")
-	# bridge_rivers removed from data per PRC-006
-	assert_true(true, "LROAD-013: bridge_rivers removed per PRC-006, town tier index is authoritative")
+	# bridge_rivers removed from JSON per PRC-006 — AreaManager.TOWN_TIER_INDEX gates river crossings
+	assert_false(town_tier.has("bridge_rivers"),
+		"bridge_rivers must not exist in tier data — river logic uses TOWN_TIER_INDEX [LROAD-013]")
+	assert_eq(AreaManager.TOWN_TIER_INDEX, 3,
+		"TOWN_TIER_INDEX must be 3 so Town+ settlements allow river crossing [LROAD-013]")
 
 
 # [LROAD-014] Roads don't pass through Mountain unless Mountain Pass
