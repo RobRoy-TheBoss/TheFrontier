@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://cmsdqm7isbyt7"]
 
+[ext_resource type="PackedScene" path="res://scenes/ui/HeroUI.tscn" id="0_heroui"]
 [ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/settlement/Settlement.tscn" id="2"]
 [ext_resource type="Script" uid="uid://b1o7cslqt8f2w" path="res://scripts/ui/HUD.gd" id="3"]
@@ -612,3 +613,5 @@ text = "Understood"
 [node name="SettingsUI" parent="UI" unique_id=930822021 instance=ExtResource("24")]
 
 [node name="PauseMenuUI" parent="UI" unique_id=792391980 instance=ExtResource("25")]
+
+[node name="HeroUI" parent="UI" unique_id=112233445 instance=ExtResource("0_heroui")]

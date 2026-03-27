@@ -1,0 +1,130 @@
+[gd_scene format=3 uid="uid://bk7vceq2n4omw"]
+
+[ext_resource type="Script" path="res://scripts/ui/HeroUI.gd" id="1"]
+
+[node name="HeroUI" type="Control"]
+script = ExtResource("1")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+visible = false
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 0.04
+anchor_top = 0.04
+anchor_right = 0.96
+anchor_bottom = 0.96
+
+[node name="OuterVBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+
+[node name="TitleRow" type="HBoxContainer" parent="Panel/OuterVBox"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Panel/OuterVBox/TitleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "CHARACTER"
+horizontal_alignment = 0
+theme_override_font_sizes/font_size = 20
+
+[node name="CloseButton" type="Button" parent="Panel/OuterVBox/TitleRow"]
+layout_mode = 2
+text = "×"
+custom_minimum_size = Vector2(32, 0)
+
+[node name="TitleSep" type="HSeparator" parent="Panel/OuterVBox"]
+layout_mode = 2
+
+[node name="MainHBox" type="HBoxContainer" parent="Panel/OuterVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EquipColumn" type="VBoxContainer" parent="Panel/OuterVBox/MainHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(320, 0)
+
+[node name="EquipLabel" type="Label" parent="Panel/OuterVBox/MainHBox/EquipColumn"]
+layout_mode = 2
+text = "EQUIPMENT"
+theme_override_font_sizes/font_size = 13
+add_theme_color_override/font_color = Color(0.8, 0.8, 0.5, 1)
+
+[node name="EquipSep" type="HSeparator" parent="Panel/OuterVBox/MainHBox/EquipColumn"]
+layout_mode = 2
+
+[node name="EquipSlots" type="VBoxContainer" parent="Panel/OuterVBox/MainHBox/EquipColumn"]
+layout_mode = 2
+
+[node name="BackpackSep" type="HSeparator" parent="Panel/OuterVBox/MainHBox/EquipColumn"]
+layout_mode = 2
+
+[node name="BackpackLabel" type="Label" parent="Panel/OuterVBox/MainHBox/EquipColumn"]
+layout_mode = 2
+text = "BACKPACK (equippable)"
+theme_override_font_sizes/font_size = 13
+add_theme_color_override/font_color = Color(0.8, 0.8, 0.5, 1)
+
+[node name="BackpackScroll" type="ScrollContainer" parent="Panel/OuterVBox/MainHBox/EquipColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BackpackList" type="VBoxContainer" parent="Panel/OuterVBox/MainHBox/EquipColumn/BackpackScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ColSep" type="VSeparator" parent="Panel/OuterVBox/MainHBox"]
+layout_mode = 2
+
+[node name="StatsColumn" type="VBoxContainer" parent="Panel/OuterVBox/MainHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VitalsLabel" type="Label" parent="Panel/OuterVBox/MainHBox/StatsColumn"]
+layout_mode = 2
+text = "VITALS"
+theme_override_font_sizes/font_size = 13
+add_theme_color_override/font_color = Color(0.8, 0.8, 0.5, 1)
+
+[node name="VitalsSep" type="HSeparator" parent="Panel/OuterVBox/MainHBox/StatsColumn"]
+layout_mode = 2
+
+[node name="VitalsGrid" type="GridContainer" parent="Panel/OuterVBox/MainHBox/StatsColumn"]
+layout_mode = 2
+columns = 3
+
+[node name="DiscsSep" type="HSeparator" parent="Panel/OuterVBox/MainHBox/StatsColumn"]
+layout_mode = 2
+
+[node name="DiscsLabel" type="Label" parent="Panel/OuterVBox/MainHBox/StatsColumn"]
+layout_mode = 2
+text = "DISCIPLINES"
+theme_override_font_sizes/font_size = 13
+add_theme_color_override/font_color = Color(0.8, 0.8, 0.5, 1)
+
+[node name="DiscsSep2" type="HSeparator" parent="Panel/OuterVBox/MainHBox/StatsColumn"]
+layout_mode = 2
+
+[node name="DiscsPanel" type="VBoxContainer" parent="Panel/OuterVBox/MainHBox/StatsColumn"]
+layout_mode = 2
+
+[node name="CondSep" type="HSeparator" parent="Panel/OuterVBox/MainHBox/StatsColumn"]
+layout_mode = 2
+
+[node name="CondLabel" type="Label" parent="Panel/OuterVBox/MainHBox/StatsColumn"]
+layout_mode = 2
+text = "CONDITIONS"
+theme_override_font_sizes/font_size = 13
+add_theme_color_override/font_color = Color(0.8, 0.8, 0.5, 1)
+
+[node name="CondSep2" type="HSeparator" parent="Panel/OuterVBox/MainHBox/StatsColumn"]
+layout_mode = 2
+
+[node name="CondPanel" type="VBoxContainer" parent="Panel/OuterVBox/MainHBox/StatsColumn"]
+layout_mode = 2
+size_flags_vertical = 3

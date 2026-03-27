@@ -63,6 +63,9 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("map"):
 		_toggle_map()
 		return
+	if event.is_action_pressed("hero"):
+		_toggle_hero()
+		return
 
 	if GameState.is_paused_for_ui:
 		return
@@ -144,6 +147,13 @@ func _toggle_map() -> void:
 	if not inventory.has_item("map_item"):
 		return
 	var ui := get_tree().get_first_node_in_group("map_ui")
+	if ui and ui.has_method("toggle"):
+		ui.toggle()
+		_set_ui_mouse_mode(ui.visible)
+
+
+func _toggle_hero() -> void:
+	var ui := get_tree().get_first_node_in_group("hero_ui")
 	if ui and ui.has_method("toggle"):
 		ui.toggle()
 		_set_ui_mouse_mode(ui.visible)
