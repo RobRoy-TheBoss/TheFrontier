@@ -204,8 +204,53 @@ func in_settlement() -> bool:
 	return _is_near_settlement()
 
 
+const _FT := "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/"
+const _RM := "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/"
+
+const WEAPON_MESH_CONFIG := {
+	"hunting_knife":   { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.08, 0.08, 0.30) },
+	"shortsword":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.10, 0.10, 0.55) },
+	"arming_sword":    { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.10, 0.10, 0.75) },
+	"cavalry_saber":   { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.10, 0.12, 0.80) },
+	"greatsword":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.12, 0.12, 1.10) },
+	"zweihander":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.14, 0.14, 1.40) },
+	"woodcutters_axe": { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.15, 0.50, 0.15) },
+	"warhammer":       { "mesh": "column-wood.glb",      "pack": "RM", "scale": Vector3(0.20, 0.20, 0.40) },
+	"hunting_bow":     { "mesh": "poles.glb",            "pack": "FT", "scale": Vector3(0.05, 0.90, 0.05) },
+	"longbow":         { "mesh": "poles.glb",            "pack": "FT", "scale": Vector3(0.05, 1.20, 0.05) },
+	"pistol":          { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.08, 0.15, 0.25) },
+	"musket":          { "mesh": "poles-horizontal.glb", "pack": "FT", "scale": Vector3(0.08, 0.08, 1.10) },
+	"buckler":         { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.40, 0.40, 0.05) },
+	"kite_shield":     { "mesh": "planks.glb",           "pack": "FT", "scale": Vector3(0.45, 0.70, 0.05) },
+}
+
+
 func _update_weapon_display() -> void:
-	weapon_holder.visible = not inventory.get_active_weapon().is_empty()
+	# Clear previous mesh
+	for child in weapon_holder.get_children():
+		child.queue_free()
+
+	var active: Dictionary = inventory.get_active_weapon()
+	if active.is_empty():
+		weapon_holder.visible = false
+		return
+
+	var weapon_id: String = active.get("item_id", "")
+	var cfg: Dictionary = WEAPON_MESH_CONFIG.get(weapon_id, {})
+	if cfg.is_empty():
+		weapon_holder.visible = false
+		return
+
+	var base_path: String = _FT if cfg["pack"] == "FT" else _RM
+	var packed: PackedScene = load(base_path + cfg["mesh"])
+	if packed == null:
+		weapon_holder.visible = false
+		return
+
+	var mesh_instance: Node3D = packed.instantiate()
+	mesh_instance.scale = cfg["scale"]
+	weapon_holder.add_child(mesh_instance)
+	weapon_holder.visible = true
 
 
 func _give_starting_items() -> void:
