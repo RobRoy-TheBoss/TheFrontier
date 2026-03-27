@@ -213,10 +213,11 @@ func _give_starting_items() -> void:
 	inventory.add_item("field_journal", 1)
 	inventory.add_item("hardtack", 5)
 	inventory.add_item("waterskin", 1)
-	inventory.add_item("hunting_knife", 1)
 	inventory.add_item("bandage", 3)
 	inventory.add_item("zweihander", 1)
-	inventory.equip("zweihander", "weapon")
+	inventory.add_item("hunting_knife", 1)
+	inventory.equip_to_weapon_slot("zweihander", 0)
+	inventory.equip_to_weapon_slot("hunting_knife", 1)
 
 
 func add_item_to_inventory(item_id: String, count: int) -> void:
