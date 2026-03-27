@@ -107,7 +107,7 @@ func test_ray_synced_after_zoom_out_pc001():
 	_spring_arm.spring_length = _player.ZOOM_MIN + _player.ZOOM_STEP
 	_player._adjust_zoom(_player.ZOOM_STEP)
 	var expected_z: float = -(_spring_arm.spring_length + _player.INTERACTION_DISTANCE)
-	assert_eq(_ray.target_position.z, expected_z,
+	assert_almost_eq(_ray.target_position.z, expected_z, 0.001,
 		"InteractionRay target_position.z must equal -(spring_length + INTERACTION_DISTANCE) after zoom out [PC-001]")
 
 

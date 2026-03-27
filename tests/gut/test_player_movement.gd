@@ -18,6 +18,11 @@ func before_all() -> void:
 	_survival = _player.get_node("PlayerSurvival")
 
 
+func before_each() -> void:
+	GameState.is_paused_for_ui = false
+	GameState.is_sleeping = false
+
+
 func after_all() -> void:
 	_player.queue_free()
 

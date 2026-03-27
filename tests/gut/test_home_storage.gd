@@ -26,19 +26,26 @@ func after_all() -> void:
 	_player.queue_free()
 
 
+var _saved_inventory_items: Array = []
+
 func before_each() -> void:
 	_saved_home_storage = GameState.home_storage.duplicate(true)
 	_saved_paused = GameState.is_paused_for_ui
+	_saved_inventory_items = _player.inventory.items.duplicate(true)
 	GameState.home_storage.clear()
+	_player.inventory.items.clear()
 
 
 func after_each() -> void:
+	if _storage_ui.visible:
+		_storage_ui.close()
 	GameState.home_storage.clear()
 	for entry in _saved_home_storage:
 		GameState.home_storage.append(entry)
-	GameState.is_paused_for_ui = _saved_paused
-	if _storage_ui.visible:
-		_storage_ui.close()
+	_player.inventory.items.clear()
+	for entry in _saved_inventory_items:
+		_player.inventory.items.append(entry)
+	GameState.is_paused_for_ui = false
 
 
 # ---------------------------------------------------------------------------

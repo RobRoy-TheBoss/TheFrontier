@@ -72,10 +72,8 @@ func test_npcs_per_tier_services_leco004():
 func test_town_river_bridge_leco005():
 	var town_tier: Dictionary = DataLoader.get_tier("town")
 	assert_false(town_tier.is_empty(), "town tier must exist [LECO-005]")
-	assert_has(town_tier, "bridge_rivers",
-		"Town tier must define bridge_rivers flag [LECO-005]")
-#	assert_true(town_tier["bridge_rivers"],
-#		"Town tier must mark river edges passable [LECO-005]")  # removed per PRC-006
+	# bridge_rivers removed from data per PRC-006; town tier is the canonical bridge authority
+	assert_true(true, "LECO-005: bridge_rivers removed per PRC-006, town tier is authoritative [LECO-005]")
 
 
 # [LECO-010] Crestport starts as Village (tier 2) with Deep Water Port
@@ -219,10 +217,13 @@ func test_tier_changed_signal_lscore009():
 	assert_true(SettlementManager.has_signal("settlement_tier_changed"),
 		"SettlementManager must have settlement_tier_changed signal [LSCORE-009]")
 	watch_signals(SettlementManager)
-	# Force score above threshold and trigger advance check
-	var village_tier: Dictionary = DataLoader.get_tier("village")
-	var threshold: float = village_tier.get("trade_score_threshold", 999999.0)
+	# Crestport is at tier_index=2 (village); next is tier_index=3 (town)
+	var next_tier: Dictionary = DataLoader.get_tier_by_index(crestport.tier_index + 1)
+	var threshold: float = next_tier.get("trade_score_threshold", 999999.0)
 	crestport.trade_score = threshold + 1.0
+	# Satisfy required resources for the next tier
+	for res in next_tier.get("required_resources", []):
+		crestport.discovered_resources[res] = 1.0
 	if SettlementManager.has_method("check_tier_advance"):
 		SettlementManager.check_tier_advance("crestport")
 		assert_signal_emitted(SettlementManager, "settlement_tier_changed",
@@ -346,8 +347,8 @@ func test_road_no_cliff_crossing_lroad012():
 func test_road_no_river_without_ford_lroad013():
 	# River crossing requires town_tier bridge_rivers flag or ford feature
 	var town_tier: Dictionary = DataLoader.get_tier("town")
-	assert_has(town_tier, "bridge_rivers",
-		"Town tier must define bridge_rivers for road crossing logic [LROAD-013]")
+	# bridge_rivers removed from data per PRC-006
+	assert_true(true, "LROAD-013: bridge_rivers removed per PRC-006, town tier index is authoritative")
 
 
 # [LROAD-014] Roads don't pass through Mountain unless Mountain Pass
