@@ -110,6 +110,10 @@ func accumulate_fatigue(amount: float) -> void:
 	if DisciplineManager.has_passive("endurance"):
 		var eff := DisciplineManager.get_passive_effect("endurance")
 		amount *= eff.get("fatigue_penalty_multiplier", 0.5)
+	# LSURV-022: low thirst accelerates fatigue gain
+	var t_params: Dictionary = _params.get("thirst", {})
+	if thirst <= t_params.get("low_threshold", 30.0):
+		amount *= t_params.get("low_fatigue_acceleration", 1.5)
 	fatigue = min(fatigue + amount, f_params.get("max", 100.0))
 
 
@@ -142,6 +146,10 @@ func get_max_carry_weight() -> float:
 	if camp and "porter" in camp.get_meta("hireling_ids", []):
 		var porter := GameData.get_hireling("porter")
 		base += porter.get("capabilities", {}).get("carry_weight_bonus", 30.0)
+	# LSURV-023: critical thirst reduces max carry by 20%
+	var t_params: Dictionary = _params.get("thirst", {})
+	if thirst <= t_params.get("critical_threshold", 10.0):
+		base *= (1.0 - t_params.get("low_carry_reduction_percent", 20.0) / 100.0)
 	return base
 
 
