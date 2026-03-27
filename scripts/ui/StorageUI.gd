@@ -20,9 +20,9 @@ var _pending_quantity: int = 0
 
 # Hold-to-scroll state for quantity adjustment
 const _HOLD_INITIAL_DELAY := 0.4   # seconds before auto-repeat begins
-const _HOLD_FAST_THRESHOLD := 1.2  # seconds held before switching to 10x
-const _HOLD_SLOW_INTERVAL := 0.08  # repeat interval at 1x
-const _HOLD_FAST_INTERVAL := 0.05  # repeat interval at 10x
+const _HOLD_FAST_THRESHOLD := 3.6  # seconds held before switching to 10x (10 × slow interval + initial delay)
+const _HOLD_SLOW_INTERVAL := 0.32  # repeat interval at 1x
+const _HOLD_FAST_INTERVAL := 0.50  # repeat interval at 10x
 var _hold_dir: int = 0             # -1 = A held, +1 = D held
 var _hold_time: float = 0.0
 var _hold_repeat_timer: float = 0.0
