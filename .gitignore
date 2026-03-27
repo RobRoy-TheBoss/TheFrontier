@@ -20,6 +20,12 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Claude Code local settings
+.claude/
+
 # Python (doc processing)
 __pycache__/
 *.pyc
+
+# Claude Code local settings
+.claude/

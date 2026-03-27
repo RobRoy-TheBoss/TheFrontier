@@ -1,49 +1,24 @@
 # Changelog
 
-All notable changes to GodotIQ will be documented in this file.
-
-## [0.1.1] - 2026-03-12
-
-### Fixed
-- `godotiq_run` no longer blocks on script errors — launches the game and includes warnings in the response
-- `_check_scripts_valid()` uses `script.reload()` instead of `can_instantiate()` to eliminate false positives
-- `godotiq_ping` now returns `"license": "pro"` or `"community"` in the response
-- `plugin.cfg` version corrected from `2.0.0` to `0.1.1`
-- Addon `ADDON_VERSION` constant updated to match package version
-- License logging cleaned up — uses `logger.info()` instead of `print()`, removed verbose org/url from default output
-- Cross-platform license cache path — uses `%APPDATA%` on Windows, `~/.config/godotiq` on macOS/Linux
+## [Unreleased]
 
 ### Added
-- Editor bottom panel showing GodotIQ version, WebSocket connection status, and tool count
-- Status label updates automatically on client connect/disconnect
+- Home Storage chest (INV-003): interactable HomeChest near spawn opens infinite shared storage
+- StorageUI keyboard navigation: W/S to move selection, A/D to switch panels, E to transfer
+- StorageUI quantity picker: E on a stack drops a sub-row; A/D adjust quantity, E confirms partial transfer
+- StorageUI carry weight display: live current/max kg label at top
+- Two-tier carry weight system (LPC-012/013/047): soft cap (50 kg) and hard cap (100 kg)
+- Double-tap sprint (PC-002): double-tap any movement key to sprint; Left Shift = crouch
+- Third-person camera zoom (PC-001): scroll wheel adjusts SpringArm3D spring length
+- GUT test suites: test_home_storage, test_camera_zoom, test_player_movement (traced to LLR v0.7.1)
+- Proposed-Requirement-Changes.md: all 10 PRCs resolved
 
-## [0.1.0] - 2026-03-12
-
-### Initial Release
-
-First public release of GodotIQ — the definitive MCP for AI-assisted Godot development.
-
-**35 tools across 9 categories:**
-
-- **Bridge** (18 tools) — Runtime control: screenshot, scene_tree, run, input, node_ops, script_ops, file_ops, exec, state_inspect, perf_snapshot, save_scene, camera, watch, undo_history, build_scene, check_errors, verify_motion, nav_query
-- **Spatial** (3 tools) — 3D intelligence: scene_map, placement, spatial_audit
-- **Code** (4 tools) — Static analysis: dependency_graph, signal_map, impact_check, validate
-- **Animation** (2 tools) — animation_info, animation_audit
-- **Flow** (1 tool) — trace_flow
-- **Assets** (2 tools) — asset_registry, suggest_scale
-- **Memory** (2 tools) — project_summary, file_context
-- **UI** (1 tool) — ui_map
-- **Navigation** (1 tool) — nav_query
-
-**Key features:**
-
-- Three-layer parser architecture (raw parser, scene resolver, project index)
-- WebSocket bridge to Godot editor via lightweight GDScript addon
-- Token optimization with 3 detail levels (brief/normal/full)
-- Smart object placement with Marker3D detection and constraint solving
-- Signal flow tracing across multiple files
-- Convention validation with auto-fix suggestions
-- PRO tier with Polar.sh license validation
-- Cross-platform support (macOS, Linux, Windows)
-- CLI with `install-addon` subcommand
-- 1100+ automated tests
+### Fixed
+- Player input correctly blocked while any UI is open (is_paused_for_ui guard in Player._input)
+- StorageUI stack splitting: _confirm_transfer no longer clears _quantity_mode before transfer
+- DisciplineManager.get_passive_effect() falls back to ability dict when no effect_data nesting
+- Monster.State enum: FLEE and DESPAWN added as first-class states
+- Per-monster injury_chances routing in PlayerHealth.try_combat_injury_roll()
+- PlayerInventory.socket_rune() validates allowed_slot_types against equipped item type
+- AreaManager.TOWN_TIER_INDEX corrected to 3 (was 2)
+- PlayerInventory.currency is sole gold source (PlayerStats.gold removed)
