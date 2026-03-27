@@ -82,17 +82,22 @@ func _handle_movement(delta: float) -> void:
 	# Speed selection
 	var over_enc := _survival.is_over_encumbered()
 
+	var enc_params: Dictionary = GameData.survival_params.get("encumbrance", {})
+	var at_hard_cap := _survival.is_at_hard_cap()
+
 	var speed: float
 	if _is_swimming:
 		speed = SWIM_SPEED
 	elif _is_crouching:
 		speed = CROUCH_SPEED
+	elif at_hard_cap:
+		speed = WALK_SPEED * enc_params.get("hard_cap_speed_multiplier", 0.2)
 	elif _is_sprinting and not over_enc and _health.stamina > 5.0:
 		speed = SPRINT_SPEED
-		_health.drain_stamina(GameData.survival_params.get("stamina", {}).get("sprint_drain_per_second", 12.0) * delta)
+		_health.drain_stamina(enc_params.get("stamina", {}).get("sprint_drain_per_second", 12.0) * delta)
 		DisciplineManager.add_xp("survivalist", "off_road_travel_km")
 	elif over_enc:
-		speed = WALK_SPEED * GameData.survival_params.get("encumbrance", {}).get("over_encumbered_speed_multiplier", 0.4)
+		speed = WALK_SPEED * enc_params.get("over_encumbered_speed_multiplier", 0.1)
 	else:
 		speed = WALK_SPEED
 

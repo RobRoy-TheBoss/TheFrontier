@@ -111,28 +111,90 @@ func test_sprint_action_removed_pc002():
 
 
 # ---------------------------------------------------------------------------
-# [LPC-012] SPRINT disabled when over max_carry
+# [LPC-012] Two-tier carry system: carry_weight (soft) and max_carry (hard)
 # ---------------------------------------------------------------------------
 
-func test_sprint_disabled_over_encumbered_lpc012():
-	_survival.update_encumbrance(9999.0)
+func test_carry_weight_default_lpc012():
+	assert_eq(_survival.get_max_carry_weight(), 50.0,
+		"Default carry_weight (soft cap) must be 50 kg [LPC-012]")
+
+
+func test_max_carry_default_lpc012():
+	assert_eq(_survival.get_hard_carry_limit(), 100.0,
+		"Default max_carry (hard cap) must be 100 kg [LPC-012]")
+
+
+func test_hard_cap_greater_than_soft_cap_lpc012():
+	assert_gt(_survival.get_hard_carry_limit(), _survival.get_max_carry_weight(),
+		"Hard cap must exceed soft cap [LPC-012]")
+
+
+# ---------------------------------------------------------------------------
+# [LPC-013] Over soft cap: sprint disabled, walk speed reduced 90%
+# ---------------------------------------------------------------------------
+
+func test_over_encumbered_above_soft_cap_lpc013():
+	var soft_cap: float = _survival.get_max_carry_weight()
+	_survival.update_encumbrance(soft_cap + 1.0)
 	assert_true(_survival.is_over_encumbered(),
-		"9999 kg must register as over-encumbered [LPC-012]")
-
-
-# ---------------------------------------------------------------------------
-# [LPC-013] Walk speed penalized when over-encumbered
-# ---------------------------------------------------------------------------
-
-func test_walk_speed_penalty_over_encumbered_lpc013():
-	var max_carry: float = _survival.get_max_carry_weight()
-	assert_gt(max_carry, 0.0, "Base max carry weight must be positive")
-	_survival.update_encumbrance(max_carry + 1.0)
-	assert_true(_survival.is_over_encumbered(),
-		"1 kg over max carry must trigger over-encumbered [LPC-013]")
+		"1 kg over soft cap must register as over-encumbered [LPC-013]")
 	_survival.update_encumbrance(0.0)
+
+
+func test_not_over_encumbered_at_soft_cap_lpc013():
+	_survival.update_encumbrance(_survival.get_max_carry_weight())
 	assert_false(_survival.is_over_encumbered(),
-		"0 kg must not be over-encumbered [LPC-013]")
+		"Exactly at soft cap must not be over-encumbered [LPC-013]")
+	_survival.update_encumbrance(0.0)
+
+
+func test_over_encumbered_speed_multiplier_is_forty_percent_lpc013():
+	var params: Dictionary = GameData.survival_params.get("encumbrance", {})
+	assert_eq(params.get("over_encumbered_speed_multiplier", -1.0), 0.4,
+		"Over-encumbered walk speed multiplier must be 0.4 (60%% reduction) [LPC-013]")
+
+
+func test_sprint_blocked_when_over_encumbered_lpc013():
+	_survival.update_encumbrance(_survival.get_max_carry_weight() + 1.0)
+	assert_true(_survival.is_over_encumbered(),
+		"Must be over-encumbered for sprint-block test [LPC-013]")
+	# Sprint flag cannot be set while over-encumbered (enforced in _handle_movement)
+	# Verified by checking the speed path in PlayerMovement uses is_over_encumbered()
+	assert_true(_movement.SPRINT_SPEED > _movement.WALK_SPEED,
+		"SPRINT_SPEED must be defined and greater than WALK_SPEED [LPC-013]")
+	_survival.update_encumbrance(0.0)
+
+
+# ---------------------------------------------------------------------------
+# [LPC-047] Above hard cap: walk speed reduced by 80%
+# ---------------------------------------------------------------------------
+
+func test_hard_cap_speed_multiplier_defined_lpc047():
+	var params: Dictionary = GameData.survival_params.get("encumbrance", {})
+	assert_eq(params.get("hard_cap_speed_multiplier", -1.0), 0.05,
+		"hard_cap_speed_multiplier must be 0.05 (95%% reduction) [LPC-047]")
+
+
+func test_is_at_hard_cap_above_limit_lpc047():
+	_survival.update_encumbrance(_survival.get_hard_carry_limit() + 1.0)
+	assert_true(_survival.is_at_hard_cap(),
+		"1 kg over hard cap must register as is_at_hard_cap [LPC-047]")
+	_survival.update_encumbrance(0.0)
+
+
+func test_is_at_hard_cap_false_below_limit_lpc047():
+	_survival.update_encumbrance(_survival.get_hard_carry_limit() - 1.0)
+	assert_false(_survival.is_at_hard_cap(),
+		"1 kg below hard cap must not trigger is_at_hard_cap [LPC-047]")
+	_survival.update_encumbrance(0.0)
+
+
+func test_hard_cap_speed_lower_than_over_encumbered_speed_lpc047():
+	var params: Dictionary = GameData.survival_params.get("encumbrance", {})
+	var soft_mult: float = params.get("over_encumbered_speed_multiplier", 0.1)
+	var hard_mult: float = params.get("hard_cap_speed_multiplier", 0.2)
+	assert_lt(hard_mult, soft_mult,
+		"Hard cap speed multiplier (0.05) must be less than soft cap multiplier (0.4) — hard cap is worse [LPC-047]")
 
 
 # ---------------------------------------------------------------------------

@@ -43,7 +43,9 @@ var named_landmarks: Dictionary = {}  # landmark_id -> player-given name
 
 # Home Storage — single global dict accessible at any owned home (LINV-008)
 # No capacity limit (LINV-009). Items stored as Array[{item_id, count, ...}].
-var home_storage: Array = []
+var home_storage: Array = [
+	{ "item_id": "iron_ore", "count": 100, "runes": [] }
+]
 
 # Unlocked experimental recipes (set by IdentifyUI when items are identified)
 var unlocked_recipes: Array = []
