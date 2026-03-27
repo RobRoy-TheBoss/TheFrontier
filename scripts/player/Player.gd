@@ -50,29 +50,31 @@ func _input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			_adjust_zoom(ZOOM_STEP)
 
+	# UI toggles work in both directions regardless of paused state
+	if event.is_action_pressed("inventory"):
+		_toggle_inventory()
+		return
+	if event.is_action_pressed("journal"):
+		_toggle_journal()
+		return
+	if event.is_action_pressed("disciplines"):
+		_toggle_disciplines()
+		return
+	if event.is_action_pressed("map"):
+		_toggle_map()
+		return
+
 	if GameState.is_paused_for_ui:
 		return
 
 	if event.is_action_pressed("interact"):
 		_try_interact()
 
-	if event.is_action_pressed("inventory"):
-		_toggle_inventory()
-
-	if event.is_action_pressed("journal"):
-		_toggle_journal()
-
-	if event.is_action_pressed("map"):
-		_toggle_map()
-
 	if event.is_action_pressed("sleep"):
 		_try_sleep()
 
 	if event.is_action_pressed("plant_flag"):
 		_try_plant_flag()
-
-	if event.is_action_pressed("disciplines"):
-		_toggle_disciplines()
 
 	if event.is_action_pressed("scan"):
 		_perform_scan()

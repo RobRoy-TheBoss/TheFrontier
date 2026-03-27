@@ -11,6 +11,8 @@ extends Control
 var _player: Node = null
 var _inventory: PlayerInventory = null
 var _selected_slot: String = ""
+var _selected_item_index: int = -1
+var _selected_item_id: String = ""
 
 
 func _ready() -> void:
@@ -28,6 +30,9 @@ func toggle() -> void:
 	visible = not visible
 	if visible:
 		_refresh()
+	else:
+		_selected_item_index = -1
+		_selected_item_id = ""
 
 
 func _refresh() -> void:
@@ -40,13 +45,17 @@ func _refresh() -> void:
 		currency_label.text = "Silver: %d" % _inventory.currency
 
 
+const WEAPON_TYPES := ["one_handed_blade", "two_handed_blade", "blunt", "bow", "pistol", "musket"]
+
+
 func _populate_item_list() -> void:
 	if item_list == null:
 		return
 	for child in item_list.get_children():
 		child.queue_free()
 
-	for entry in _inventory.items:
+	for i in range(_inventory.items.size()):
+		var entry: Dictionary = _inventory.items[i]
 		var item_id: String = entry["item_id"]
 		var def := GameData.get_item(item_id)
 		if def.is_empty():
@@ -54,40 +63,36 @@ func _populate_item_list() -> void:
 		if def.is_empty():
 			def = GameData.get_armor(item_id)
 
+		var panel := PanelContainer.new()
+		panel.mouse_filter = Control.MOUSE_FILTER_STOP
+		if i == _selected_item_index:
+			var sb := StyleBoxFlat.new()
+			sb.bg_color = Color(0.3, 0.6, 1.0, 0.35)
+			panel.add_theme_stylebox_override("panel", sb)
+
 		var row := HBoxContainer.new()
 		var name_label := Label.new()
 		name_label.text = def.get("name", item_id)
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
 		var count_label := Label.new()
 		count_label.text = "x%d" % entry["count"]
-
 		var weight_val: float = def.get("weight", 0.0) * entry["count"]
 		var weight_label_node := Label.new()
 		weight_label_node.text = "%.1fkg" % weight_val
-
 		row.add_child(name_label)
 		row.add_child(count_label)
 		row.add_child(weight_label_node)
+		panel.add_child(row)
 
-		var item_type: String = def.get("type", "")
-		const WEAPON_TYPES := ["one_handed_blade", "two_handed_blade", "blunt", "bow", "pistol", "musket"]
-		if item_type in WEAPON_TYPES:
-			var main_btn := Button.new()
-			main_btn.text = "Main"
-			main_btn.pressed.connect(func(): _inventory.equip_to_weapon_slot(item_id, 0))
-			var backup_btn := Button.new()
-			backup_btn.text = "Backup"
-			backup_btn.pressed.connect(func(): _inventory.equip_to_weapon_slot(item_id, 1))
-			row.add_child(main_btn)
-			row.add_child(backup_btn)
-		elif def.has("armor_class") or def.get("slot", "") != "":
-			var equip_btn := Button.new()
-			equip_btn.text = "Equip"
-			equip_btn.pressed.connect(func(): _inventory.equip(item_id, "auto"))
-			row.add_child(equip_btn)
-
-		item_list.add_child(row)
+		var idx := i
+		var iid := item_id
+		panel.gui_input.connect(func(event: InputEvent):
+			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+				_selected_item_index = idx
+				_selected_item_id = iid
+				_refresh()
+		)
+		item_list.add_child(panel)
 
 
 func _populate_equipment_slots() -> void:
@@ -96,52 +101,103 @@ func _populate_equipment_slots() -> void:
 	for child in equipment_slots.get_children():
 		child.queue_free()
 
+	# Determine what the selected item is compatible with
+	var selected_def := Dictionary()
+	if _selected_item_id != "":
+		selected_def = GameData.get_weapon(_selected_item_id)
+		if selected_def.is_empty():
+			selected_def = GameData.get_armor(_selected_item_id)
+	var selected_is_weapon := selected_def.get("type", "") in WEAPON_TYPES
+	var selected_armor_slot: String = selected_def.get("slot", "") if not selected_is_weapon else ""
+
 	# Weapon slots (LPC-020)
 	var weapon_slot_labels := ["Main Weapon", "Backup Weapon"]
 	for i in range(2):
-		var slot_container := VBoxContainer.new()
+		var ws: Dictionary = _inventory.weapon_slots[i]
+		var highlighted := selected_is_weapon and _selected_item_id != ""
+
+		var panel := PanelContainer.new()
+		panel.mouse_filter = Control.MOUSE_FILTER_STOP
+		if highlighted:
+			var sb := StyleBoxFlat.new()
+			sb.bg_color = Color(0.2, 0.8, 0.3, 0.35)
+			panel.add_theme_stylebox_override("panel", sb)
+
+		var col := VBoxContainer.new()
 		var slot_label := Label.new()
 		slot_label.text = weapon_slot_labels[i]
-		var ws: Dictionary = _inventory.weapon_slots[i]
+		if i == _inventory.active_weapon_slot:
+			slot_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
 		var item_label := Label.new()
 		if ws.is_empty():
 			item_label.text = "—"
 		else:
 			var def: Dictionary = GameData.get_weapon(ws.get("item_id", ""))
 			item_label.text = def.get("name", ws.get("item_id", ""))
-			if i == _inventory.active_weapon_slot:
-				item_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
-		slot_container.add_child(slot_label)
-		slot_container.add_child(item_label)
+		col.add_child(slot_label)
+		col.add_child(item_label)
 		if not ws.is_empty():
 			var unequip_btn := Button.new()
 			unequip_btn.text = "Unequip"
 			var wi := i
 			unequip_btn.pressed.connect(func(): _inventory.unequip_weapon_slot(wi))
-			slot_container.add_child(unequip_btn)
-		equipment_slots.add_child(slot_container)
+			col.add_child(unequip_btn)
+		panel.add_child(col)
+
+		if highlighted:
+			var wi := i
+			var sid := _selected_item_id
+			panel.gui_input.connect(func(event: InputEvent):
+				if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+					_inventory.equip_to_weapon_slot(sid, wi)
+					_selected_item_index = -1
+					_selected_item_id = ""
+					_refresh()
+			)
+		equipment_slots.add_child(panel)
 
 	# Armour slots
 	var armour_slots := ["head", "chest", "hands", "legs", "feet"]
 	for slot in armour_slots:
-		var slot_container := VBoxContainer.new()
+		var equipped: Dictionary = _inventory.equipped.get(slot, {})
+		var highlighted := selected_armor_slot == slot and slot != ""
+
+		var panel := PanelContainer.new()
+		panel.mouse_filter = Control.MOUSE_FILTER_STOP
+		if highlighted:
+			var sb := StyleBoxFlat.new()
+			sb.bg_color = Color(0.2, 0.8, 0.3, 0.35)
+			panel.add_theme_stylebox_override("panel", sb)
+
+		var col := VBoxContainer.new()
 		var slot_label := Label.new()
 		slot_label.text = slot.capitalize()
-		var equipped: Dictionary = _inventory.equipped.get(slot, {})
 		var item_label := Label.new()
 		if equipped.is_empty():
 			item_label.text = "—"
 		else:
 			var def: Dictionary = GameData.get_armor(equipped.get("item_id", ""))
 			item_label.text = def.get("name", equipped.get("item_id", ""))
-		slot_container.add_child(slot_label)
-		slot_container.add_child(item_label)
+		col.add_child(slot_label)
+		col.add_child(item_label)
 		if not equipped.is_empty():
 			var unequip_btn := Button.new()
 			unequip_btn.text = "Unequip"
 			unequip_btn.pressed.connect(func(): _inventory.unequip(slot))
-			slot_container.add_child(unequip_btn)
-		equipment_slots.add_child(slot_container)
+			col.add_child(unequip_btn)
+		panel.add_child(col)
+
+		if highlighted:
+			var sl := slot
+			var sid := _selected_item_id
+			panel.gui_input.connect(func(event: InputEvent):
+				if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+					_inventory.equip(sid, sl)
+					_selected_item_index = -1
+					_selected_item_id = ""
+					_refresh()
+			)
+		equipment_slots.add_child(panel)
 
 
 func _update_weight(current: float, maximum: float) -> void:
