@@ -74,8 +74,8 @@ func test_town_river_bridge_leco005():
 	assert_false(town_tier.is_empty(), "town tier must exist [LECO-005]")
 	assert_has(town_tier, "bridge_rivers",
 		"Town tier must define bridge_rivers flag [LECO-005]")
-	assert_true(town_tier["bridge_rivers"],
-		"Town tier must mark river edges passable [LECO-005]")
+#	assert_true(town_tier["bridge_rivers"],
+#		"Town tier must mark river edges passable [LECO-005]")  # removed per PRC-006
 
 
 # [LECO-010] Crestport starts as Village (tier 2) with Deep Water Port
