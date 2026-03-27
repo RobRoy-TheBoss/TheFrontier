@@ -107,14 +107,14 @@ func _populate_equipment_slots() -> void:
 		selected_def = GameData.get_weapon(_selected_item_id)
 		if selected_def.is_empty():
 			selected_def = GameData.get_armor(_selected_item_id)
-	var selected_is_weapon := selected_def.get("type", "") in WEAPON_TYPES
+	var selected_is_weapon: bool = selected_def.get("type", "") in WEAPON_TYPES
 	var selected_armor_slot: String = selected_def.get("slot", "") if not selected_is_weapon else ""
 
 	# Weapon slots (LPC-020)
 	var weapon_slot_labels := ["Main Weapon", "Backup Weapon"]
 	for i in range(2):
 		var ws: Dictionary = _inventory.weapon_slots[i]
-		var highlighted := selected_is_weapon and _selected_item_id != ""
+		var highlighted: bool = selected_is_weapon and _selected_item_id != ""
 
 		var panel := PanelContainer.new()
 		panel.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -160,7 +160,7 @@ func _populate_equipment_slots() -> void:
 	var armour_slots := ["head", "chest", "hands", "legs", "feet"]
 	for slot in armour_slots:
 		var equipped: Dictionary = _inventory.equipped.get(slot, {})
-		var highlighted := selected_armor_slot == slot and slot != ""
+		var highlighted: bool = selected_armor_slot == slot and slot != ""
 
 		var panel := PanelContainer.new()
 		panel.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -188,7 +188,7 @@ func _populate_equipment_slots() -> void:
 		panel.add_child(col)
 
 		if highlighted:
-			var sl := slot
+			var sl: String = slot
 			var sid := _selected_item_id
 			panel.gui_input.connect(func(event: InputEvent):
 				if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
