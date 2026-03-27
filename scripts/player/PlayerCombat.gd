@@ -410,10 +410,10 @@ func _set_attack_cooldown(base_cooldown: float) -> void:
 
 
 func _get_equipped_weapon() -> Dictionary:
-	var equipped: Dictionary = _inventory.equipped.get("weapon", {})
-	if equipped.is_empty():
+	var active: Dictionary = _inventory.get_active_weapon()
+	if active.is_empty():
 		return {}
-	return GameData.get_weapon(equipped.get("item_id", ""))
+	return GameData.get_weapon(active.get("item_id", ""))
 
 
 func _get_ranged_target(max_range: float) -> Node:
