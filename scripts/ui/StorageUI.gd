@@ -18,6 +18,15 @@ var _active_panel: String = "inventory"  # "inventory" or "storage"
 var _quantity_mode: bool = false
 var _pending_quantity: int = 0
 
+# Hold-to-scroll state for quantity adjustment
+const _HOLD_INITIAL_DELAY := 0.4   # seconds before auto-repeat begins
+const _HOLD_FAST_THRESHOLD := 1.2  # seconds held before switching to 10x
+const _HOLD_SLOW_INTERVAL := 0.08  # repeat interval at 1x
+const _HOLD_FAST_INTERVAL := 0.05  # repeat interval at 10x
+var _hold_dir: int = 0             # -1 = A held, +1 = D held
+var _hold_time: float = 0.0
+var _hold_repeat_timer: float = 0.0
+
 
 func _ready() -> void:
 	add_to_group("storage_ui")
@@ -27,6 +36,29 @@ func _ready() -> void:
 	take_button.pressed.connect(_take_selected)
 	store_button.disabled = true
 	take_button.disabled = true
+
+
+func _process(delta: float) -> void:
+	if not visible or not _quantity_mode or _hold_dir == 0:
+		return
+	var action := "move_left" if _hold_dir == -1 else "move_right"
+	if not Input.is_action_pressed(action):
+		_hold_dir = 0
+		return
+	_hold_time += delta
+	if _hold_time < _HOLD_INITIAL_DELAY:
+		return
+	_hold_repeat_timer += delta
+	var interval := _HOLD_FAST_INTERVAL if _hold_time >= _HOLD_FAST_THRESHOLD else _HOLD_SLOW_INTERVAL
+	var step := 10 if _hold_time >= _HOLD_FAST_THRESHOLD else 1
+	if _hold_repeat_timer >= interval:
+		_hold_repeat_timer = 0.0
+		_adjust_quantity(_hold_dir * step)
+
+
+func _adjust_quantity(delta_qty: int) -> void:
+	_pending_quantity = clamp(_pending_quantity + delta_qty, 1, _get_selected_max_count())
+	_refresh()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -76,12 +108,19 @@ func _handle_quantity_input(event: InputEvent) -> void:
 		_navigate(1)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("move_left"):
-		_pending_quantity = maxi(1, _pending_quantity - 1)
-		_refresh()
+		_hold_dir = -1
+		_hold_time = 0.0
+		_hold_repeat_timer = 0.0
+		_adjust_quantity(-1)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("move_right"):
-		_pending_quantity = mini(_get_selected_max_count(), _pending_quantity + 1)
-		_refresh()
+		_hold_dir = 1
+		_hold_time = 0.0
+		_hold_repeat_timer = 0.0
+		_adjust_quantity(1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_released("move_left") or event.is_action_released("move_right"):
+		_hold_dir = 0
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("interact"):
 		_confirm_transfer()
@@ -129,6 +168,7 @@ func _get_selected_max_count() -> int:
 
 func _navigate(direction: int) -> void:
 	_quantity_mode = false
+	_hold_dir = 0
 	if _active_panel == "inventory":
 		if _inventory == null or _inventory.items.is_empty():
 			return

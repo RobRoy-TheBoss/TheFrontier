@@ -67,8 +67,8 @@
   "encumbrance": {
     "base_carry_weight": 50.0,
     "max_carry_weight": 100.0,
-    "over_encumbered_speed_multiplier": 0.1,
-    "hard_cap_speed_multiplier": 0.2,
+    "over_encumbered_speed_multiplier": 0.4,
+    "hard_cap_speed_multiplier": 0.05,
     "over_encumbered_no_sprint": true
   },
   "fall_damage": {

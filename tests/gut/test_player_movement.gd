@@ -148,10 +148,10 @@ func test_not_over_encumbered_at_soft_cap_lpc013():
 	_survival.update_encumbrance(0.0)
 
 
-func test_over_encumbered_speed_multiplier_is_ten_percent_lpc013():
+func test_over_encumbered_speed_multiplier_is_forty_percent_lpc013():
 	var params: Dictionary = GameData.survival_params.get("encumbrance", {})
-	assert_eq(params.get("over_encumbered_speed_multiplier", -1.0), 0.1,
-		"Over-encumbered walk speed multiplier must be 0.1 (90%% reduction) [LPC-013]")
+	assert_eq(params.get("over_encumbered_speed_multiplier", -1.0), 0.4,
+		"Over-encumbered walk speed multiplier must be 0.4 (60%% reduction) [LPC-013]")
 
 
 func test_sprint_blocked_when_over_encumbered_lpc013():
@@ -171,8 +171,8 @@ func test_sprint_blocked_when_over_encumbered_lpc013():
 
 func test_hard_cap_speed_multiplier_defined_lpc047():
 	var params: Dictionary = GameData.survival_params.get("encumbrance", {})
-	assert_eq(params.get("hard_cap_speed_multiplier", -1.0), 0.2,
-		"hard_cap_speed_multiplier must be 0.2 (80%% reduction) [LPC-047]")
+	assert_eq(params.get("hard_cap_speed_multiplier", -1.0), 0.05,
+		"hard_cap_speed_multiplier must be 0.05 (95%% reduction) [LPC-047]")
 
 
 func test_is_at_hard_cap_above_limit_lpc047():
@@ -193,8 +193,8 @@ func test_hard_cap_speed_lower_than_over_encumbered_speed_lpc047():
 	var params: Dictionary = GameData.survival_params.get("encumbrance", {})
 	var soft_mult: float = params.get("over_encumbered_speed_multiplier", 0.1)
 	var hard_mult: float = params.get("hard_cap_speed_multiplier", 0.2)
-	assert_gt(hard_mult, soft_mult,
-		"Hard cap speed multiplier (0.2) must be greater than soft cap multiplier (0.1) — hard cap is worse [LPC-047]")
+	assert_lt(hard_mult, soft_mult,
+		"Hard cap speed multiplier (0.05) must be less than soft cap multiplier (0.4) — hard cap is worse [LPC-047]")
 
 
 # ---------------------------------------------------------------------------
