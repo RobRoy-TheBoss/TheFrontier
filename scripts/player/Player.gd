@@ -50,6 +50,9 @@ func _input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			_adjust_zoom(ZOOM_STEP)
 
+	if GameState.is_paused_for_ui:
+		return
+
 	if event.is_action_pressed("interact"):
 		_try_interact()
 

@@ -15,6 +15,8 @@ var _inventory = null
 var _selected_inv_index: int = -1
 var _selected_stor_index: int = -1
 var _active_panel: String = "inventory"  # "inventory" or "storage"
+var _quantity_mode: bool = false
+var _pending_quantity: int = 0
 
 
 func _ready() -> void:
@@ -30,6 +32,13 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
+	if _quantity_mode:
+		_handle_quantity_input(event)
+	else:
+		_handle_navigate_input(event)
+
+
+func _handle_navigate_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_up") or event.is_action_pressed("move_forward"):
 		_navigate(-1)
 		get_viewport().set_input_as_handled()
@@ -53,14 +62,73 @@ func _unhandled_input(event: InputEvent) -> void:
 		_refresh()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("interact"):
-		if _active_panel == "inventory" and _selected_inv_index >= 0:
-			_store_selected()
-		elif _active_panel == "storage" and _selected_stor_index >= 0:
-			_take_selected()
+		_begin_transfer()
 		get_viewport().set_input_as_handled()
 
 
+func _handle_quantity_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_up") or event.is_action_pressed("move_forward"):
+		_quantity_mode = false
+		_navigate(-1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_down") or event.is_action_pressed("move_backward"):
+		_quantity_mode = false
+		_navigate(1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("move_left"):
+		_pending_quantity = maxi(1, _pending_quantity - 1)
+		_refresh()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("move_right"):
+		_pending_quantity = mini(_get_selected_max_count(), _pending_quantity + 1)
+		_refresh()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("interact"):
+		_confirm_transfer()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_cancel"):
+		_quantity_mode = false
+		_refresh()
+		get_viewport().set_input_as_handled()
+
+
+func _begin_transfer() -> void:
+	var count := _get_selected_max_count()
+	if count <= 0:
+		return
+	if count == 1:
+		# Single item — transfer immediately
+		if _active_panel == "inventory":
+			_store_selected()
+		else:
+			_take_selected()
+		return
+	# Multi-item stack — enter quantity picker
+	_quantity_mode = true
+	_pending_quantity = count
+	_refresh()
+
+
+func _confirm_transfer() -> void:
+	if _active_panel == "inventory":
+		_store_selected()
+	else:
+		_take_selected()
+
+
+func _get_selected_max_count() -> int:
+	if _active_panel == "inventory":
+		if _inventory == null or _selected_inv_index < 0 or _selected_inv_index >= _inventory.items.size():
+			return 0
+		return _inventory.items[_selected_inv_index].get("count", 1)
+	else:
+		if _selected_stor_index < 0 or _selected_stor_index >= _storage.size():
+			return 0
+		return _storage[_selected_stor_index].get("count", 1)
+
+
 func _navigate(direction: int) -> void:
+	_quantity_mode = false
 	if _active_panel == "inventory":
 		if _inventory == null or _inventory.items.is_empty():
 			return
@@ -93,6 +161,7 @@ func close() -> void:
 	visible = false
 	_storage = []
 	_inventory = null
+	_quantity_mode = false
 	GameState.is_paused_for_ui = false
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
@@ -118,7 +187,7 @@ func _populate_inventory() -> void:
 			def.get("name", entry["item_id"]),
 			entry["count"],
 			def.get("weight", 0.0) * entry["count"],
-			i == _selected_inv_index
+			i == _selected_inv_index and not _quantity_mode
 		)
 		var idx := i
 		row.gui_input.connect(func(event):
@@ -126,9 +195,12 @@ func _populate_inventory() -> void:
 				_selected_inv_index = idx
 				_selected_stor_index = -1
 				_active_panel = "inventory"
+				_quantity_mode = false
 				_refresh()
 		)
 		inventory_list.add_child(row)
+		if i == _selected_inv_index and _quantity_mode:
+			inventory_list.add_child(_make_quantity_row(entry.get("count", 1)))
 
 
 func _populate_storage() -> void:
@@ -143,7 +215,7 @@ func _populate_storage() -> void:
 			def.get("name", entry.get("item_id", "?")),
 			entry.get("count", 1),
 			def.get("weight", 0.0) * entry.get("count", 1),
-			i == _selected_stor_index
+			i == _selected_stor_index and not _quantity_mode
 		)
 		var idx := i
 		row.gui_input.connect(func(event):
@@ -151,9 +223,12 @@ func _populate_storage() -> void:
 				_selected_stor_index = idx
 				_selected_inv_index = -1
 				_active_panel = "storage"
+				_quantity_mode = false
 				_refresh()
 		)
 		storage_list.add_child(row)
+		if i == _selected_stor_index and _quantity_mode:
+			storage_list.add_child(_make_quantity_row(entry.get("count", 1)))
 
 
 func _make_row(item_name: String, count: int, weight: float, selected: bool) -> PanelContainer:
@@ -182,12 +257,39 @@ func _selected_style() -> StyleBoxFlat:
 	return sb
 
 
+func _make_quantity_row(max_count: int) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", _selected_style())
+	var hbox := HBoxContainer.new()
+	var hint := Label.new()
+	hint.text = "A / D to adjust,  E to confirm"
+	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hint.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	var qty_lbl := Label.new()
+	qty_lbl.text = "%d / %d" % [_pending_quantity, max_count]
+	hbox.add_child(hint)
+	hbox.add_child(qty_lbl)
+	panel.add_child(hbox)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return panel
+
+
 func _store_selected() -> void:
 	if _selected_inv_index < 0 or _inventory == null:
 		return
-	var entry: Dictionary = _inventory.items[_selected_inv_index].duplicate()
-	_inventory.remove_item(entry["item_id"], entry.get("count", 1))
-	_storage.append(entry)
+	var entry: Dictionary = _inventory.items[_selected_inv_index]
+	var qty: int = _pending_quantity if _quantity_mode else entry.get("count", 1)
+	_quantity_mode = false
+	_inventory.remove_item(entry["item_id"], qty)
+	# Add to storage (merge into existing stack if present)
+	var merged := false
+	for s in _storage:
+		if s["item_id"] == entry["item_id"]:
+			s["count"] += qty
+			merged = true
+			break
+	if not merged:
+		_storage.append({ "item_id": entry["item_id"], "count": qty, "runes": entry.get("runes", []) })
 	_selected_inv_index = mini(_selected_inv_index, _inventory.items.size() - 1)
 	_refresh()
 
@@ -196,8 +298,13 @@ func _take_selected() -> void:
 	if _selected_stor_index < 0 or _inventory == null:
 		return
 	var entry: Dictionary = _storage[_selected_stor_index]
-	_storage.remove_at(_selected_stor_index)
-	_inventory.add_item(entry["item_id"], entry.get("count", 1))
+	var qty: int = _pending_quantity if _quantity_mode else entry.get("count", 1)
+	_quantity_mode = false
+	if qty >= entry.get("count", 1):
+		_storage.remove_at(_selected_stor_index)
+	else:
+		_storage[_selected_stor_index]["count"] -= qty
+	_inventory.add_item(entry["item_id"], qty)
 	_selected_stor_index = mini(_selected_stor_index, _storage.size() - 1)
 	_refresh()
 
