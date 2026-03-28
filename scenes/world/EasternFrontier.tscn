@@ -88,7 +88,7 @@ area_id = "crestport_bay"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="CrestportBay/Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 0, -0.5, 0)
 
 [node name="Mesh" type="MeshInstance3D" parent="CrestportBay/Terrain/GroundBody"]
 mesh = SubResource("Mesh_terrain")
@@ -103,7 +103,7 @@ area_id = "greenwood_vale"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="GreenwoodVale/Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 0, -0.5, 0)
 
 [node name="Mesh" type="MeshInstance3D" parent="GreenwoodVale/Terrain/GroundBody"]
 mesh = SubResource("Mesh_terrain")
@@ -118,7 +118,7 @@ area_id = "ironpeak_ridge"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="IronpeakRidge/Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 0, -0.5, 0)
 
 [node name="Mesh" type="MeshInstance3D" parent="IronpeakRidge/Terrain/GroundBody"]
 mesh = SubResource("Mesh_terrain")
@@ -133,7 +133,7 @@ area_id = "marshfen_crossing"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="MarshfenCrossing/Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 0, -0.5, 0)
 
 [node name="Mesh" type="MeshInstance3D" parent="MarshfenCrossing/Terrain/GroundBody"]
 mesh = SubResource("Mesh_terrain")
@@ -148,7 +148,7 @@ area_id = "stonehill_pass"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="StonehillPass/Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 0, -0.5, 0)
 
 [node name="Mesh" type="MeshInstance3D" parent="StonehillPass/Terrain/GroundBody"]
 mesh = SubResource("Mesh_terrain")
@@ -163,7 +163,7 @@ area_id = "verdant_reach"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="VerdantReach/Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 0, -0.5, 0)
 
 [node name="Mesh" type="MeshInstance3D" parent="VerdantReach/Terrain/GroundBody"]
 mesh = SubResource("Mesh_terrain")
