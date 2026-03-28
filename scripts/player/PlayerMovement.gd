@@ -23,11 +23,15 @@ var _road_speed_bonus: float = 0.0
 
 # Double-tap dodge detection
 const DOUBLE_TAP_WINDOW := 0.3
+const DODGE_SPEED := 16.0
+const DODGE_HOP := 1.5
+const DODGE_DURATION := 0.15
 var _last_tap_time: Dictionary = {
 	"move_forward": -1.0, "move_backward": -1.0,
 	"move_left": -1.0, "move_right": -1.0
 }
 var _dodge_actions: Array[String] = ["move_forward", "move_backward", "move_left", "move_right"]
+var _dodge_timer: float = 0.0
 
 
 func _ready() -> void:
@@ -52,6 +56,12 @@ func _handle_movement(delta: float) -> void:
 	if not on_floor and not _is_swimming:
 		_player.velocity.y -= GRAVITY * delta
 
+	# Tick dodge timer
+	if _dodge_timer > 0.0:
+		_dodge_timer -= delta
+		_player.move_and_slide()
+		return
+
 	# Jump
 	if Input.is_action_just_pressed("jump") and on_floor and not _is_crouching:
 		if _health.try_consume_stamina(10.0):
@@ -68,6 +78,9 @@ func _handle_movement(delta: float) -> void:
 
 	# Double-tap dodge
 	_update_double_tap_dodge()
+	if _dodge_timer > 0.0:
+		_player.move_and_slide()
+		return
 
 	# Direction — camera-relative
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
@@ -107,8 +120,6 @@ func _handle_movement(delta: float) -> void:
 	# Apply road speed bonus
 	speed *= (1.0 + _road_speed_bonus)
 
-	# Weatherskin passive: no gameplay effect on movement, handled in survival
-
 	# Injury movement speed
 	speed *= _health.get_movement_speed_multiplier()
 
@@ -141,21 +152,23 @@ func _update_double_tap_dodge() -> void:
 
 
 func _trigger_dodge(action: String) -> void:
-	var combat: Node = _player.get_node_or_null("PlayerCombat")
-	if combat == null:
+	if not _player.is_on_floor() or _dodge_timer > 0.0:
 		return
-	combat._try_dodge()
-	# Velocity impulse in the dodged direction (camera-relative)
+	var combat: Node = _player.get_node_or_null("PlayerCombat")
+	if combat == null or not combat._try_dodge():
+		return
 	var cb := _camera_pivot.global_transform.basis
 	var fwd := Vector3(-cb.z.x, 0, -cb.z.z).normalized()
 	var right := Vector3(cb.x.x, 0, cb.x.z).normalized()
 	var impulse := Vector3.ZERO
 	match action:
-		"move_forward":  impulse = -fwd
-		"move_backward": impulse = fwd
+		"move_forward":  impulse = fwd
+		"move_backward": impulse = -fwd
 		"move_left":     impulse = -right
 		"move_right":    impulse = right
-	_player.velocity += impulse * SPRINT_SPEED * 1.5
+	_player.velocity = impulse * DODGE_SPEED
+	_player.velocity.y = DODGE_HOP
+	_dodge_timer = DODGE_DURATION
 
 
 func set_road_speed_bonus(bonus: float) -> void:

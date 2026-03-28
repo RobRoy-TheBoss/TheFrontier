@@ -311,11 +311,11 @@ func _calculate_aim_sway(weapon: Dictionary) -> float:
 	return base_sway
 
 
-func _try_dodge() -> void:
+func _try_dodge() -> bool:
 	if is_dodging or attack_cooldown > 0.0:
-		return
+		return false
 	if not _health.try_consume_stamina(GameData.survival_params.get("stamina", {}).get("dodge_cost", 20.0)):
-		return
+		return false
 
 	is_dodging = true
 	var dodge_duration: float = DODGE_DURATION
@@ -330,6 +330,7 @@ func _try_dodge() -> void:
 	if riposte_window_open and _riposte_target != null:
 		_execute_riposte(_riposte_target)
 	DisciplineManager.add_xp("swordsman", "dodge_successful")
+	return true
 
 
 func open_riposte_window(attacker: Node, base_window: float) -> void:
