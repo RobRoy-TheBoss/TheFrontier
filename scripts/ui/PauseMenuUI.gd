@@ -23,9 +23,26 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		if visible:
 			_resume()
+		elif _close_any_open_ui():
+			pass
 		else:
 			_pause()
 		get_viewport().set_input_as_handled()
+
+
+func _close_any_open_ui() -> bool:
+	var groups: Array[String] = [
+		"inventory_ui", "hero_ui", "journal_ui", "discipline_ui", "map_ui", "storage_ui"
+	]
+	for group in groups:
+		var ui := get_tree().get_first_node_in_group(group)
+		if ui and ui.visible:
+			if ui.has_method("close"):
+				ui.close()
+			elif ui.has_method("toggle"):
+				ui.toggle()
+			return true
+	return false
 
 
 func _pause() -> void:
