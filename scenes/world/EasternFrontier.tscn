@@ -27,8 +27,12 @@ albedo_color = Color(0.62, 0.78, 0.38, 1)
 [sub_resource type="StandardMaterial3D" id="Mat_boundary"]
 albedo_color = Color(0.28, 0.42, 0.58, 1)
 
-[sub_resource type="BoxMesh" id="Mesh_terrain"]
-size = Vector3(380.0, 1.0, 380.0)
+[sub_resource type="CylinderMesh" id="Mesh_terrain"]
+top_radius = 198.0
+bottom_radius = 198.0
+height = 1.0
+radial_segments = 6
+rings = 0
 
 [sub_resource type="BoxMesh" id="Mesh_boundary"]
 size = Vector3(3000.0, 1.0, 3000.0)
