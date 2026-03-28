@@ -129,10 +129,9 @@ func _handle_movement(delta: float) -> void:
 	# Injury movement speed
 	speed *= _health.get_movement_speed_multiplier()
 
-	# Body always faces camera forward (A/D strafe)
-	_body_mesh.rotation.y = _camera_pivot.rotation.y + PI
-
 	if direction != Vector3.ZERO:
+		# Rotate body to face movement direction only while moving
+		_body_mesh.rotation.y = _camera_pivot.rotation.y + PI
 		_player.velocity.x = direction.x * speed
 		_player.velocity.z = direction.z * speed
 		# Fatigue drain from movement
