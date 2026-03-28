@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://b8r4y566qep7d"]
+
+[ext_resource type="PackedScene" uid="uid://coghor3xxiqmd" path="res://assets/models/kenney_animated-characters-1/Model/characterMedium.fbx" id="1_6e01y"]
+[ext_resource type="AnimationLibrary" uid="uid://ct0yww1jo5pl7" path="res://assets/models/kenney_animated-characters-1/Animations/idle.fbx" id="2_idle"]
+[ext_resource type="AnimationLibrary" uid="uid://dwgnx348ealqx" path="res://assets/models/kenney_animated-characters-1/Animations/run.fbx" id="3_run"]
+[ext_resource type="AnimationLibrary" uid="uid://cp16s7nayjwq8" path="res://assets/models/kenney_animated-characters-1/Animations/jump.fbx" id="4_jump"]
+
+[node name="CharacterModel" unique_id=1535554774 instance=ExtResource("1_6e01y")]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." index="1" unique_id=1225516598]
+root_node = NodePath("..")
+libraries/idle = ExtResource("2_idle")
+libraries/run = ExtResource("3_run")
+libraries/jump = ExtResource("4_jump")

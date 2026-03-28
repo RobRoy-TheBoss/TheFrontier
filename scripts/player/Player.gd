@@ -36,6 +36,9 @@ func _ready() -> void:
 	health.player_died.connect(_on_player_died)
 	inventory.inventory_changed.connect(_update_weapon_display)
 	_update_weapon_display()
+	var anim_node: Node = preload("res://scripts/player/PlayerAnimations.gd").new()
+	anim_node.name = "PlayerAnimations"
+	add_child(anim_node)
 
 
 func _input(event: InputEvent) -> void:
