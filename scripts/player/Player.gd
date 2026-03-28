@@ -40,8 +40,10 @@ func _ready() -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and not GameState.is_paused_for_ui:
-		camera_pivot.rotate_y(-event.relative.x * mouse_sensitivity)
-		spring_arm.rotate_x(-event.relative.y * mouse_sensitivity)
+		var aim_mult := survival.get_aim_sensitivity_multiplier() if survival else 1.0
+		var effective_sens := mouse_sensitivity * aim_mult
+		camera_pivot.rotate_y(-event.relative.x * effective_sens)
+		spring_arm.rotate_x(-event.relative.y * effective_sens)
 		spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(-60), deg_to_rad(20))
 
 	if event is InputEventMouseButton and not GameState.is_paused_for_ui:
@@ -62,6 +64,9 @@ func _input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("map"):
 		_toggle_map()
+		return
+	if event.is_action_pressed("hero"):
+		_toggle_hero()
 		return
 
 	if GameState.is_paused_for_ui:
@@ -144,6 +149,13 @@ func _toggle_map() -> void:
 	if not inventory.has_item("map_item"):
 		return
 	var ui := get_tree().get_first_node_in_group("map_ui")
+	if ui and ui.has_method("toggle"):
+		ui.toggle()
+		_set_ui_mouse_mode(ui.visible)
+
+
+func _toggle_hero() -> void:
+	var ui := get_tree().get_first_node_in_group("hero_ui")
 	if ui and ui.has_method("toggle"):
 		ui.toggle()
 		_set_ui_mouse_mode(ui.visible)

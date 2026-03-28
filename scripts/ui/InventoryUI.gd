@@ -1,18 +1,17 @@
 ## InventoryUI
 ## Weight-based inventory display with rune socketing interface.
+## Equipment slots have moved to HeroUI (H key).
 extends Control
 
 @onready var item_list: VBoxContainer = $Panel/VBox/ScrollContainer/ItemList
 @onready var weight_label: Label = $Panel/VBox/WeightLabel
 @onready var currency_label: Label = $Panel/VBox/CurrencyLabel
-@onready var equipment_slots: GridContainer = $Panel/VBox/EquipmentSlots
 @onready var rune_panel: Control = $Panel/VBox/RunePanel
 
 var _player: Node = null
 var _inventory: PlayerInventory = null
-var _selected_slot: String = ""
 var _selected_item_index: int = -1
-var _selected_item_id: String = ""
+var _survival: PlayerSurvival = null
 
 
 func _ready() -> void:
@@ -22,6 +21,7 @@ func _ready() -> void:
 	_player = get_tree().get_first_node_in_group("player")
 	if _player:
 		_inventory = _player.inventory
+		_survival = _player.survival
 		_inventory.inventory_changed.connect(_refresh)
 		_inventory.weight_changed.connect(_update_weight)
 
@@ -29,23 +29,71 @@ func _ready() -> void:
 func toggle() -> void:
 	visible = not visible
 	if visible:
+		_selected_item_index = 0 if (_inventory and not _inventory.items.is_empty()) else -1
 		_refresh()
 	else:
 		_selected_item_index = -1
-		_selected_item_id = ""
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event.is_action_pressed("ui_up") or event.is_action_pressed("move_forward"):
+		_navigate(-1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_down") or event.is_action_pressed("move_backward"):
+		_navigate(1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("interact"):
+		_try_consume_selected()
+		get_viewport().set_input_as_handled()
+
+
+func _navigate(direction: int) -> void:
+	if _inventory == null or _inventory.items.is_empty():
+		return
+	_selected_item_index = wrapi(_selected_item_index + direction, 0, _inventory.items.size())
+	_refresh()
+
+
+func _try_consume_selected() -> void:
+	if _selected_item_index < 0 or _inventory == null or _survival == null:
+		return
+	if _selected_item_index >= _inventory.items.size():
+		return
+	var entry: Dictionary = _inventory.items[_selected_item_index]
+	var item_id: String = entry["item_id"]
+	var def := GameData.get_item(item_id)
+	if def.is_empty():
+		return
+
+	var hunger_restore: float = def.get("hunger_restore", 0.0)
+	var thirst_restore: float = def.get("thirst_restore",
+		def.get("use_effect", {}).get("thirst_restore", 0.0))
+
+	if hunger_restore > 0.0:
+		if _survival.hunger >= 100.0:
+			return
+		_survival.restore_hunger(hunger_restore)
+		_inventory.remove_item(item_id, 1)
+		_selected_item_index = mini(_selected_item_index, _inventory.items.size() - 1)
+		_refresh()
+	elif thirst_restore > 0.0:
+		if _survival.thirst >= 100.0:
+			return
+		_survival.restore_thirst(thirst_restore)
+		_inventory.remove_item(item_id, 1)
+		_selected_item_index = mini(_selected_item_index, _inventory.items.size() - 1)
+		_refresh()
 
 
 func _refresh() -> void:
 	if not visible or _inventory == null:
 		return
 	_populate_item_list()
-	_populate_equipment_slots()
 	_update_weight(_inventory.get_total_weight(), _player.survival.get_max_carry_weight())
 	if currency_label:
 		currency_label.text = "Silver: %d" % _inventory.currency
-
-
-const WEAPON_TYPES := ["one_handed_blade", "two_handed_blade", "blunt", "bow", "pistol", "musket"]
 
 
 func _populate_item_list() -> void:
@@ -85,119 +133,12 @@ func _populate_item_list() -> void:
 		panel.add_child(row)
 
 		var idx := i
-		var iid := item_id
 		panel.gui_input.connect(func(event: InputEvent):
 			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 				_selected_item_index = idx
-				_selected_item_id = iid
 				_refresh()
 		)
 		item_list.add_child(panel)
-
-
-func _populate_equipment_slots() -> void:
-	if equipment_slots == null:
-		return
-	for child in equipment_slots.get_children():
-		child.queue_free()
-
-	# Determine what the selected item is compatible with
-	var selected_def := Dictionary()
-	if _selected_item_id != "":
-		selected_def = GameData.get_weapon(_selected_item_id)
-		if selected_def.is_empty():
-			selected_def = GameData.get_armor(_selected_item_id)
-	var selected_is_weapon: bool = selected_def.get("type", "") in WEAPON_TYPES
-	var selected_armor_slot: String = selected_def.get("slot", "") if not selected_is_weapon else ""
-
-	# Weapon slots (LPC-020)
-	var weapon_slot_labels := ["Main Weapon", "Backup Weapon"]
-	for i in range(2):
-		var ws: Dictionary = _inventory.weapon_slots[i]
-		var highlighted: bool = selected_is_weapon and _selected_item_id != ""
-
-		var panel := PanelContainer.new()
-		panel.mouse_filter = Control.MOUSE_FILTER_STOP
-		if highlighted:
-			var sb := StyleBoxFlat.new()
-			sb.bg_color = Color(0.2, 0.8, 0.3, 0.35)
-			panel.add_theme_stylebox_override("panel", sb)
-
-		var col := VBoxContainer.new()
-		var slot_label := Label.new()
-		slot_label.text = weapon_slot_labels[i]
-		if i == _inventory.active_weapon_slot:
-			slot_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
-		var item_label := Label.new()
-		if ws.is_empty():
-			item_label.text = "—"
-		else:
-			var def: Dictionary = GameData.get_weapon(ws.get("item_id", ""))
-			item_label.text = def.get("name", ws.get("item_id", ""))
-		col.add_child(slot_label)
-		col.add_child(item_label)
-		if not ws.is_empty():
-			var unequip_btn := Button.new()
-			unequip_btn.text = "Unequip"
-			var wi := i
-			unequip_btn.pressed.connect(func(): _inventory.unequip_weapon_slot(wi))
-			col.add_child(unequip_btn)
-		panel.add_child(col)
-
-		if highlighted:
-			var wi := i
-			var sid := _selected_item_id
-			panel.gui_input.connect(func(event: InputEvent):
-				if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-					_inventory.equip_to_weapon_slot(sid, wi)
-					_selected_item_index = -1
-					_selected_item_id = ""
-					_refresh()
-			)
-		equipment_slots.add_child(panel)
-
-	# Armour slots
-	var armour_slots := ["head", "chest", "hands", "legs", "feet"]
-	for slot in armour_slots:
-		var equipped: Dictionary = _inventory.equipped.get(slot, {})
-		var highlighted: bool = selected_armor_slot == slot and slot != ""
-
-		var panel := PanelContainer.new()
-		panel.mouse_filter = Control.MOUSE_FILTER_STOP
-		if highlighted:
-			var sb := StyleBoxFlat.new()
-			sb.bg_color = Color(0.2, 0.8, 0.3, 0.35)
-			panel.add_theme_stylebox_override("panel", sb)
-
-		var col := VBoxContainer.new()
-		var slot_label := Label.new()
-		slot_label.text = slot.capitalize()
-		var item_label := Label.new()
-		if equipped.is_empty():
-			item_label.text = "—"
-		else:
-			var def: Dictionary = GameData.get_armor(equipped.get("item_id", ""))
-			item_label.text = def.get("name", equipped.get("item_id", ""))
-		col.add_child(slot_label)
-		col.add_child(item_label)
-		if not equipped.is_empty():
-			var unequip_btn := Button.new()
-			unequip_btn.text = "Unequip"
-			unequip_btn.pressed.connect(func(): _inventory.unequip(slot))
-			col.add_child(unequip_btn)
-		panel.add_child(col)
-
-		if highlighted:
-			var sl: String = slot
-			var sid := _selected_item_id
-			panel.gui_input.connect(func(event: InputEvent):
-				if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-					_inventory.equip(sid, sl)
-					_selected_item_index = -1
-					_selected_item_id = ""
-					_refresh()
-			)
-		equipment_slots.add_child(panel)
 
 
 func _update_weight(current: float, maximum: float) -> void:
