@@ -20,6 +20,7 @@ var _is_crouching: bool = false
 var _is_swimming: bool = false
 var _is_sprinting: bool = false
 var _road_speed_bonus: float = 0.0
+var _god_mode: bool = false
 
 # Double-tap dodge detection
 const DOUBLE_TAP_WINDOW := 0.3
@@ -52,7 +53,33 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if GameState.is_paused_for_ui or GameState.is_sleeping:
 		return
-	_handle_movement(delta)
+	if Input.is_action_just_pressed("god_mode"):
+		_god_mode = not _god_mode
+		print("GOD MODE: ", "ON" if _god_mode else "OFF")
+	if _god_mode:
+		_handle_god_movement(delta)
+	else:
+		_handle_movement(delta)
+
+
+func _handle_god_movement(delta: float) -> void:
+	const GOD_SPEED := WALK_SPEED * 5.0
+	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+	var direction := Vector3.ZERO
+	if input_dir != Vector2.ZERO:
+		var cb := _camera_pivot.global_transform.basis
+		var fwd := Vector3(-cb.z.x, 0, -cb.z.z).normalized()
+		var right := Vector3(cb.x.x, 0, cb.x.z).normalized()
+		direction = (right * input_dir.x - fwd * input_dir.y).normalized()
+		_body_mesh.rotation.y = _camera_pivot.rotation.y + PI
+	_player.velocity.x = direction.x * GOD_SPEED
+	_player.velocity.z = direction.z * GOD_SPEED
+	_player.velocity.y = 0.0
+	if Input.is_action_pressed("jump"):
+		_player.velocity.y = GOD_SPEED
+	elif Input.is_action_pressed("crouch"):
+		_player.velocity.y = -GOD_SPEED
+	_player.move_and_slide()
 
 
 func _handle_movement(delta: float) -> void:
