@@ -1,10 +1,11 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=33 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/world/Area.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/world/CrestportTown.tscn" id="2"]
 [ext_resource type="Script" path="res://scripts/world/MonsterSpawner.gd" id="3"]
 [ext_resource type="Script" path="res://scripts/world/Bed.gd" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/world/HomeChest.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/world/Tree.tscn" id="6"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_coast"]
 albedo_color = Color(0.93, 0.87, 0.62, 1)
@@ -27,18 +28,74 @@ albedo_color = Color(0.62, 0.78, 0.38, 1)
 [sub_resource type="StandardMaterial3D" id="Mat_boundary"]
 albedo_color = Color(0.28, 0.42, 0.58, 1)
 
-[sub_resource type="CylinderMesh" id="Mesh_terrain"]
+[sub_resource type="CylinderMesh" id="Mesh_terrain_coast"]
 top_radius = 199.0
 bottom_radius = 199.0
-height = 1.0
+height = 4.0
+radial_segments = 6
+rings = 0
+
+[sub_resource type="CylinderMesh" id="Mesh_terrain_forest"]
+top_radius = 199.0
+bottom_radius = 199.0
+height = 10.0
+radial_segments = 6
+rings = 0
+
+[sub_resource type="CylinderMesh" id="Mesh_terrain_mountain"]
+top_radius = 199.0
+bottom_radius = 199.0
+height = 42.0
+radial_segments = 6
+rings = 0
+
+[sub_resource type="CylinderMesh" id="Mesh_terrain_swamp"]
+top_radius = 199.0
+bottom_radius = 199.0
+height = 3.0
+radial_segments = 6
+rings = 0
+
+[sub_resource type="CylinderMesh" id="Mesh_terrain_mountain_pass"]
+top_radius = 199.0
+bottom_radius = 199.0
+height = 22.0
+radial_segments = 6
+rings = 0
+
+[sub_resource type="CylinderMesh" id="Mesh_terrain_plains"]
+top_radius = 199.0
+bottom_radius = 199.0
+height = 6.0
 radial_segments = 6
 rings = 0
 
 [sub_resource type="BoxMesh" id="Mesh_boundary"]
 size = Vector3(3000.0, 1.0, 3000.0)
 
-[sub_resource type="BoxShape3D" id="Shape_terrain"]
-size = Vector3(380.0, 1.0, 380.0)
+[sub_resource type="CylinderShape3D" id="Shape_terrain_coast"]
+radius = 199.0
+height = 4.0
+
+[sub_resource type="CylinderShape3D" id="Shape_terrain_forest"]
+radius = 199.0
+height = 10.0
+
+[sub_resource type="CylinderShape3D" id="Shape_terrain_mountain"]
+radius = 199.0
+height = 42.0
+
+[sub_resource type="CylinderShape3D" id="Shape_terrain_swamp"]
+radius = 199.0
+height = 3.0
+
+[sub_resource type="CylinderShape3D" id="Shape_terrain_mountain_pass"]
+radius = 199.0
+height = 22.0
+
+[sub_resource type="CylinderShape3D" id="Shape_terrain_plains"]
+radius = 199.0
+height = 6.0
 
 [sub_resource type="BoxShape3D" id="Shape_boundary"]
 size = Vector3(3000.0, 1.0, 3000.0)
@@ -74,7 +131,7 @@ surface_material_override/0 = SubResource("Mat_boundary")
 shape = SubResource("Shape_boundary")
 
 [node name="SpawnMarker" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0, -15)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.0, -15)
 
 [node name="Mesh" type="MeshInstance3D" parent="SpawnMarker"]
 mesh = SubResource("Mesh_marker")
@@ -84,100 +141,149 @@ surface_material_override/0 = SubResource("Mat_marker")
 shape = SubResource("Shape_marker")
 
 [node name="CrestportBay" parent="." instance=ExtResource("1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 area_id = "crestport_bay"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="CrestportBay/Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.0, 0)
 
 [node name="Mesh" type="MeshInstance3D" parent="CrestportBay/Terrain/GroundBody"]
-mesh = SubResource("Mesh_terrain")
+mesh = SubResource("Mesh_terrain_coast")
 surface_material_override/0 = SubResource("Mat_coast")
 
 [node name="Collision" type="CollisionShape3D" parent="CrestportBay/Terrain/GroundBody"]
-shape = SubResource("Shape_terrain")
+shape = SubResource("Shape_terrain_coast")
 
 [node name="GreenwoodVale" parent="." instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 0, 173)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 8, 173)
 area_id = "greenwood_vale"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="GreenwoodVale/Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5.0, 0)
 
 [node name="Mesh" type="MeshInstance3D" parent="GreenwoodVale/Terrain/GroundBody"]
-mesh = SubResource("Mesh_terrain")
+mesh = SubResource("Mesh_terrain_forest")
 surface_material_override/0 = SubResource("Mat_forest")
 
 [node name="Collision" type="CollisionShape3D" parent="GreenwoodVale/Terrain/GroundBody"]
-shape = SubResource("Shape_terrain")
+shape = SubResource("Shape_terrain_forest")
+
+[node name="Tree1" parent="GreenwoodVale" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -20)
+
+[node name="Tree2" parent="GreenwoodVale" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 0, 30)
+
+[node name="Tree3" parent="GreenwoodVale" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70, 0, 50)
+
+[node name="Tree4" parent="GreenwoodVale" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -80)
+
+[node name="Tree5" parent="GreenwoodVale" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100, 0, -10)
+
+[node name="Tree6" parent="GreenwoodVale" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 100)
+
+[node name="Tree7" parent="GreenwoodVale" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -100, 0, -60)
+
+[node name="Tree8" parent="GreenwoodVale" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 0, -100)
+
+[node name="Tree9" parent="GreenwoodVale" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 0, 60)
+
+[node name="Tree10" parent="GreenwoodVale" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50, 0, -100)
 
 [node name="IronpeakRidge" parent="." instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 600, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 600, 40, 0)
 area_id = "ironpeak_ridge"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="IronpeakRidge/Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -21.0, 0)
 
 [node name="Mesh" type="MeshInstance3D" parent="IronpeakRidge/Terrain/GroundBody"]
-mesh = SubResource("Mesh_terrain")
+mesh = SubResource("Mesh_terrain_mountain")
 surface_material_override/0 = SubResource("Mat_mountain")
 
 [node name="Collision" type="CollisionShape3D" parent="IronpeakRidge/Terrain/GroundBody"]
-shape = SubResource("Shape_terrain")
+shape = SubResource("Shape_terrain_mountain")
 
 [node name="MarshfenCrossing" parent="." instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 346)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 346)
 area_id = "marshfen_crossing"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="MarshfenCrossing/Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5, 0)
 
 [node name="Mesh" type="MeshInstance3D" parent="MarshfenCrossing/Terrain/GroundBody"]
-mesh = SubResource("Mesh_terrain")
+mesh = SubResource("Mesh_terrain_swamp")
 surface_material_override/0 = SubResource("Mat_swamp")
 
 [node name="Collision" type="CollisionShape3D" parent="MarshfenCrossing/Terrain/GroundBody"]
-shape = SubResource("Shape_terrain")
+shape = SubResource("Shape_terrain_swamp")
 
 [node name="StonehillPass" parent="." instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 600, 0, 346)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 600, 20, 346)
 area_id = "stonehill_pass"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="StonehillPass/Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -11.0, 0)
 
 [node name="Mesh" type="MeshInstance3D" parent="StonehillPass/Terrain/GroundBody"]
-mesh = SubResource("Mesh_terrain")
+mesh = SubResource("Mesh_terrain_mountain_pass")
 surface_material_override/0 = SubResource("Mat_mountain_pass")
 
 [node name="Collision" type="CollisionShape3D" parent="StonehillPass/Terrain/GroundBody"]
-shape = SubResource("Shape_terrain")
+shape = SubResource("Shape_terrain_mountain_pass")
+
+[node name="Tree1" parent="StonehillPass" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 0, -80)
+
+[node name="Tree2" parent="StonehillPass" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60, 0, 40)
 
 [node name="VerdantReach" parent="." instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 0, 519)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 4, 519)
 area_id = "verdant_reach"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="VerdantReach/Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3.0, 0)
 
 [node name="Mesh" type="MeshInstance3D" parent="VerdantReach/Terrain/GroundBody"]
-mesh = SubResource("Mesh_terrain")
+mesh = SubResource("Mesh_terrain_plains")
 surface_material_override/0 = SubResource("Mat_plains")
 
 [node name="Collision" type="CollisionShape3D" parent="VerdantReach/Terrain/GroundBody"]
-shape = SubResource("Shape_terrain")
+shape = SubResource("Shape_terrain_plains")
+
+[node name="Tree1" parent="VerdantReach" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, -60)
+
+[node name="Tree2" parent="VerdantReach" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70, 0, 20)
+
+[node name="Tree3" parent="VerdantReach" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90, 0, 80)
+
+[node name="Tree4" parent="VerdantReach" instance=ExtResource("6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 100)
 
 [node name="DummySpawner" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -8)
 script = ExtResource("3")
 
 [node name="Bed" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.6, -3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 2.6, -3)
 script = ExtResource("4")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Bed"]
@@ -188,6 +294,7 @@ surface_material_override/0 = SubResource("Mat_bed")
 shape = SubResource("Shape_bed")
 
 [node name="HomeChest" parent="." instance=ExtResource("5")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0, -2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 2, -2)
 
 [node name="CrestportTown" parent="." instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
