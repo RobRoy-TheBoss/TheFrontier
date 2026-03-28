@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3]
+[gd_scene load_steps=34 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/world/Area.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/world/CrestportTown.tscn" id="2"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/world/Bed.gd" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/world/HomeChest.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://scenes/world/Tree.tscn" id="6"]
+[ext_resource type="Script" path="res://scripts/world/RampConnector.gd" id="7"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_coast"]
 albedo_color = Color(0.93, 0.87, 0.62, 1)
@@ -298,3 +299,48 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 2, -2)
 
 [node name="CrestportTown" parent="." instance=ExtResource("2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+
+[node name="Ramp_Bay_Vale" type="StaticBody3D" parent="."]
+script = ExtResource("7")
+point_a = Vector3(123.3, 2.0, 71.1)
+point_b = Vector3(176.7, 8.0, 101.9)
+
+[node name="Ramp_Bay_Marsh" type="StaticBody3D" parent="."]
+script = ExtResource("7")
+point_a = Vector3(0.0, 2.0, 142.4)
+point_b = Vector3(0.0, 1.0, 203.6)
+
+[node name="Ramp_Vale_IronPeak" type="StaticBody3D" parent="."]
+script = ExtResource("7")
+point_a = Vector3(423.3, 8.0, 101.9)
+point_b = Vector3(476.7, 40.0, 71.1)
+
+[node name="Ramp_Vale_Stonehill" type="StaticBody3D" parent="."]
+script = ExtResource("7")
+point_a = Vector3(423.3, 8.0, 244.1)
+point_b = Vector3(476.7, 20.0, 274.9)
+
+[node name="Ramp_Vale_Verdant" type="StaticBody3D" parent="."]
+script = ExtResource("7")
+point_a = Vector3(300.0, 8.0, 315.4)
+point_b = Vector3(300.0, 4.0, 376.6)
+
+[node name="Ramp_Vale_Marsh" type="StaticBody3D" parent="."]
+script = ExtResource("7")
+point_a = Vector3(176.7, 8.0, 244.1)
+point_b = Vector3(123.3, 1.0, 274.9)
+
+[node name="Ramp_Marsh_Verdant" type="StaticBody3D" parent="."]
+script = ExtResource("7")
+point_a = Vector3(123.3, 1.0, 417.1)
+point_b = Vector3(176.7, 4.0, 447.9)
+
+[node name="Ramp_IronPeak_Stonehill" type="StaticBody3D" parent="."]
+script = ExtResource("7")
+point_a = Vector3(600.0, 40.0, 142.4)
+point_b = Vector3(600.0, 20.0, 203.6)
+
+[node name="Ramp_Stonehill_Verdant" type="StaticBody3D" parent="."]
+script = ExtResource("7")
+point_a = Vector3(476.7, 20.0, 417.1)
+point_b = Vector3(423.3, 4.0, 447.9)
