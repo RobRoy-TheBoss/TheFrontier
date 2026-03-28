@@ -124,41 +124,53 @@ func _try_interact() -> void:
 		if hud: hud.show_message("interact: no interact on %s" % collider.name, 2.0)
 
 
+const GAMEPLAY_UI_GROUPS: Array[String] = [
+	"inventory_ui", "hero_ui", "journal_ui", "discipline_ui", "map_ui", "storage_ui"
+]
+
+
+func _close_all_gameplay_ui() -> void:
+	for group in GAMEPLAY_UI_GROUPS:
+		var ui := get_tree().get_first_node_in_group(group)
+		if ui and ui.visible:
+			if ui.has_method("close"):
+				ui.close()
+			elif ui.has_method("toggle"):
+				ui.toggle()
+	_set_ui_mouse_mode(false)
+
+
+func _toggle_ui(group: String) -> void:
+	var ui := get_tree().get_first_node_in_group(group)
+	if ui == null:
+		return
+	var opening: bool = not ui.visible
+	if opening:
+		_close_all_gameplay_ui()
+	ui.toggle()
+	_set_ui_mouse_mode(ui.visible)
+
+
 func _toggle_inventory() -> void:
-	var ui := get_tree().get_first_node_in_group("inventory_ui")
-	if ui and ui.has_method("toggle"):
-		ui.toggle()
-		_set_ui_mouse_mode(ui.visible)
+	_toggle_ui("inventory_ui")
 
 
 func _toggle_journal() -> void:
-	var ui := get_tree().get_first_node_in_group("journal_ui")
-	if ui and ui.has_method("toggle"):
-		ui.toggle()
-		_set_ui_mouse_mode(ui.visible)
+	_toggle_ui("journal_ui")
 
 
 func _toggle_disciplines() -> void:
-	var ui := get_tree().get_first_node_in_group("discipline_ui")
-	if ui and ui.has_method("toggle"):
-		ui.toggle()
-		_set_ui_mouse_mode(ui.visible)
+	_toggle_ui("discipline_ui")
 
 
 func _toggle_map() -> void:
 	if not inventory.has_item("map_item"):
 		return
-	var ui := get_tree().get_first_node_in_group("map_ui")
-	if ui and ui.has_method("toggle"):
-		ui.toggle()
-		_set_ui_mouse_mode(ui.visible)
+	_toggle_ui("map_ui")
 
 
 func _toggle_hero() -> void:
-	var ui := get_tree().get_first_node_in_group("hero_ui")
-	if ui and ui.has_method("toggle"):
-		ui.toggle()
-		_set_ui_mouse_mode(ui.visible)
+	_toggle_ui("hero_ui")
 
 
 func _set_ui_mouse_mode(ui_open: bool) -> void:
