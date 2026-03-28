@@ -40,8 +40,10 @@ func _ready() -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and not GameState.is_paused_for_ui:
-		camera_pivot.rotate_y(-event.relative.x * mouse_sensitivity)
-		spring_arm.rotate_x(-event.relative.y * mouse_sensitivity)
+		var aim_mult := survival.get_aim_sensitivity_multiplier() if survival else 1.0
+		var effective_sens := mouse_sensitivity * aim_mult
+		camera_pivot.rotate_y(-event.relative.x * effective_sens)
+		spring_arm.rotate_x(-event.relative.y * effective_sens)
 		spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(-60), deg_to_rad(20))
 
 	if event is InputEventMouseButton and not GameState.is_paused_for_ui:

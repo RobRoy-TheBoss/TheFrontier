@@ -44,6 +44,10 @@ var named_landmarks: Dictionary = {}  # landmark_id -> player-given name
 # Home Storage — single global dict accessible at any owned home (LINV-008)
 # No capacity limit (LINV-009). Items stored as Array[{item_id, count, ...}].
 var home_storage: Array = [
+	{ "item_id": "hardtack", "count": 5, "runes": [] },
+	{ "item_id": "cooked_meat", "count": 3, "runes": [] },
+	{ "item_id": "boiled_water", "count": 4, "runes": [] },
+	{ "item_id": "waterskin", "count": 1, "runes": [] },
 	{ "item_id": "hunting_knife", "count": 1, "runes": [] },
 	{ "item_id": "shortsword", "count": 1, "runes": [] },
 	{ "item_id": "arming_sword", "count": 1, "runes": [] },

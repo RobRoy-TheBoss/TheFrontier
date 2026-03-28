@@ -51,6 +51,7 @@ func _ready() -> void:
 		_survival.fatigue_changed.connect(func(v, m): _set_bar(_fatigue_bar, v, m))
 		_survival.encumbrance_changed.connect(func(v, m): _set_bar(_enc_bar, v, m))
 		_survival.temperature_changed.connect(_on_temperature_changed)
+		_survival.survival_warning.connect(func(_n, _l): _refresh_conditions())
 	DisciplineManager.xp_gained.connect(func(_d, _x, _t): _refresh_disciplines())
 	DisciplineManager.attuned.connect(func(_d): _refresh_disciplines())
 	DisciplineManager.ability_unlocked.connect(func(_d, _a): _refresh_disciplines())
@@ -390,14 +391,34 @@ func _refresh_conditions() -> void:
 	for c in cond_panel.get_children():
 		c.queue_free()
 
-	if _health == null or _health.active_injuries.is_empty():
+	var survival_conditions := _get_survival_conditions()
+	var injuries := _health.active_injuries if _health else []
+
+	if injuries.is_empty() and survival_conditions.is_empty():
 		var lbl := Label.new()
 		lbl.text = "No active conditions."
 		lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
 		cond_panel.add_child(lbl)
 		return
 
-	for inj_id in _health.active_injuries:
+	# Survival conditions
+	for cond in survival_conditions:
+		var panel := PanelContainer.new()
+		var col := VBoxContainer.new()
+		var name_lbl := Label.new()
+		name_lbl.text = cond["name"]
+		name_lbl.add_theme_color_override("font_color", cond["color"])
+		col.add_child(name_lbl)
+		var desc_lbl := Label.new()
+		desc_lbl.text = cond["desc"]
+		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		desc_lbl.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+		col.add_child(desc_lbl)
+		panel.add_child(col)
+		cond_panel.add_child(panel)
+
+	# Injuries
+	for inj_id in injuries:
 		var inj: Dictionary = GameData.get_injury(inj_id)
 		var panel := PanelContainer.new()
 		var col := VBoxContainer.new()
@@ -420,3 +441,36 @@ func _refresh_conditions() -> void:
 
 		panel.add_child(col)
 		cond_panel.add_child(panel)
+
+
+func _get_survival_conditions() -> Array:
+	if _survival == null:
+		return []
+	var conditions := []
+	var s_params: Dictionary = GameData.survival_params
+
+	var h_params: Dictionary = s_params.get("hunger", {})
+	if _survival.hunger <= h_params.get("critical_threshold", 10.0):
+		conditions.append({ "name": "Starving", "color": Color(1.0, 0.2, 0.2),
+			"desc": "Critically low hunger. Health draining rapidly." })
+	elif _survival.hunger <= h_params.get("low_threshold", 30.0):
+		conditions.append({ "name": "Hungry", "color": Color(0.9, 0.6, 0.1),
+			"desc": "Low hunger. Stamina regeneration reduced." })
+
+	var t_params: Dictionary = s_params.get("thirst", {})
+	if _survival.thirst <= t_params.get("critical_threshold", 10.0):
+		conditions.append({ "name": "Dehydrated", "color": Color(1.0, 0.2, 0.2),
+			"desc": "Critically low thirst. Carry capacity reduced by 20%." })
+	elif _survival.thirst <= t_params.get("low_threshold", 30.0):
+		conditions.append({ "name": "Thirsty", "color": Color(0.4, 0.6, 1.0),
+			"desc": "Low thirst. Fatigue drains faster." })
+
+	var f_params: Dictionary = s_params.get("fatigue", {})
+	if _survival.fatigue <= f_params.get("critical_threshold", 10.0):
+		conditions.append({ "name": "Exhausted", "color": Color(1.0, 0.2, 0.2),
+			"desc": "Critically fatigued. Stamina regeneration severely reduced." })
+	elif _survival.fatigue <= f_params.get("low_threshold", 30.0):
+		conditions.append({ "name": "Tired", "color": Color(0.7, 0.5, 0.9),
+			"desc": "Low fatigue. Stamina regeneration and aim impaired." })
+
+	return conditions

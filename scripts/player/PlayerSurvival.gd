@@ -10,14 +10,15 @@ signal fatigue_changed(value: float, max_value: float)
 signal encumbrance_changed(current_weight: float, max_weight: float)
 signal survival_warning(need: String, level: String)  # "hunger", "low" / "critical"
 
-var hunger: float = 100.0
-var thirst: float = 100.0
+var hunger: float = 25.0
+var thirst: float = 20.0
 var temperature: float = 18.0  # Celsius
-var fatigue: float = 0.0
+var fatigue: float = 100.0
 var current_weight: float = 0.0
 
 var _params: Dictionary = {}
 var _player: CharacterBody3D
+var _warning_cooldown: float = 0.0  # seconds until next survival_warning may fire
 
 
 func _ready() -> void:
@@ -28,6 +29,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if GameState.is_sleeping or GameState.is_paused_for_ui:
 		return
+	_warning_cooldown = max(0.0, _warning_cooldown - delta)
 	_process_hunger(delta)
 	_process_thirst(delta)
 	_process_temperature(delta)
@@ -42,10 +44,13 @@ func _process_hunger(delta: float) -> void:
 
 	if hunger <= h_params.get("critical_threshold", 10.0):
 		_player.health.take_damage(h_params.get("critical_health_drain_per_second", 0.5) * delta)
-		if fmod(delta, 30.0) < delta:
+		if _warning_cooldown <= 0.0:
 			survival_warning.emit("hunger", "critical")
+			_warning_cooldown = 30.0
 	elif hunger <= h_params.get("low_threshold", 30.0):
-		survival_warning.emit("hunger", "low")
+		if _warning_cooldown <= 0.0:
+			survival_warning.emit("hunger", "low")
+			_warning_cooldown = 30.0
 
 
 func _process_thirst(delta: float) -> void:
@@ -55,7 +60,9 @@ func _process_thirst(delta: float) -> void:
 	thirst_changed.emit(thirst, t_params.get("max", 100.0))
 
 	if thirst <= t_params.get("low_threshold", 30.0):
-		survival_warning.emit("thirst", "low")
+		if _warning_cooldown <= 0.0:
+			survival_warning.emit("thirst", "low")
+			_warning_cooldown = 30.0
 
 
 func _process_temperature(delta: float) -> void:
@@ -93,15 +100,13 @@ func _process_temperature(delta: float) -> void:
 
 func _process_fatigue(delta: float) -> void:
 	var f_params: Dictionary = _params.get("fatigue", {})
-	# Base gain handled by PlayerMovement, here we process penalties
 	fatigue_changed.emit(fatigue, f_params.get("max", 100.0))
 
-	var critical: float = f_params.get("critical_threshold", 90.0)
-	if fatigue >= critical:
-		if randf() < f_params.get("critical_passout_risk_per_second", 0.005) * delta:
-			# Pass out: forced sleep
-			_player._do_sleep()
-		survival_warning.emit("fatigue", "critical")
+	var critical: float = f_params.get("critical_threshold", 10.0)
+	if fatigue <= critical:
+		if _warning_cooldown <= 0.0:
+			survival_warning.emit("fatigue", "critical")
+			_warning_cooldown = 30.0
 
 
 func accumulate_fatigue(amount: float) -> void:
@@ -114,7 +119,7 @@ func accumulate_fatigue(amount: float) -> void:
 	var t_params: Dictionary = _params.get("thirst", {})
 	if thirst <= t_params.get("low_threshold", 30.0):
 		amount *= t_params.get("low_fatigue_acceleration", 1.5)
-	fatigue = min(fatigue + amount, f_params.get("max", 100.0))
+	fatigue = max(fatigue - amount, 0.0)
 
 
 func consume_hunger(amount: float) -> void:
@@ -124,6 +129,16 @@ func consume_hunger(amount: float) -> void:
 
 func consume_thirst(amount: float) -> void:
 	thirst = max(thirst - amount, 0.0)
+	thirst_changed.emit(thirst, 100.0)
+
+
+func restore_hunger(amount: float) -> void:
+	hunger = min(hunger + amount, 100.0)
+	hunger_changed.emit(hunger, 100.0)
+
+
+func restore_thirst(amount: float) -> void:
+	thirst = min(thirst + amount, 100.0)
 	thirst_changed.emit(thirst, 100.0)
 
 
@@ -172,9 +187,19 @@ func get_stamina_regen_multiplier() -> float:
 	if hunger <= h_params.get("low_threshold", 30.0):
 		mult *= h_params.get("low_stamina_regen_multiplier", 0.5)
 	var f_params: Dictionary = _params.get("fatigue", {})
-	if fatigue >= f_params.get("high_threshold", 70.0):
+	if fatigue <= f_params.get("critical_threshold", 10.0):
+		mult *= 0.2
+	elif fatigue <= f_params.get("low_threshold", 30.0):
 		mult *= f_params.get("high_stamina_regen_multiplier", 0.6)
 	return mult
+
+
+func get_aim_sensitivity_multiplier() -> float:
+	var f_params: Dictionary = _params.get("fatigue", {})
+	var aim_threshold: float = f_params.get("aim_impairment_threshold", 40.0)
+	if fatigue >= aim_threshold:
+		return 1.0
+	return lerp(0.5, 1.0, fatigue / aim_threshold)
 
 
 func _get_weather_temp_mod() -> float:
@@ -196,10 +221,10 @@ func _get_clothing_temp_bonus() -> float:
 	return 0.0
 
 
-## Reset fatigue to zero on waking (BatchProcessor step 12 — LSLEEP-015).
+## Reset fatigue to 100 on waking (BatchProcessor step 12 — LSLEEP-015).
 func reset_fatigue() -> void:
 	var f_params: Dictionary = _params.get("fatigue", {})
-	fatigue = 0.0
+	fatigue = f_params.get("max", 100.0)
 	fatigue_changed.emit(fatigue, f_params.get("max", 100.0))
 
 

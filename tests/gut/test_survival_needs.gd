@@ -34,7 +34,8 @@ func before_all() -> void:
 func before_each() -> void:
 	_survival.hunger = 100.0
 	_survival.thirst = 100.0
-	_survival.fatigue = 0.0
+	_survival.fatigue = 100.0
+	_survival._warning_cooldown = 0.0
 	_health.is_dead = false
 	_health.current_health = _health.max_health
 
@@ -223,31 +224,31 @@ func test_thirst_low_warning_args_lsurv009():
 # ---------------------------------------------------------------------------
 
 func test_thirst_low_accelerates_fatigue_gain_lsurv022():
-	# Normal fatigue gain at full thirst
+	# Normal fatigue drain at full thirst
 	_survival.thirst = 100.0
-	_survival.fatigue = 0.0
+	_survival.fatigue = 100.0
 	_survival.accumulate_fatigue(10.0)
-	var normal_gain: float = _survival.fatigue
+	var normal_drain: float = 100.0 - _survival.fatigue
 
-	# Fatigue gain at low thirst
+	# Fatigue drain at low thirst
 	_survival.thirst = THIRST_LOW_THRESHOLD - 1.0
-	_survival.fatigue = 0.0
+	_survival.fatigue = 100.0
 	_survival.accumulate_fatigue(10.0)
-	var low_thirst_gain: float = _survival.fatigue
+	var low_thirst_drain: float = 100.0 - _survival.fatigue
 
-	assert_gt(low_thirst_gain, normal_gain,
-		"Fatigue gain must be higher when thirst is low [LSURV-022]")
-	assert_almost_eq(low_thirst_gain, normal_gain * THIRST_LOW_FATIGUE_ACCEL, 0.01,
-		"Fatigue gain must be multiplied by low_fatigue_acceleration (1.5×) at low thirst [LSURV-022]")
+	assert_gt(low_thirst_drain, normal_drain,
+		"Fatigue drain must be higher when thirst is low [LSURV-022]")
+	assert_almost_eq(low_thirst_drain, normal_drain * THIRST_LOW_FATIGUE_ACCEL, 0.01,
+		"Fatigue drain must be multiplied by low_fatigue_acceleration (1.5×) at low thirst [LSURV-022]")
 
 
 func test_thirst_above_low_does_not_accelerate_fatigue_lsurv022():
 	_survival.thirst = THIRST_LOW_THRESHOLD + 1.0
-	_survival.fatigue = 0.0
+	_survival.fatigue = 100.0
 	_survival.accumulate_fatigue(10.0)
-	# Should be 10.0 — no acceleration at normal thirst
-	assert_almost_eq(_survival.fatigue, 10.0, 0.01,
-		"Fatigue gain must not be accelerated when thirst is above low threshold [LSURV-022]")
+	# Should drain exactly 10.0 — no acceleration at normal thirst
+	assert_almost_eq(_survival.fatigue, 90.0, 0.01,
+		"Fatigue drain must not be accelerated when thirst is above low threshold [LSURV-022]")
 
 
 # ---------------------------------------------------------------------------
@@ -277,28 +278,27 @@ func test_thirst_above_critical_does_not_reduce_carry_lsurv023():
 # [LSURV-004] Fatigue increases via accumulate_fatigue
 # ---------------------------------------------------------------------------
 
-func test_fatigue_increases_on_accumulate_lsurv004():
+func test_fatigue_decreases_on_accumulate_lsurv004():
 	var before: float = _survival.fatigue
 	_survival.accumulate_fatigue(5.0)
-	assert_gt(_survival.fatigue, before,
-		"accumulate_fatigue must increase fatigue [LSURV-004]")
+	assert_lt(_survival.fatigue, before,
+		"accumulate_fatigue must decrease fatigue [LSURV-004]")
 
 
-func test_fatigue_clamps_to_max_lsurv004():
-	var f_max: float = 100.0
-	_survival.fatigue = f_max - 1.0
+func test_fatigue_clamps_to_zero_lsurv004():
+	_survival.fatigue = 1.0
 	_survival.accumulate_fatigue(999.0)
-	assert_lte(_survival.fatigue, f_max,
-		"Fatigue must not exceed max (100.0) [LSURV-004]")
+	assert_almost_eq(_survival.fatigue, 0.0, 0.001,
+		"Fatigue must not go below 0.0 [LSURV-004]")
 
 
-func test_high_fatigue_reduces_stamina_regen_multiplier_lsurv004():
-	_survival.fatigue = 80.0  # above high_threshold (70)
+func test_low_fatigue_reduces_stamina_regen_multiplier_lsurv004():
+	_survival.fatigue = 20.0  # below low_threshold (30)
 	var mult: float = _survival.get_stamina_regen_multiplier()
 	assert_lt(mult, 1.0,
-		"Stamina regen multiplier must be < 1.0 at high fatigue [LSURV-004]")
+		"Stamina regen multiplier must be < 1.0 at low fatigue [LSURV-004]")
 	assert_almost_eq(mult, 0.6, 0.001,
-		"Stamina regen multiplier must be 0.6 at high fatigue [LSURV-004]")
+		"Stamina regen multiplier must be 0.6 at low fatigue [LSURV-004]")
 
 
 # ---------------------------------------------------------------------------
@@ -333,11 +333,11 @@ func test_sleep_thirst_drain_greater_than_hunger_drain():
 		"Thirst must drain more than hunger over a full sleep period")
 
 
-func test_reset_fatigue_sets_to_zero():
-	_survival.fatigue = 75.0
+func test_reset_fatigue_sets_to_100():
+	_survival.fatigue = 25.0
 	_survival.reset_fatigue()
-	assert_almost_eq(_survival.fatigue, 0.0, 0.001,
-		"reset_fatigue must set fatigue to 0.0 after sleep")
+	assert_almost_eq(_survival.fatigue, 100.0, 0.001,
+		"reset_fatigue must set fatigue to 100.0 after sleep")
 
 
 # ---------------------------------------------------------------------------

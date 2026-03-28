@@ -109,18 +109,21 @@ func _handle_movement(delta: float) -> void:
 
 	# Weatherskin passive: no gameplay effect on movement, handled in survival
 
+	# Injury movement speed
+	speed *= _health.get_movement_speed_multiplier()
+
 	if direction != Vector3.ZERO:
 		_player.velocity.x = direction.x * speed
 		_player.velocity.z = direction.z * speed
 		# Rotate body mesh to face movement direction (player node stays unrotated)
 		var target_y := atan2(-direction.x, -direction.z) + PI
 		_body_mesh.rotation.y = lerp_angle(_body_mesh.rotation.y, target_y, min(1.0, 10.0 * delta))
-		# Fatigue gain from movement
-		_survival.accumulate_fatigue(GameData.survival_params.get("fatigue", {}).get("gain_per_second_active", 0.003) * delta)
+		# Fatigue drain from movement
+		_survival.accumulate_fatigue(GameData.survival_params.get("fatigue", {}).get("drain_per_second_active", 0.003) * delta)
 	else:
 		_player.velocity.x = move_toward(_player.velocity.x, 0, speed)
 		_player.velocity.z = move_toward(_player.velocity.z, 0, speed)
-		_survival.accumulate_fatigue(GameData.survival_params.get("fatigue", {}).get("gain_per_second_idle", 0.001) * delta)
+		_survival.accumulate_fatigue(GameData.survival_params.get("fatigue", {}).get("drain_per_second_idle", 0.001) * delta)
 
 	_player.move_and_slide()
 

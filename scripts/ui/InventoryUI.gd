@@ -11,6 +11,7 @@ extends Control
 var _player: Node = null
 var _inventory: PlayerInventory = null
 var _selected_item_index: int = -1
+var _survival: PlayerSurvival = null
 
 
 func _ready() -> void:
@@ -20,6 +21,7 @@ func _ready() -> void:
 	_player = get_tree().get_first_node_in_group("player")
 	if _player:
 		_inventory = _player.inventory
+		_survival = _player.survival
 		_inventory.inventory_changed.connect(_refresh)
 		_inventory.weight_changed.connect(_update_weight)
 
@@ -27,9 +29,62 @@ func _ready() -> void:
 func toggle() -> void:
 	visible = not visible
 	if visible:
+		_selected_item_index = 0 if (_inventory and not _inventory.items.is_empty()) else -1
 		_refresh()
 	else:
 		_selected_item_index = -1
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event.is_action_pressed("ui_up") or event.is_action_pressed("move_forward"):
+		_navigate(-1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_down") or event.is_action_pressed("move_backward"):
+		_navigate(1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("interact"):
+		_try_consume_selected()
+		get_viewport().set_input_as_handled()
+
+
+func _navigate(direction: int) -> void:
+	if _inventory == null or _inventory.items.is_empty():
+		return
+	_selected_item_index = wrapi(_selected_item_index + direction, 0, _inventory.items.size())
+	_refresh()
+
+
+func _try_consume_selected() -> void:
+	if _selected_item_index < 0 or _inventory == null or _survival == null:
+		return
+	if _selected_item_index >= _inventory.items.size():
+		return
+	var entry: Dictionary = _inventory.items[_selected_item_index]
+	var item_id: String = entry["item_id"]
+	var def := GameData.get_item(item_id)
+	if def.is_empty():
+		return
+
+	var hunger_restore: float = def.get("hunger_restore", 0.0)
+	var thirst_restore: float = def.get("thirst_restore",
+		def.get("use_effect", {}).get("thirst_restore", 0.0))
+
+	if hunger_restore > 0.0:
+		if _survival.hunger >= 100.0:
+			return
+		_survival.restore_hunger(hunger_restore)
+		_inventory.remove_item(item_id, 1)
+		_selected_item_index = mini(_selected_item_index, _inventory.items.size() - 1)
+		_refresh()
+	elif thirst_restore > 0.0:
+		if _survival.thirst >= 100.0:
+			return
+		_survival.restore_thirst(thirst_restore)
+		_inventory.remove_item(item_id, 1)
+		_selected_item_index = mini(_selected_item_index, _inventory.items.size() - 1)
+		_refresh()
 
 
 func _refresh() -> void:
