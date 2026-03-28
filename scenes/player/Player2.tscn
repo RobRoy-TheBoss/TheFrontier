@@ -4,8 +4,15 @@
 [ext_resource type="AnimationLibrary" uid="uid://ct0yww1jo5pl7" path="res://assets/models/kenney_animated-characters-1/Animations/idle.fbx" id="2_idle"]
 [ext_resource type="AnimationLibrary" uid="uid://dwgnx348ealqx" path="res://assets/models/kenney_animated-characters-1/Animations/run.fbx" id="3_run"]
 [ext_resource type="AnimationLibrary" uid="uid://cp16s7nayjwq8" path="res://assets/models/kenney_animated-characters-1/Animations/jump.fbx" id="4_jump"]
+[ext_resource type="Texture2D" uid="uid://bk2mgeysiuu17" path="res://assets/models/kenney_animated-characters-1/Skins/survivorMaleB.png" id="5_skin"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_skin"]
+albedo_texture = ExtResource("5_skin")
 
 [node name="CharacterModel" unique_id=1535554774 instance=ExtResource("1_6e01y")]
+
+[node name="characterMedium" parent="Root/Skeleton3D" index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_skin")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." index="1" unique_id=1225516598]
 root_node = NodePath("..")
