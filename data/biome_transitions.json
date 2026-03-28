@@ -1,0 +1,74 @@
+{
+  "transitions": {
+    "coast|forest": {
+      "style": "beach_to_treeline",
+      "description": "Sandy beach giving way to tree roots and undergrowth",
+      "color": [0.76, 0.78, 0.46, 1.0],
+      "width": 22.0,
+      "extend_into_each": 45.0
+    },
+    "coast|swamp": {
+      "style": "tidal_flat",
+      "description": "Tidal marsh at the coast edge, murky and soft underfoot",
+      "color": [0.40, 0.48, 0.26, 1.0],
+      "width": 25.0,
+      "extend_into_each": 50.0
+    },
+    "forest|mountain": {
+      "style": "treeline",
+      "description": "Forest ends abruptly at exposed rock — steep and loose",
+      "color": [0.50, 0.48, 0.42, 1.0],
+      "width": 12.0,
+      "extend_into_each": 18.0
+    },
+    "forest|mountain_pass": {
+      "style": "forest_approach",
+      "description": "Trees thin out as the path climbs into the pass",
+      "color": [0.44, 0.48, 0.36, 1.0],
+      "width": 18.0,
+      "extend_into_each": 35.0
+    },
+    "forest|plains": {
+      "style": "woodland_edge",
+      "description": "Woodland edge blending into open grassland, gentle and wide",
+      "color": [0.50, 0.65, 0.32, 1.0],
+      "width": 22.0,
+      "extend_into_each": 48.0
+    },
+    "forest|swamp": {
+      "style": "boggy_edge",
+      "description": "Forest floor turns boggy at the swamp border",
+      "color": [0.28, 0.40, 0.20, 1.0],
+      "width": 20.0,
+      "extend_into_each": 40.0
+    },
+    "mountain|mountain_pass": {
+      "style": "rocky_drop",
+      "description": "Sharp rocky drop from peak ridge down to the pass",
+      "color": [0.56, 0.53, 0.48, 1.0],
+      "width": 10.0,
+      "extend_into_each": 15.0
+    },
+    "mountain_pass|plains": {
+      "style": "foothills",
+      "description": "Pass opens into rolling foothills, wide and walkable",
+      "color": [0.58, 0.60, 0.40, 1.0],
+      "width": 18.0,
+      "extend_into_each": 38.0
+    },
+    "swamp|plains": {
+      "style": "wet_meadow",
+      "description": "Wet meadow at the swamp border, soggy but passable",
+      "color": [0.44, 0.54, 0.27, 1.0],
+      "width": 22.0,
+      "extend_into_each": 45.0
+    }
+  },
+  "default": {
+    "style": "generic",
+    "description": "Generic terrain transition",
+    "color": [0.50, 0.50, 0.45, 1.0],
+    "width": 15.0,
+    "extend_into_each": 30.0
+  }
+}

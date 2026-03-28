@@ -6,7 +6,7 @@
 [ext_resource type="Script" path="res://scripts/world/Bed.gd" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/world/HomeChest.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://scenes/world/Tree.tscn" id="6"]
-[ext_resource type="Script" path="res://scripts/world/RampConnector.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/world/BiomeEdge.gd" id="7"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_coast"]
 albedo_color = Color(0.93, 0.87, 0.62, 1)
@@ -144,6 +144,7 @@ shape = SubResource("Shape_marker")
 [node name="CrestportBay" parent="." instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 area_id = "crestport_bay"
+biome = "coast"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="CrestportBay/Terrain"]
@@ -159,6 +160,7 @@ shape = SubResource("Shape_terrain_coast")
 [node name="GreenwoodVale" parent="." instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 8, 173)
 area_id = "greenwood_vale"
+biome = "forest"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="GreenwoodVale/Terrain"]
@@ -204,6 +206,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50, 0, -100)
 [node name="IronpeakRidge" parent="." instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 600, 40, 0)
 area_id = "ironpeak_ridge"
+biome = "mountain"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="IronpeakRidge/Terrain"]
@@ -219,6 +222,7 @@ shape = SubResource("Shape_terrain_mountain")
 [node name="MarshfenCrossing" parent="." instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 346)
 area_id = "marshfen_crossing"
+biome = "swamp"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="MarshfenCrossing/Terrain"]
@@ -234,6 +238,7 @@ shape = SubResource("Shape_terrain_swamp")
 [node name="StonehillPass" parent="." instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 600, 20, 346)
 area_id = "stonehill_pass"
+biome = "mountain_pass"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="StonehillPass/Terrain"]
@@ -255,6 +260,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60, 0, 40)
 [node name="VerdantReach" parent="." instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 4, 519)
 area_id = "verdant_reach"
+biome = "plains"
 area_bounds = Vector3(360.0, 20.0, 360.0)
 
 [node name="GroundBody" type="StaticBody3D" parent="VerdantReach/Terrain"]
@@ -300,47 +306,47 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 2, -2)
 [node name="CrestportTown" parent="." instance=ExtResource("2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 
-[node name="Ramp_Bay_Vale" type="StaticBody3D" parent="."]
+[node name="Edge_Bay_Vale" type="StaticBody3D" parent="."]
 script = ExtResource("7")
-point_a = Vector3(123.3, 2.0, 71.1)
-point_b = Vector3(176.7, 8.0, 101.9)
+area_a_path = NodePath("../CrestportBay")
+area_b_path = NodePath("../GreenwoodVale")
 
-[node name="Ramp_Bay_Marsh" type="StaticBody3D" parent="."]
+[node name="Edge_Bay_Marsh" type="StaticBody3D" parent="."]
 script = ExtResource("7")
-point_a = Vector3(0.0, 2.0, 142.4)
-point_b = Vector3(0.0, 1.0, 203.6)
+area_a_path = NodePath("../CrestportBay")
+area_b_path = NodePath("../MarshfenCrossing")
 
-[node name="Ramp_Vale_IronPeak" type="StaticBody3D" parent="."]
+[node name="Edge_Vale_IronPeak" type="StaticBody3D" parent="."]
 script = ExtResource("7")
-point_a = Vector3(423.3, 8.0, 101.9)
-point_b = Vector3(476.7, 40.0, 71.1)
+area_a_path = NodePath("../GreenwoodVale")
+area_b_path = NodePath("../IronpeakRidge")
 
-[node name="Ramp_Vale_Stonehill" type="StaticBody3D" parent="."]
+[node name="Edge_Vale_Stonehill" type="StaticBody3D" parent="."]
 script = ExtResource("7")
-point_a = Vector3(423.3, 8.0, 244.1)
-point_b = Vector3(476.7, 20.0, 274.9)
+area_a_path = NodePath("../GreenwoodVale")
+area_b_path = NodePath("../StonehillPass")
 
-[node name="Ramp_Vale_Verdant" type="StaticBody3D" parent="."]
+[node name="Edge_Vale_Verdant" type="StaticBody3D" parent="."]
 script = ExtResource("7")
-point_a = Vector3(300.0, 8.0, 315.4)
-point_b = Vector3(300.0, 4.0, 376.6)
+area_a_path = NodePath("../GreenwoodVale")
+area_b_path = NodePath("../VerdantReach")
 
-[node name="Ramp_Vale_Marsh" type="StaticBody3D" parent="."]
+[node name="Edge_Vale_Marsh" type="StaticBody3D" parent="."]
 script = ExtResource("7")
-point_a = Vector3(176.7, 8.0, 244.1)
-point_b = Vector3(123.3, 1.0, 274.9)
+area_a_path = NodePath("../GreenwoodVale")
+area_b_path = NodePath("../MarshfenCrossing")
 
-[node name="Ramp_Marsh_Verdant" type="StaticBody3D" parent="."]
+[node name="Edge_Marsh_Verdant" type="StaticBody3D" parent="."]
 script = ExtResource("7")
-point_a = Vector3(123.3, 1.0, 417.1)
-point_b = Vector3(176.7, 4.0, 447.9)
+area_a_path = NodePath("../MarshfenCrossing")
+area_b_path = NodePath("../VerdantReach")
 
-[node name="Ramp_IronPeak_Stonehill" type="StaticBody3D" parent="."]
+[node name="Edge_IronPeak_Stonehill" type="StaticBody3D" parent="."]
 script = ExtResource("7")
-point_a = Vector3(600.0, 40.0, 142.4)
-point_b = Vector3(600.0, 20.0, 203.6)
+area_a_path = NodePath("../IronpeakRidge")
+area_b_path = NodePath("../StonehillPass")
 
-[node name="Ramp_Stonehill_Verdant" type="StaticBody3D" parent="."]
+[node name="Edge_Stonehill_Verdant" type="StaticBody3D" parent="."]
 script = ExtResource("7")
-point_a = Vector3(476.7, 20.0, 417.1)
-point_b = Vector3(423.3, 4.0, 447.9)
+area_a_path = NodePath("../StonehillPass")
+area_b_path = NodePath("../VerdantReach")
