@@ -99,8 +99,6 @@ func _process(delta: float) -> void:
 	if look != 0.0:
 		spring_arm.rotate_x(-look * KEY_TURN_SPEED * delta)
 		spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(-60), deg_to_rad(20))
-	# Keep weapon aligned with character body (not camera)
-	weapon_holder.rotation.y = character_model.rotation.y
 
 
 func _try_interact() -> void:

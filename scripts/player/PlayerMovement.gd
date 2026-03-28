@@ -41,6 +41,12 @@ func _ready() -> void:
 	_survival = _player.survival
 	_camera_pivot = _player.camera_pivot
 	_body_mesh = _player.character_model
+	# Reparent weapon_holder under character_model so it follows body rotation
+	var wh: Node3D = _player.weapon_holder
+	var saved := wh.global_transform
+	wh.reparent(_body_mesh)
+	wh.global_transform = saved
+	wh.position.x = -wh.position.x
 
 
 func _physics_process(delta: float) -> void:
@@ -123,12 +129,12 @@ func _handle_movement(delta: float) -> void:
 	# Injury movement speed
 	speed *= _health.get_movement_speed_multiplier()
 
+	# Body always faces camera forward (A/D strafe)
+	_body_mesh.rotation.y = _camera_pivot.rotation.y + PI
+
 	if direction != Vector3.ZERO:
 		_player.velocity.x = direction.x * speed
 		_player.velocity.z = direction.z * speed
-		# Rotate body mesh to face movement direction (player node stays unrotated)
-		var target_y := atan2(-direction.x, -direction.z) + PI
-		_body_mesh.rotation.y = lerp_angle(_body_mesh.rotation.y, target_y, min(1.0, 10.0 * delta))
 		# Fatigue drain from movement
 		_survival.accumulate_fatigue(GameData.survival_params.get("fatigue", {}).get("drain_per_second_active", 0.003) * delta)
 	else:
