@@ -207,7 +207,8 @@
 | LPC-010 | PC-002 | The player shall have movement states: WALK, SPRINT, CROUCH, SWIM, DISABLED. | T |
 | LPC-011 | PC-003 | SPRINT shall drain stamina at a configurable rate per second. | T |
 | LPC-012 | PC-004 | Default carry weight shall be 50kg. Default max_carry shall be 100kg. Both configurable in JSON. | T |
-| LPC-013 | PC-004 | When total inventory weight is between carry weight and max_carry, the player is over-encumbered: SPRINT disabled, WALK speed reduced by 90%. | T |
+| LPC-013 | PC-004 | When total inventory weight is between carry weight and max_carry, the player is over-encumbered: SPRINT disabled, WALK speed reduced by 60%. | T |
+| LPC-047 | PC-004 | When total inventory weight exceeds max_carry, Walk Speed is reduced by 95%. | T |
 | LPC-014 | PC-002 | Jump shall apply a vertical velocity impulse. | T |
 | LPC-015 | PC-002 | CROUCH shall reduce CollisionShape height and reduce speed. | T |
 | LPC-016 | PC-002 | SWIM shall be triggered by entering a water volume (Area3D). | T |
