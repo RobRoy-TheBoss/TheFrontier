@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://cvx2rgtjn46ld"]
 
 [ext_resource type="PackedScene" uid="uid://ctiis5gsjixnq" path="res://scenes/world/Area.tscn" id="1"]
-[ext_resource type="PackedScene" uid="uid://b45n6suv8pnxt" path="res://scenes/world/CrestportTown.tscn" id="2"]
 [ext_resource type="Script" uid="uid://btgfmh61oylxl" path="res://scripts/world/MonsterSpawner.gd" id="3"]
 [ext_resource type="Script" uid="uid://dnsvktpma82hw" path="res://scripts/world/Bed.gd" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/world/HomeChest.tscn" id="5"]
@@ -58,12 +57,12 @@ shape = SubResource("Shape_marker")
 
 [node name="CrestportBay" parent="." unique_id=1010630643 instance=ExtResource("1")]
 area_id = "0_0_costal1_0"
-biome = "coast"
+biome = "forest"
 area_bounds = Vector3(360, 20, 360)
 
 [node name="HexTerrainLoader" type="Node" parent="CrestportBay" unique_id=344769618]
 script = ExtResource("7")
-terrain_mesh_path = "res://assets/terrain/costal1.glb"
+terrain_mesh_path = "res://assets/terrain/Forest5.glb"
 
 [node name="1_1_Forest1_0" parent="." unique_id=2007538606 instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 0, 519)
@@ -162,6 +161,3 @@ shape = SubResource("Shape_bed")
 
 [node name="HomeChest" parent="." unique_id=488761420 instance=ExtResource("5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 2, -2)
-
-[node name="CrestportTown" parent="." unique_id=740492337 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)

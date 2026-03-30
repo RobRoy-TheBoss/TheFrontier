@@ -20,6 +20,7 @@ func _ready() -> void:
 	var instance = packed.instantiate()
 	terrain_node.add_child(instance)
 	_generate_collision(instance)
+	HexAssetScatterer.scatter(get_parent(), terrain_node)
 
 
 
