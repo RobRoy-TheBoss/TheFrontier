@@ -27,5 +27,7 @@ Thumbs.db
 __pycache__/
 *.pyc
 
-# Claude Code local settings
-.claude/
+# Large installers and temp files
+*.msi
+*.exe
+*.tmp
