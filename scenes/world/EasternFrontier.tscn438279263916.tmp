@@ -57,7 +57,6 @@ surface_material_override/0 = SubResource("Mat_marker")
 shape = SubResource("Shape_marker")
 
 [node name="CrestportBay" parent="." unique_id=1010630643 instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 area_id = "0_0_costal1_0"
 biome = "coast"
 area_bounds = Vector3(360, 20, 360)
@@ -76,85 +75,65 @@ area_bounds = Vector3(360, 20, 360)
 script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest1.glb"
 
-[node name="0_1_Forest2_0" parent="." instance=ExtResource("1")]
+[node name="0_1_Forest2_0" parent="." unique_id=2014220400 instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 346)
 area_id = "0_1_Forest2_0"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
 
-[node name="HexTerrainLoader" type="Node" parent="0_1_Forest2_0"]
+[node name="HexTerrainLoader" type="Node" parent="0_1_Forest2_0" unique_id=669767453]
 script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest2.glb"
 
-[node name="1_0_Forest3_0" parent="." instance=ExtResource("1")]
+[node name="1_0_Forest3_0" parent="." unique_id=1392272014 instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 0, 173)
 area_id = "1_0_Forest3_0"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
 
-[node name="HexTerrainLoader" type="Node" parent="1_0_Forest3_0"]
+[node name="HexTerrainLoader" type="Node" parent="1_0_Forest3_0" unique_id=1970935243]
 script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest3.glb"
 
-[node name="0_-1_Forest4_0" parent="." instance=ExtResource("1")]
+[node name="0_-1_Forest4_0" parent="." unique_id=670679203 instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -346)
 area_id = "0_-1_Forest4_0"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
 
-[node name="HexTerrainLoader" type="Node" parent="0_-1_Forest4_0"]
+[node name="HexTerrainLoader" type="Node" parent="0_-1_Forest4_0" unique_id=1176219932]
 script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest4.glb"
 
-[node name="-1_0_Forest2_0" parent="." instance=ExtResource("1")]
+[node name="-1_0_Forest2_0" parent="." unique_id=610588986 instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 0, 173)
 area_id = "-1_0_Forest2_0"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
 
-[node name="HexTerrainLoader" type="Node" parent="-1_0_Forest2_0"]
+[node name="HexTerrainLoader" type="Node" parent="-1_0_Forest2_0" unique_id=912222316]
 script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest2.glb"
 
-[node name="-1_1_Forest4_0" parent="." instance=ExtResource("1")]
+[node name="-1_1_Forest4_0" parent="." unique_id=1688388643 instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 0, 519)
 area_id = "-1_1_Forest4_0"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
 
-[node name="HexTerrainLoader" type="Node" parent="-1_1_Forest4_0"]
+[node name="HexTerrainLoader" type="Node" parent="-1_1_Forest4_0" unique_id=1492845444]
 script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest4.glb"
 
-[node name="1_2_Forest2_0" parent="." instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 0, 865)
-area_id = "1_2_Forest2_0"
+[node name="2_1_Forest1_0" parent="." unique_id=1837807789 instance=ExtResource("1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 600, 0, 346)
+area_id = "2_1_Forest1_0"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
 
-[node name="HexTerrainLoader" type="Node" parent="1_2_Forest2_0"]
-script = ExtResource("7")
-terrain_mesh_path = "res://assets/terrain/Forest2.glb"
-
-[node name="2_1_Forest1_2" parent="." instance=ExtResource("1")]
-transform = Transform3D(-0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, -0.5, 600, 0, 346)
-area_id = "2_1_Forest1_2"
-biome = "forest"
-area_bounds = Vector3(360, 20, 360)
-
-[node name="HexTerrainLoader" type="Node" parent="2_1_Forest1_2"]
+[node name="HexTerrainLoader" type="Node" parent="2_1_Forest1_0" unique_id=1131047754]
 script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest1.glb"
-
-[node name="2_2_Forest2_4" parent="." instance=ExtResource("1")]
-transform = Transform3D(-0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, -0.5, 600, 0, 692)
-area_id = "2_2_Forest2_4"
-biome = "forest"
-area_bounds = Vector3(360, 20, 360)
-
-[node name="HexTerrainLoader" type="Node" parent="2_2_Forest2_4"]
-script = ExtResource("7")
-terrain_mesh_path = "res://assets/terrain/Forest2.glb"
 
 [node name="DummySpawner" type="Node3D" parent="." unique_id=1669365370]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -8)
