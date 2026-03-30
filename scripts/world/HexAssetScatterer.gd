@@ -14,7 +14,7 @@
 class_name HexAssetScatterer
 extends RefCounted
 
-const HEX_RADIUS := 170.0
+const HEX_RADIUS := 200.0  # circumradius of hex tile (COL_STEP=300 → R=200)
 const GRID_CELL := 20.0   # spatial bucket size in world units
 
 const BIOME_ASSETS := {
@@ -218,12 +218,7 @@ static func _hex_slots(area_world_pos: Vector3, slot_spacing: float) -> Array:
 		for gz in range(-steps, steps + 1):
 			var lx := gx * slot_spacing
 			var lz := gz * slot_spacing
-			if _in_hex(lx, lz):
+			# Broad square pass — _sample_height returning INF is the real boundary filter
+			if absf(lx) <= HEX_RADIUS and absf(lz) <= HEX_RADIUS:
 				slots.append(Vector3(area_world_pos.x + lx, 0.0, area_world_pos.z + lz))
 	return slots
-
-
-static func _in_hex(lx: float, lz: float) -> bool:
-	var q: float = absf(lx)
-	var r: float = absf(lz)
-	return q <= HEX_RADIUS and r <= HEX_RADIUS * 0.866 and (q + r * 1.1547) <= HEX_RADIUS * 1.1547
