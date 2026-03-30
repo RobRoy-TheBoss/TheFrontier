@@ -63,6 +63,7 @@ area_bounds = Vector3(360, 20, 360)
 [node name="HexTerrainLoader" type="Node" parent="CrestportBay" unique_id=344769618]
 script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest5.glb"
+bake_all_areas = true
 
 [node name="1_1_Forest1_0" parent="." unique_id=2007538606 instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 0, 519)
@@ -143,6 +144,16 @@ area_bounds = Vector3(360, 20, 360)
 [node name="HexTerrainLoader" type="Node" parent="2_2_Forest2_4" unique_id=1314375065]
 script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest2.glb"
+
+[node name="1_3_Forest6_0" parent="." unique_id=387264901 instance=ExtResource("1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 0, 1211)
+area_id = "1_3_Forest6_0"
+biome = "forest"
+area_bounds = Vector3(360, 20, 360)
+
+[node name="HexTerrainLoader" type="Node" parent="1_3_Forest6_0" unique_id=512837046]
+script = ExtResource("7")
+terrain_mesh_path = "res://assets/terrain/Forest6.glb"
 
 [node name="DummySpawner" type="Node3D" parent="." unique_id=1669365370]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -8)

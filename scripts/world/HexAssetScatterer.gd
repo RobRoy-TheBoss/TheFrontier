@@ -83,7 +83,6 @@ static func scatter(area: Node3D, parent_node: Node3D) -> void:
 	var triangles := _collect_triangles(parent_node)
 	if triangles.is_empty():
 		return
-	# Build spatial grid once per area — avoids O(n_tris) scan per slot
 	var grid := _build_grid(triangles)
 
 	var rng := RandomNumberGenerator.new()
@@ -93,7 +92,6 @@ static func scatter(area: Node3D, parent_node: Node3D) -> void:
 	var slots := _hex_slots(pos, slot_spacing)
 
 	for slot in slots:
-		# Jitter each slot so placement looks organic, not grid-based
 		var jx: float = (rng.randf() - 0.5) * slot_spacing
 		var jz: float = (rng.randf() - 0.5) * slot_spacing
 		var candidate := Vector3(slot.x + jx, 0.0, slot.z + jz)
