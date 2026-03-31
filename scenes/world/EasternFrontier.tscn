@@ -63,7 +63,6 @@ area_bounds = Vector3(360, 20, 360)
 [node name="HexTerrainLoader" type="Node" parent="CrestportBay" unique_id=344769618]
 script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest5.glb"
-bake_all_areas = true
 
 [node name="1_1_Forest1_0" parent="." unique_id=2007538606 instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 0, 519)

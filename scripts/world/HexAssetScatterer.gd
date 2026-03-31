@@ -73,16 +73,30 @@ const BIOME_ASSETS := {
 
 
 static func scatter(area: Node3D, parent_node: Node3D) -> void:
+	for entry in scatter_dry_run(area, parent_node):
+		var packed := load(entry["path"]) as PackedScene
+		if packed == null:
+			continue
+		var p: Array = entry["pos"]
+		var inst := packed.instantiate()
+		inst.position = Vector3(p[0], p[1], p[2])
+		inst.rotation.y = entry["rot_y"]
+		parent_node.add_child(inst)
+
+
+# Returns [{path, pos:[x,y,z], rot_y}, ...] in parent_node local space.
+# Used by scatter() at runtime and by HexTerrainLoader._bake() in the editor.
+static func scatter_dry_run(area: Node3D, parent_node: Node3D) -> Array:
 	var biome := area.get("biome") as String if area.get("biome") is String else ""
 	var biome_data: Dictionary = BIOME_ASSETS.get(biome, {})
 	if biome_data.is_empty():
-		return
+		return []
 	var asset_list: Array = biome_data["assets"]
 	var slot_spacing: float = biome_data["slot_spacing"]
 
 	var triangles := _collect_triangles(parent_node)
 	if triangles.is_empty():
-		return
+		return []
 	var grid := _build_grid(triangles)
 
 	var rng := RandomNumberGenerator.new()
@@ -90,6 +104,7 @@ static func scatter(area: Node3D, parent_node: Node3D) -> void:
 	rng.seed = int(abs(pos.x) * 73 + abs(pos.z) * 137)
 
 	var slots := _hex_slots(pos, slot_spacing)
+	var results: Array = []
 
 	for slot in slots:
 		var jx: float = (rng.randf() - 0.5) * slot_spacing
@@ -102,14 +117,15 @@ static func scatter(area: Node3D, parent_node: Node3D) -> void:
 			var y := _sample_height(triangles, grid, candidate)
 			if y == INF:
 				continue
-			var packed := load(asset_def["path"]) as PackedScene
-			if packed == null:
-				continue
-			var instance := packed.instantiate()
-			instance.position = parent_node.to_local(Vector3(candidate.x, y, candidate.z))
-			instance.rotate_y(rng.randf() * TAU)
-			parent_node.add_child(instance)
+			var local_pos := parent_node.to_local(Vector3(candidate.x, y, candidate.z))
+			results.append({
+				"path": asset_def["path"],
+				"pos": [local_pos.x, local_pos.y, local_pos.z],
+				"rot_y": rng.randf() * TAU,
+			})
 			break  # one asset per slot
+
+	return results
 
 
 # Build a flat array of world-space triangle vertices (3 consecutive = 1 triangle)

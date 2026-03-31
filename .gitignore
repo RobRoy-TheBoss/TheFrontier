@@ -27,6 +27,9 @@ Thumbs.db
 __pycache__/
 *.pyc
 
+# Baked scatter data (regenerate via HexTerrainLoader inspector)
+data/scatter/
+
 # Large installers and temp files
 *.msi
 *.exe
