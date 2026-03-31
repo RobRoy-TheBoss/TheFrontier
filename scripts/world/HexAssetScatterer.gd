@@ -18,57 +18,58 @@ extends RefCounted
 const HEX_RADIUS := 200.0  # circumradius of hex tile (COL_STEP=300 → R=200)
 const GRID_CELL := 20.0    # spatial bucket size in world units
 const MIN_SLOPE_DOT := 0.7 # dot(normal, UP) minimum — 1.0=flat, 0.0=vertical; 0.7 ≈ 45°
+const WATER_LEVEL := 8.5   # world Y — no assets placed at or below this height
 
 const BIOME_ASSETS := {
 	"forest": {
 		"slot_spacing": 5.0,
 		"assets": [
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree.glb",            "density": 0.5 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree-high.glb",       "density": 0.5 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree-crooked.glb",    "density": 0.5 },
-			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-large.glb",    "density": 0.02 },
-			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-shrub.glb",    "density": 0.01 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.01 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree.glb",            "density": 0.5,  "scale": 2.0 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree-high.glb",       "density": 0.5,  "scale": 2.0 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree-crooked.glb",    "density": 0.5,  "scale": 2.0 },
+			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-large.glb",    "density": 0.02, "scale": 2.0 },
+			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-shrub.glb",    "density": 0.01, "scale": 2.0 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.01, "scale": 1.0 },
 		],
 	},
 	"coast": {
 		"slot_spacing": 40.0,
 		"assets": [
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-large.glb",      "density": 0.08 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.12 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-wide.glb",       "density": 0.06 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-large.glb",      "density": 0.08, "scale": 1.0 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.12, "scale": 1.0 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-wide.glb",       "density": 0.06, "scale": 1.0 },
 		],
 	},
 	"mountain": {
 		"slot_spacing": 35.0,
 		"assets": [
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-large.glb",      "density": 0.20 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-wide.glb",       "density": 0.15 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.15 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-large.glb",      "density": 0.20, "scale": 1.0 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-wide.glb",       "density": 0.15, "scale": 1.0 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.15, "scale": 1.0 },
 		],
 	},
 	"mountain_pass": {
 		"slot_spacing": 40.0,
 		"assets": [
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-large.glb",      "density": 0.10 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.10 },
-			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-shrub.glb",    "density": 0.08 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-large.glb",      "density": 0.10, "scale": 1.0 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.10, "scale": 1.0 },
+			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-shrub.glb",    "density": 0.08, "scale": 2.0 },
 		],
 	},
 	"swamp": {
 		"slot_spacing": 25.0,
 		"assets": [
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree-crooked.glb",    "density": 0.25 },
-			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-shrub.glb",    "density": 0.15 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.05 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree-crooked.glb",    "density": 0.25, "scale": 2.0 },
+			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-shrub.glb",    "density": 0.15, "scale": 2.0 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.05, "scale": 1.0 },
 		],
 	},
 	"plains": {
 		"slot_spacing": 50.0,
 		"assets": [
-			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-shrub.glb",    "density": 0.08 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.04 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree.glb",            "density": 0.05 },
+			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-shrub.glb",    "density": 0.08, "scale": 2.0 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.04, "scale": 1.0 },
+			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree.glb",            "density": 0.05, "scale": 2.0 },
 		],
 	},
 }
@@ -83,6 +84,8 @@ static func scatter(area: Node3D, parent_node: Node3D) -> void:
 		var inst := packed.instantiate()
 		inst.position = Vector3(p[0], p[1], p[2])
 		inst.rotation.y = entry["rot_y"]
+		var s: float = entry.get("scale", 1.0)
+		inst.scale = Vector3(s, s, s)
 		parent_node.add_child(inst)
 
 
@@ -108,17 +111,36 @@ static func scatter_dry_run(area: Node3D, parent_node: Node3D) -> Array:
 	rng.seed = int(abs(pos.x) * 73 + abs(pos.z) * 137)
 
 	var slots := _hex_slots(pos, slot_spacing)
+	var excludes: Array = area.get_tree().get_nodes_in_group("scatter_exclude") if area.is_inside_tree() else []
 	var results: Array = []
+	var dbg_no_hit := 0; var dbg_excluded := 0; var dbg_water_y := 0; var dbg_water_color := 0
 
 	for slot in slots:
 		var jx: float = (rng.randf() - 0.5) * slot_spacing
 		var jz: float = (rng.randf() - 0.5) * slot_spacing
 		var candidate := Vector3(slot.x + jx, 0.0, slot.z + jz)
 
+		var excluded := false
+		for ex in excludes:
+			var ep: Vector3 = ex.global_position
+			var dx: float = candidate.x - ep.x
+			var dz: float = candidate.z - ep.z
+			if dx * dx + dz * dz < ex.radius * ex.radius:
+				excluded = true
+				break
+		if excluded:
+			dbg_excluded += 1
+			continue
+
 		var hit := _sample_surface(tris, uvs, tri_images, grid, candidate)
 		if hit.is_empty():
+			dbg_no_hit += 1
+			continue
+		if hit["y"] <= WATER_LEVEL:
+			dbg_water_y += 1
 			continue
 		if _is_water(hit["color"]):
+			dbg_water_color += 1
 			continue
 
 		for asset_def in asset_list:
@@ -129,9 +151,12 @@ static func scatter_dry_run(area: Node3D, parent_node: Node3D) -> Array:
 				"path": asset_def["path"],
 				"pos": [local_pos.x, local_pos.y, local_pos.z],
 				"rot_y": rng.randf() * TAU,
+				"scale": asset_def.get("scale", 1.0),
 			})
 			break  # one asset per slot
 
+	print("HexAssetScatterer [%s]: slots=%d excluded=%d no_hit=%d water_y=%d water_color=%d placed=%d" % [
+		area.name, slots.size(), dbg_excluded, dbg_no_hit, dbg_water_y, dbg_water_color, results.size()])
 	return results
 
 

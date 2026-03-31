@@ -6,6 +6,16 @@
 [ext_resource type="PackedScene" path="res://scenes/world/HomeChest.tscn" id="5"]
 [ext_resource type="Script" uid="uid://cjthnncc17ghn" path="res://scripts/world/HexTerrainLoader.gd" id="7"]
 
+[sub_resource type="PlaneMesh" id="Mesh_water"]
+size = Vector2(6000, 6000)
+
+[sub_resource type="StandardMaterial3D" id="Mat_water"]
+transparency = 1
+albedo_color = Color(0.08, 0.35, 0.65, 0.75)
+metallic = 0.2
+roughness = 0.05
+uv1_scale = Vector3(20, 20, 1)
+
 [sub_resource type="BoxMesh" id="Mesh_boundary"]
 size = Vector3(3000, 1, 3000)
 
@@ -34,6 +44,11 @@ albedo_color = Color(0.45, 0.3, 0.18, 1)
 size = Vector3(1, 1.2, 2)
 
 [node name="EasternFrontier" type="Node3D" unique_id=860460584]
+
+[node name="Water" type="MeshInstance3D" parent="." unique_id=112847392]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 8.5, 400)
+mesh = SubResource("Mesh_water")
+surface_material_override/0 = SubResource("Mat_water")
 
 [node name="WorldBoundary" type="StaticBody3D" parent="." unique_id=776133693]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, -2.5, 260)

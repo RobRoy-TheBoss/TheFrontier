@@ -159,8 +159,9 @@ func _load_baked(terrain_node: Node, path: String) -> void:
 			for i in range(entries.size()):
 				var e: Dictionary = entries[i]
 				var p: Array = e["pos"]
+				var s: float = float(e.get("scale", 1.0))
 				mm.set_instance_transform(i, Transform3D(
-					Basis(Vector3.UP, float(e["rot_y"])),
+					Basis(Vector3.UP, float(e["rot_y"])).scaled(Vector3(s, s, s)),
 					Vector3(float(p[0]), float(p[1]), float(p[2]))
 				))
 			var mmi := MultiMeshInstance3D.new()
