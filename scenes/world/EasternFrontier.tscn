@@ -56,16 +56,18 @@ surface_material_override/0 = SubResource("Mat_marker")
 shape = SubResource("Shape_marker")
 
 [node name="CrestportBay" parent="." unique_id=1010630643 instance=ExtResource("1")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 10, 0)
 area_id = "0_0_costal1_0"
+is_deep_water_port = true
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
 
 [node name="HexTerrainLoader" type="Node" parent="CrestportBay" unique_id=344769618]
 script = ExtResource("7")
-terrain_mesh_path = "res://assets/terrain/Forest5.glb"
+terrain_mesh_path = "res://assets/terrain/costal2.glb"
 
 [node name="1_1_Forest1_0" parent="." unique_id=2007538606 instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 0, 519)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 10, 519)
 area_id = "1_1_Forest1_0"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
@@ -75,7 +77,7 @@ script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest1.glb"
 
 [node name="0_1_Forest2_0" parent="." unique_id=1886833069 instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 346)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 346)
 area_id = "0_1_Forest2_0"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
@@ -85,7 +87,7 @@ script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest2.glb"
 
 [node name="1_0_Forest3_0" parent="." unique_id=526154894 instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 0, 173)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 10, 173)
 area_id = "1_0_Forest3_0"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
@@ -95,7 +97,7 @@ script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest3.glb"
 
 [node name="-1_0_Forest2_0" parent="." unique_id=801584062 instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 0, 173)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 10, 173)
 area_id = "-1_0_Forest2_0"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
@@ -105,7 +107,7 @@ script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest2.glb"
 
 [node name="-1_1_Forest4_0" parent="." unique_id=1721002864 instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 0, 519)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300, 10, 519)
 area_id = "-1_1_Forest4_0"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
@@ -115,7 +117,7 @@ script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest4.glb"
 
 [node name="1_2_Forest2_0" parent="." unique_id=2110139960 instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 0, 865)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 10, 865)
 area_id = "1_2_Forest2_0"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
@@ -125,7 +127,7 @@ script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest2.glb"
 
 [node name="2_1_Forest1_2" parent="." unique_id=1311079622 instance=ExtResource("1")]
-transform = Transform3D(-0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, -0.5, 600, 0, 346)
+transform = Transform3D(-0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, -0.5, 600, 10, 346)
 area_id = "2_1_Forest1_2"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
@@ -135,7 +137,7 @@ script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest1.glb"
 
 [node name="2_2_Forest2_4" parent="." unique_id=826191248 instance=ExtResource("1")]
-transform = Transform3D(-0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, -0.5, 600, 0, 692)
+transform = Transform3D(-0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, -0.5, 600, 10, 692)
 area_id = "2_2_Forest2_4"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)
@@ -145,7 +147,7 @@ script = ExtResource("7")
 terrain_mesh_path = "res://assets/terrain/Forest2.glb"
 
 [node name="1_3_Forest6_0" parent="." unique_id=387264901 instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 0, 1211)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 10, 1211)
 area_id = "1_3_Forest6_0"
 biome = "forest"
 area_bounds = Vector3(360, 20, 360)

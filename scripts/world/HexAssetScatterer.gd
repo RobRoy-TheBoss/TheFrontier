@@ -1,21 +1,23 @@
 ## HexAssetScatterer
 ## Procedurally scatters assets across a hex terrain tile using direct mesh sampling.
-## Called by HexTerrainLoader after the terrain mesh is added to the scene.
+## Placement is filtered by terrain texture colour — blue-dominant pixels (water)
+## are skipped so assets only appear on land.
 ##
 ## Assets are placed by:
 ##   1. Generating jittered candidate points within the hex boundary
 ##   2. Looking up the terrain triangle under each point via a spatial grid
-##   3. Interpolating the Y height from that triangle
-##   4. Instantiating the asset at that position with a random Y rotation
+##   3. Interpolating Y height and UV from barycentric coords
+##   4. Sampling the terrain texture; skipping if the pixel is water-coloured
+##   5. Writing {path, pos, rot_y} for the caller to instantiate
 ##
-## No physics raycasts are used — height is read directly from mesh geometry.
 ## Density is per-asset: 1.0 = one asset per slot, 0.1 = 10% chance per slot.
 ## Seeded by area world position for determinism.
 class_name HexAssetScatterer
 extends RefCounted
 
 const HEX_RADIUS := 200.0  # circumradius of hex tile (COL_STEP=300 → R=200)
-const GRID_CELL := 20.0   # spatial bucket size in world units
+const GRID_CELL := 20.0    # spatial bucket size in world units
+const MIN_SLOPE_DOT := 0.7 # dot(normal, UP) minimum — 1.0=flat, 0.0=vertical; 0.7 ≈ 45°
 
 const BIOME_ASSETS := {
 	"forest": {
@@ -85,7 +87,6 @@ static func scatter(area: Node3D, parent_node: Node3D) -> void:
 
 
 # Returns [{path, pos:[x,y,z], rot_y}, ...] in parent_node local space.
-# Used by scatter() at runtime and by HexTerrainLoader._bake() in the editor.
 static func scatter_dry_run(area: Node3D, parent_node: Node3D) -> Array:
 	var biome := area.get("biome") as String if area.get("biome") is String else ""
 	var biome_data: Dictionary = BIOME_ASSETS.get(biome, {})
@@ -94,10 +95,13 @@ static func scatter_dry_run(area: Node3D, parent_node: Node3D) -> Array:
 	var asset_list: Array = biome_data["assets"]
 	var slot_spacing: float = biome_data["slot_spacing"]
 
-	var triangles := _collect_triangles(parent_node)
-	if triangles.is_empty():
+	var mesh_data := _collect_mesh_data(parent_node)
+	var tris: PackedVector3Array = mesh_data["tris"]
+	if tris.is_empty():
 		return []
-	var grid := _build_grid(triangles)
+	var uvs: PackedVector2Array   = mesh_data["uvs"]
+	var tri_images: Array         = mesh_data["tri_images"]
+	var grid := _build_grid(tris)
 
 	var rng := RandomNumberGenerator.new()
 	var pos := area.global_position
@@ -111,13 +115,16 @@ static func scatter_dry_run(area: Node3D, parent_node: Node3D) -> Array:
 		var jz: float = (rng.randf() - 0.5) * slot_spacing
 		var candidate := Vector3(slot.x + jx, 0.0, slot.z + jz)
 
+		var hit := _sample_surface(tris, uvs, tri_images, grid, candidate)
+		if hit.is_empty():
+			continue
+		if _is_water(hit["color"]):
+			continue
+
 		for asset_def in asset_list:
 			if rng.randf() > asset_def["density"]:
 				continue
-			var y := _sample_height(triangles, grid, candidate)
-			if y == INF:
-				continue
-			var local_pos := parent_node.to_local(Vector3(candidate.x, y, candidate.z))
+			var local_pos := parent_node.to_local(Vector3(candidate.x, hit["y"], candidate.z))
 			results.append({
 				"path": asset_def["path"],
 				"pos": [local_pos.x, local_pos.y, local_pos.z],
@@ -128,9 +135,17 @@ static func scatter_dry_run(area: Node3D, parent_node: Node3D) -> Array:
 	return results
 
 
-# Build a flat array of world-space triangle vertices (3 consecutive = 1 triangle)
-static func _collect_triangles(root: Node) -> PackedVector3Array:
+# ---------------------------------------------------------------------------
+# Mesh data collection
+# ---------------------------------------------------------------------------
+
+# Returns {tris, uvs, tri_images} — all parallel: 3 entries per triangle in
+# tris/uvs, one entry per triangle in tri_images (Image or null).
+static func _collect_mesh_data(root: Node) -> Dictionary:
 	var tris := PackedVector3Array()
+	var uvs  := PackedVector2Array()
+	var tri_images: Array = []
+
 	for mi: MeshInstance3D in _all_mesh_instances(root):
 		var mesh := mi.mesh
 		if mesh == null:
@@ -141,28 +156,106 @@ static func _collect_triangles(root: Node) -> PackedVector3Array:
 			if arrays.is_empty():
 				continue
 			var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+			var uv_raw = arrays[Mesh.ARRAY_TEX_UV]
+			var has_uv := uv_raw is PackedVector2Array and (uv_raw as PackedVector2Array).size() == verts.size()
+			var uv_arr: PackedVector2Array = uv_raw if has_uv else PackedVector2Array()
 			var indices = arrays[Mesh.ARRAY_INDEX]
-			if indices == null or (indices is PackedInt32Array and indices.size() == 0):
-				# Unindexed — vertices are already sequential triangles
+
+			# Grab albedo texture image for this surface
+			var image: Image = null
+			var mat = mi.get_surface_override_material(surf)
+			if mat == null:
+				mat = mesh.surface_get_material(surf)
+			if mat is BaseMaterial3D:
+				var tex := (mat as BaseMaterial3D).albedo_texture
+				if tex != null:
+					image = tex.get_image()
+					if image != null and image.is_compressed():
+						image = image.duplicate()
+						image.decompress()
+
+			if indices == null or (indices is PackedInt32Array and (indices as PackedInt32Array).size() == 0):
 				var vi := 0
 				while vi + 2 < verts.size():
-					tris.append(gt * verts[vi])
-					tris.append(gt * verts[vi + 1])
-					tris.append(gt * verts[vi + 2])
+					tris.append(gt * verts[vi]);      tris.append(gt * verts[vi + 1]);      tris.append(gt * verts[vi + 2])
+					uvs.append(uv_arr[vi] if has_uv else Vector2.ZERO)
+					uvs.append(uv_arr[vi + 1] if has_uv else Vector2.ZERO)
+					uvs.append(uv_arr[vi + 2] if has_uv else Vector2.ZERO)
+					tri_images.append(image)
 					vi += 3
 			else:
 				var idx := indices as PackedInt32Array
 				var ii := 0
 				while ii + 2 < idx.size():
-					tris.append(gt * verts[idx[ii]])
-					tris.append(gt * verts[idx[ii + 1]])
-					tris.append(gt * verts[idx[ii + 2]])
+					tris.append(gt * verts[idx[ii]]); tris.append(gt * verts[idx[ii+1]]); tris.append(gt * verts[idx[ii+2]])
+					uvs.append(uv_arr[idx[ii]]     if has_uv else Vector2.ZERO)
+					uvs.append(uv_arr[idx[ii + 1]] if has_uv else Vector2.ZERO)
+					uvs.append(uv_arr[idx[ii + 2]] if has_uv else Vector2.ZERO)
+					tri_images.append(image)
 					ii += 3
-	return tris
+
+	return {"tris": tris, "uvs": uvs, "tri_images": tri_images}
 
 
-# Build a spatial grid: Vector2i cell → Array of triangle start indices.
-# Each triangle is registered in every cell its XZ bounding box overlaps.
+# ---------------------------------------------------------------------------
+# Surface sampling
+# ---------------------------------------------------------------------------
+
+# Returns {y, color} for the first triangle covering world_xz, or {} if none.
+static func _sample_surface(tris: PackedVector3Array, uvs: PackedVector2Array,
+		tri_images: Array, grid: Dictionary, world_xz: Vector3) -> Dictionary:
+	var cx := floori(world_xz.x / GRID_CELL)
+	var cz := floori(world_xz.z / GRID_CELL)
+	var key := Vector2i(cx, cz)
+	if not grid.has(key):
+		return {}
+	for idx: int in grid[key]:
+		var a := tris[idx]; var b := tris[idx + 1]; var c := tris[idx + 2]
+		var bary := _bary2d(a, b, c, world_xz.x, world_xz.z)
+		if bary.x < 0.0:
+			continue
+		# Skip near-vertical surfaces
+		var normal := (b - a).cross(c - a).normalized()
+		if absf(normal.y) < MIN_SLOPE_DOT:
+			continue
+		var y: float = bary.x * a.y + bary.y * b.y + bary.z * c.y
+		var uv: Vector2 = bary.x * uvs[idx] + bary.y * uvs[idx + 1] + bary.z * uvs[idx + 2]
+		var image: Image = tri_images[idx / 3]
+		var color := _sample_image(image, uv) if image != null else Color.WHITE
+		return {"y": y, "color": color}
+	return {}
+
+
+# Barycentric coords in XZ. Returns Vector3(-1,0,0) if point is outside triangle.
+static func _bary2d(a: Vector3, b: Vector3, c: Vector3, px: float, pz: float) -> Vector3:
+	var denom: float = (b.z - c.z) * (a.x - c.x) + (c.x - b.x) * (a.z - c.z)
+	if absf(denom) < 1e-6:
+		return Vector3(-1, 0, 0)
+	var u: float = ((b.z - c.z) * (px - c.x) + (c.x - b.x) * (pz - c.z)) / denom
+	var v: float = ((c.z - a.z) * (px - c.x) + (a.x - c.x) * (pz - c.z)) / denom
+	var w: float = 1.0 - u - v
+	if u < 0.0 or v < 0.0 or w < 0.0:
+		return Vector3(-1, 0, 0)
+	return Vector3(u, v, w)
+
+
+static func _sample_image(image: Image, uv: Vector2) -> Color:
+	var w := image.get_width()
+	var h := image.get_height()
+	var px := posmod(int(uv.x * w), w)
+	var py := posmod(int(uv.y * h), h)
+	return image.get_pixel(px, py)
+
+
+# True if blue clearly dominates — indicates water/ocean painted area.
+static func _is_water(color: Color) -> bool:
+	return color.b > color.r + 0.15 and color.b > color.g + 0.1
+
+
+# ---------------------------------------------------------------------------
+# Spatial grid
+# ---------------------------------------------------------------------------
+
 static func _build_grid(triangles: PackedVector3Array) -> Dictionary:
 	var grid := {}
 	var i := 0
@@ -188,33 +281,9 @@ static func _build_grid(triangles: PackedVector3Array) -> Dictionary:
 	return grid
 
 
-# Return the interpolated world Y at (world_xz.x, ?, world_xz.z) using the spatial grid,
-# or INF if no triangle covers that XZ position.
-static func _sample_height(triangles: PackedVector3Array, grid: Dictionary, world_xz: Vector3) -> float:
-	var cx := floori(world_xz.x / GRID_CELL)
-	var cz := floori(world_xz.z / GRID_CELL)
-	var key := Vector2i(cx, cz)
-	if not grid.has(key):
-		return INF
-	for idx: int in grid[key]:
-		var y := _triangle_y_at(triangles[idx], triangles[idx + 1], triangles[idx + 2], world_xz.x, world_xz.z)
-		if y != INF:
-			return y
-	return INF
-
-
-# Barycentric test + interpolation in XZ. Returns INF if point is outside triangle.
-static func _triangle_y_at(a: Vector3, b: Vector3, c: Vector3, px: float, pz: float) -> float:
-	var denom: float = (b.z - c.z) * (a.x - c.x) + (c.x - b.x) * (a.z - c.z)
-	if absf(denom) < 1e-6:
-		return INF
-	var u: float = ((b.z - c.z) * (px - c.x) + (c.x - b.x) * (pz - c.z)) / denom
-	var v: float = ((c.z - a.z) * (px - c.x) + (a.x - c.x) * (pz - c.z)) / denom
-	var w: float = 1.0 - u - v
-	if u < 0.0 or v < 0.0 or w < 0.0:
-		return INF
-	return u * a.y + v * b.y + w * c.y
-
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
 static func _all_mesh_instances(node: Node) -> Array:
 	var result := []
@@ -232,7 +301,6 @@ static func _hex_slots(area_world_pos: Vector3, slot_spacing: float) -> Array:
 		for gz in range(-steps, steps + 1):
 			var lx := gx * slot_spacing
 			var lz := gz * slot_spacing
-			# Broad square pass — _sample_height returning INF is the real boundary filter
 			if absf(lx) <= HEX_RADIUS and absf(lz) <= HEX_RADIUS:
 				slots.append(Vector3(area_world_pos.x + lx, 0.0, area_world_pos.z + lz))
 	return slots
