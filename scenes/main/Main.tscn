@@ -54,7 +54,7 @@ environment = SubResource("Environment_u7tt4")
 [node name="EasternFrontier" parent="World" unique_id=101846306 instance=ExtResource("26")]
 
 [node name="Player" parent="World" unique_id=1764318578 instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11, 0)
 
 [node name="Crestport" parent="World" unique_id=336304502 instance=ExtResource("2")]
 

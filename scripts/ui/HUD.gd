@@ -40,6 +40,9 @@ func _process(delta: float) -> void:
 	_update_compass()
 	if _debug_area_label:
 		_debug_area_label.text = "[AREA] %s" % GameState.current_area_id
+	if _debug_pos_label and _player:
+		var p: Vector3 = _player.global_position
+		_debug_pos_label.text = "[POS] %.1f, %.1f, %.1f" % [p.x, p.y, p.z]
 
 
 func _on_health_changed(current: float, maximum: float) -> void:
@@ -136,8 +139,19 @@ func _on_save_failed(reason: String) -> void:
 var _debug_label: Label = null
 var _debug_last_hit: float = 0.0
 var _debug_area_label: Label = null
+var _debug_pos_label: Label = null
 
 func _debug_setup() -> void:
+	_debug_pos_label = Label.new()
+	_debug_pos_label.name = "DebugPosLabel"
+	_debug_pos_label.position = Vector2(12, -64)
+	_debug_pos_label.anchor_bottom = 1.0
+	_debug_pos_label.anchor_top = 1.0
+	_debug_pos_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_debug_pos_label.add_theme_color_override("font_color", Color(0.4, 1.0, 1.0))
+	_debug_pos_label.add_theme_font_size_override("font_size", 14)
+	add_child(_debug_pos_label)
+
 	_debug_area_label = Label.new()
 	_debug_area_label.name = "DebugAreaLabel"
 	_debug_area_label.position = Vector2(12, -48)
