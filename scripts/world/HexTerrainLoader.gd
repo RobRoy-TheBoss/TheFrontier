@@ -119,8 +119,9 @@ func _clear() -> void:
 
 
 func _bake_path() -> String:
-	var area_id = get_parent().get("area_id")
-	return "res://data/scatter/%s.json" % (area_id if area_id is String else get_parent().name)
+	if terrain_mesh_path != "":
+		return "res://data/scatter/%s.json" % terrain_mesh_path.get_file().get_basename()
+	return "res://data/scatter/%s.json" % get_parent().name
 
 
 func _load_baked(terrain_node: Node, path: String) -> void:
