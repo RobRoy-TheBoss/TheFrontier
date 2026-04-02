@@ -22,13 +22,13 @@ const TERRAIN_LOADER_SCRIPT := preload("res://scripts/world/HexTerrainLoader.gd"
 	set(v):
 		bake_all_areas = false
 		if v:
-			_do_bake_all()
+			call_deferred(&"_do_bake_all")
 
 @export var clear_all_bakes: bool = false:
 	set(v):
 		clear_all_bakes = false
 		if v:
-			_do_clear_all()
+			call_deferred(&"_do_clear_all")
 
 func _do_bake_all() -> void:
 	for area in get_children():
