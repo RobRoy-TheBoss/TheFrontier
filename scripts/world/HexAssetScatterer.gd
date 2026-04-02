@@ -15,10 +15,12 @@
 class_name HexAssetScatterer
 extends RefCounted
 
-const HEX_RADIUS := 200.0  # circumradius of hex tile (COL_STEP=300 → R=200)
-const GRID_CELL := 20.0    # spatial bucket size in world units
-const MIN_SLOPE_DOT := 0.7 # dot(normal, UP) minimum — 1.0=flat, 0.0=vertical; 0.7 ≈ 45°
-const WATER_LEVEL := 8.5   # world Y — no assets placed at or below this height
+const HEX_RADIUS := 200.0       # circumradius of hex tile (COL_STEP=300 → R=200)
+const GRID_CELL := 20.0         # spatial bucket size in world units
+const MIN_SLOPE_DOT := 0.7      # dot(normal, UP) minimum — 1.0=flat, 0.0=vertical; 0.7 ≈ 45°
+const WATER_LEVEL := 8.5        # world Y — no assets placed at or below this height
+const HILLTOP_THRESHOLD := 8.0  # within this many metres of the peak = hilltop zone
+const HILLTOP_THIN_CHANCE := 0.5 # probability of skipping a tree in the hilltop zone
 
 const BIOME_ASSETS := {
 	"forest": {
@@ -112,9 +114,11 @@ static func scatter_dry_run(area: Node3D, parent_node: Node3D) -> Array:
 
 	var slots := _hex_slots(pos, slot_spacing)
 	var excludes: Array = area.get_tree().get_nodes_in_group("scatter_exclude") if area.is_inside_tree() else []
-	var results: Array = []
 	var dbg_no_hit := 0; var dbg_excluded := 0; var dbg_water_y := 0; var dbg_water_color := 0
 
+	# Pass 1: collect valid candidates and find max Y (for hilltop thinning)
+	var valid: Array = []  # [{candidate: Vector3, hit: Dictionary}]
+	var max_y := -INF
 	for slot in slots:
 		var jx: float = (rng.randf() - 0.5) * slot_spacing
 		var jz: float = (rng.randf() - 0.5) * slot_spacing
@@ -142,6 +146,21 @@ static func scatter_dry_run(area: Node3D, parent_node: Node3D) -> Array:
 		if _is_water(hit["color"]):
 			dbg_water_color += 1
 			continue
+
+		valid.append({"candidate": candidate, "hit": hit})
+		if hit["y"] > max_y:
+			max_y = hit["y"]
+
+	# Pass 2: place assets, thinning hilltop zone for forest biome
+	var results: Array = []
+	var hilltop_biome := biome == "forest"
+	for entry in valid:
+		var candidate: Vector3 = entry["candidate"]
+		var hit: Dictionary = entry["hit"]
+
+		if hilltop_biome and hit["y"] >= max_y - HILLTOP_THRESHOLD:
+			if rng.randf() < HILLTOP_THIN_CHANCE:
+				continue
 
 		for asset_def in asset_list:
 			if rng.randf() > asset_def["density"]:
