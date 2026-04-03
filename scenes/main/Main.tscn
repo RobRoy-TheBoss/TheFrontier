@@ -38,6 +38,17 @@ sky_material = SubResource("ProceduralSkyMaterial_n12rl")
 background_mode = 2
 sky = SubResource("Sky_0cxqb")
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_map_panel"]
+bg_color = Color(0.267, 0.251, 0.145, 1.0)
+border_width_left = 0
+border_width_top = 0
+border_width_right = 0
+border_width_bottom = 0
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [node name="Main" type="Node" unique_id=1766299531]
 
 [node name="World" type="Node3D" parent="." unique_id=404553729]

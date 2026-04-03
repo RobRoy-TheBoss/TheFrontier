@@ -35,6 +35,9 @@ func _draw() -> void:
 	var scale_factor := _compute_scale()
 	var offset       := _compute_offset(scale_factor)
 
+	var font := ThemeDB.fallback_font
+	var font_size := 11
+
 	for entry in tile_entries:
 		if not entry.get("discovered", false):
 			continue
@@ -44,7 +47,7 @@ func _draw() -> void:
 		var tex := _get_tile_texture(mesh)
 		if tex != null:
 			var rot := deg_to_rad(entry.get("facing", 0) * 60.0)
-			var rd := r * 1.08  # 4% overdraw closes sub-pixel gaps between adjacent tiles
+			var rd := r * 1.09  # 4% overdraw closes sub-pixel gaps between adjacent tiles
 			draw_set_transform(center, rot)
 			draw_texture_rect(tex, Rect2(Vector2(-rd, -rd), Vector2(rd * 2.0, rd * 2.0)), false)
 			draw_set_transform(Vector2.ZERO, 0.0)
@@ -53,6 +56,11 @@ func _draw() -> void:
 			draw_colored_polygon(_hex_points(center, r), color)
 			draw_polyline(_hex_points(center, r) + PackedVector2Array([_hex_points(center, r)[0]]),
 				color.darkened(0.3), 1.5)
+
+		var label := "%d,%d" % [entry["col"], entry["row"]]
+		var text_size := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
+		draw_string(font, center - text_size * 0.5, label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size,
+			Color(1.0, 1.0, 1.0, 0.75))
 
 
 func _get_tile_texture(mesh: String) -> Texture2D:

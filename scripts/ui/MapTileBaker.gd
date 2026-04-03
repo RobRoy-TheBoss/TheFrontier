@@ -15,17 +15,16 @@ extends Node
 		if v:
 			call_deferred(&"_bake_all")
 
-const TILE_SIZE     := Vector2i(256, 256)
-const CAM_HEIGHT    := 300.0
-const ORTHO_SIZE    := 430.0   # world units visible across the viewport (hex diameter + padding)
-const OUT_DIR       := "user://map_tiles"
-const HEX_R_WORLD  := 200.0  # circumradius in world units, must match HexAssetScatterer
+const TILE_SIZE    := Vector2i(256, 256)
+const CAM_HEIGHT   := 300.0
+const ORTHO_SIZE   := 430.0   # world units visible across the viewport (hex diameter + padding)
+const OUT_DIR      := "user://map_tiles"
+const HEX_R_WORLD := 200.0   # circumradius in world units, must match HexAssetScatterer
 
 
 func _bake_all() -> void:
 	DirAccess.make_dir_absolute(OUT_DIR)
 
-	# Collect unique mesh paths from the current map JSON
 	var map_path := "res://data/maps/%s.json" % WorldManager.current_map_id
 	var file := FileAccess.open(map_path, FileAccess.READ)
 	if file == null:
@@ -54,8 +53,7 @@ func _bake_mesh(mesh_path: String) -> void:
 		push_error("MapTileBaker: cannot load %s" % mesh_path)
 		return
 
-	# Build an isolated SubViewport with its own world so main scene geometry
-	# doesn't bleed in
+	# Isolated SubViewport so main scene geometry doesn't bleed in
 	var vp := SubViewport.new()
 	vp.size = TILE_SIZE
 	vp.transparent_bg = true
@@ -71,11 +69,21 @@ func _bake_mesh(mesh_path: String) -> void:
 	cam.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
 	vp.add_child(cam)
 
-	# Simple directional light so the mesh isn't flat-lit
+	# Angled sun to cast shadows that reveal terrain shape
 	var light := DirectionalLight3D.new()
-	light.rotation_degrees = Vector3(-55.0, 45.0, 0.0)
-	light.light_energy = 1.2
+	light.rotation_degrees = Vector3(-45.0, 45.0, 0.0)
+	light.light_energy = 1.4
+	light.shadow_enabled = true
 	vp.add_child(light)
+
+	# Low ambient so shadows are dark but not pure black
+	var env := Environment.new()
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color(1.0, 1.0, 1.0)
+	env.ambient_light_energy = 0.3
+	var world_env := WorldEnvironment.new()
+	world_env.environment = env
+	vp.add_child(world_env)
 
 	var mesh_inst := packed.instantiate()
 	vp.add_child(mesh_inst)
@@ -97,9 +105,9 @@ func _bake_mesh(mesh_path: String) -> void:
 
 	var image := vp.get_texture().get_image()
 	_apply_hex_mask(image)
-	_apply_map_style(image)
-	var name   := mesh_path.get_file().get_basename()
-	var out    := "%s/%s.png" % [OUT_DIR, name]
+	_greyscale_sepia(image)
+	var name := mesh_path.get_file().get_basename()
+	var out  := "%s/%s.png" % [OUT_DIR, name]
 	image.save_png(out)
 	print("  saved: ", out)
 
@@ -111,29 +119,21 @@ func _apply_hex_mask(image: Image) -> void:
 	var h  := image.get_height()
 	var cx := w / 2.0
 	var cy := h / 2.0
-	# Hex circumradius in pixels, scaled from world units
-	var R_px: float = float(w) * HEX_R_WORLD / ORTHO_SIZE + 10.0  # +2px to close sub-pixel gaps between tiles
+	var R_px: float = float(w) * HEX_R_WORLD / ORTHO_SIZE - 1.0
 	for y in range(h):
 		for x in range(w):
 			if not _point_in_hex(float(x) - cx, float(y) - cy, R_px):
 				image.set_pixel(x, y, Color(0.0, 0.0, 0.0, 0.0))
 
 
-# Regular hexagon test with vertices at 0°,60°,120°,180°,240°,300°.
-# Returns true if (px,py) is inside a hex of circumradius R centered at origin.
 func _point_in_hex(px: float, py: float, R: float) -> bool:
 	var ax := absf(px)
 	var ay := absf(py)
-	if ay > R * 0.866025:           # outside flat top/bottom edges
+	if ay > R * 0.866025:
 		return false
-	if ax * 0.866025 + ay * 0.5 > R * 0.866025:  # outside diagonal edges
+	if ax * 0.866025 + ay * 0.5 > R * 0.866025:
 		return false
 	return true
-
-
-func _apply_map_style(image: Image) -> void:
-	_box_blur(image, 2)
-	_greyscale_tint(image)
 
 
 # Simple box blur — only samples opaque pixels so it doesn't bleed outside the hex mask.
@@ -152,7 +152,7 @@ func _box_blur(image: Image, radius: int) -> void:
 					var nx := x + dx
 					var ny := y + dy
 					if nx >= 0 and nx < w and ny >= 0 and ny < h:
-						var p := src.get_pixel(nx, ny)
+						var p: Color = src.get_pixel(nx, ny)
 						if p.a > 0.01:
 							sum += p
 							count += 1
@@ -160,11 +160,9 @@ func _box_blur(image: Image, radius: int) -> void:
 				image.set_pixel(x, y, sum / float(count))
 
 
-# Converts to greyscale then applies a parchment tint.
-# Tune TINT to shift the colour cast.
-func _greyscale_tint(image: Image) -> void:
-	# Warm parchment tint — tweak these to taste
-	const TINT := Color(0.82, 0.70, 0.48, 1.0)
+# Greyscale then sepia tint
+func _greyscale_sepia(image: Image) -> void:
+	const TINT := Color(0.96, 0.90, 0.52, 1.0)
 	var w := image.get_width()
 	var h := image.get_height()
 	for y in range(h):
@@ -173,9 +171,4 @@ func _greyscale_tint(image: Image) -> void:
 			if c.a < 0.01:
 				continue
 			var grey: float = c.r * 0.299 + c.g * 0.587 + c.b * 0.114
-			image.set_pixel(x, y, Color(
-				grey * TINT.r,
-				grey * TINT.g,
-				grey * TINT.b,
-				c.a
-			))
+			image.set_pixel(x, y, Color(grey * TINT.r, grey * TINT.g, grey * TINT.b, c.a))
