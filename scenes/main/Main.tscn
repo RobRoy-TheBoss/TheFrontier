@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cmsdqm7isbyt7"]
 
-[ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HeroUI.tscn" id="0_heroui"]
+[ext_resource type="PackedScene" uid="uid://b7s22ll7wc5b5" path="res://scenes/player/Player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/settlement/Settlement.tscn" id="2"]
 [ext_resource type="Script" uid="uid://b1o7cslqt8f2w" path="res://scripts/ui/HUD.gd" id="3"]
 [ext_resource type="Script" uid="uid://c7v0qpx7awk8g" path="res://scripts/ui/InventoryUI.gd" id="4"]
@@ -25,7 +26,7 @@
 [ext_resource type="PackedScene" uid="uid://dhhvy0dtdrlh4" path="res://scenes/ui/SaveSlotUI.tscn" id="23"]
 [ext_resource type="PackedScene" uid="uid://dqwp2n5x8egxk" path="res://scenes/ui/SettingsUI.tscn" id="24"]
 [ext_resource type="PackedScene" uid="uid://8cufjgb4br5w" path="res://scenes/ui/PauseMenuUI.tscn" id="25"]
-[ext_resource type="PackedScene" path="res://scenes/world/EasternFrontier.tscn" id="26"]
+[ext_resource type="PackedScene" uid="uid://cvx2rgtjn46ld" path="res://scenes/world/World.tscn" id="26"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_n12rl"]
 sky_top_color = Color(0.40802884, 0.60338956, 0.9405074, 1)
@@ -46,14 +47,15 @@ transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0
 light_energy = 1.2
 shadow_enabled = true
 shadow_blur = 2.0
+directional_shadow_blend_splits = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="World" unique_id=631181544]
 environment = SubResource("Environment_u7tt4")
 
-[node name="EasternFrontier" parent="World" unique_id=101846306 instance=ExtResource("26")]
+[node name="World" parent="World" unique_id=101846306 instance=ExtResource("26")]
 
 [node name="Player" parent="World" unique_id=1764318578 instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11, 0)
 
 [node name="Crestport" parent="World" unique_id=336304502 instance=ExtResource("2")]
 
@@ -612,3 +614,5 @@ text = "Understood"
 [node name="SettingsUI" parent="UI" unique_id=930822021 instance=ExtResource("24")]
 
 [node name="PauseMenuUI" parent="UI" unique_id=792391980 instance=ExtResource("25")]
+
+[node name="HeroUI" parent="UI" unique_id=112233445 instance=ExtResource("0_heroui")]

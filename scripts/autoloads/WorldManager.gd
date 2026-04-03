@@ -17,6 +17,14 @@ var precursor_sites: Dictionary = {}
 # All spawned areas (Area nodes register here)
 var active_areas: Dictionary = {}  # area_id -> Area node ref
 
+# Current map
+var current_map_id: String = "eastern_frontier"
+
+func load_map(map_id: String) -> void:
+	current_map_id = map_id
+	active_areas.clear()
+	get_tree().reload_current_scene()
+
 
 func _ready() -> void:
 	_randomize_precursor_sites()

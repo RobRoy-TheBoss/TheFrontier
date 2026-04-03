@@ -1,7 +1,7 @@
 ## HomeChest
 ## Infinite shared home storage — opens StorageUI with GameState.home_storage.
 ## Satisfies LINV-008 / HOME-001 / INV-003.
-extends StaticBody3D
+extends RigidBody3D
 
 
 func interact(player: Node) -> void:

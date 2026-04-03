@@ -33,10 +33,16 @@ func _ready() -> void:
 		_player.inventory.inventory_changed.connect(_update_weapon_display)
 	SaveManager.save_completed.connect(_on_save_completed)
 	SaveManager.save_failed.connect(_on_save_failed)
+	_debug_setup()  # DEBUG — remove with the block below
 
 
 func _process(delta: float) -> void:
 	_update_compass()
+	if _debug_area_label:
+		_debug_area_label.text = "[AREA] %s" % GameState.current_area_id
+	if _debug_pos_label and _player:
+		var p: Vector3 = _player.global_position
+		_debug_pos_label.text = "[POS] %.1f, %.1f, %.1f" % [p.x, p.y, p.z]
 
 
 func _on_health_changed(current: float, maximum: float) -> void:
@@ -62,12 +68,13 @@ func _update_compass() -> void:
 func _update_weapon_display() -> void:
 	if _player == null or weapon_label == null:
 		return
-	var equipped: Dictionary = _player.inventory.equipped.get("weapon", {})
-	if equipped.is_empty():
+	var active: Dictionary = _player.inventory.get_active_weapon()
+	if active.is_empty():
 		weapon_label.text = "Unarmed"
-		return
-	var weapon: Dictionary = GameData.get_weapon(equipped.get("item_id", ""))
-	weapon_label.text = weapon.get("name", "Unknown")
+	else:
+		var weapon: Dictionary = GameData.get_weapon(active.get("item_id", ""))
+		weapon_label.text = weapon.get("name", "Unknown")
+	_debug_update_weapon()
 
 
 func _on_injury_inflicted(injury_id: String) -> void:
@@ -124,3 +131,67 @@ func _on_save_completed(slot: String) -> void:
 
 func _on_save_failed(reason: String) -> void:
 	show_message("Save FAILED: %s" % reason, 5.0)
+
+
+# ---------------------------------------------------------------------------
+# DEBUG OVERLAY — weapon damage readout. Delete this entire block to remove.
+# ---------------------------------------------------------------------------
+var _debug_label: Label = null
+var _debug_last_hit: float = 0.0
+var _debug_area_label: Label = null
+var _debug_pos_label: Label = null
+
+func _debug_setup() -> void:
+	_debug_pos_label = Label.new()
+	_debug_pos_label.name = "DebugPosLabel"
+	_debug_pos_label.position = Vector2(12, -64)
+	_debug_pos_label.anchor_bottom = 1.0
+	_debug_pos_label.anchor_top = 1.0
+	_debug_pos_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_debug_pos_label.add_theme_color_override("font_color", Color(0.4, 1.0, 1.0))
+	_debug_pos_label.add_theme_font_size_override("font_size", 14)
+	add_child(_debug_pos_label)
+
+	_debug_area_label = Label.new()
+	_debug_area_label.name = "DebugAreaLabel"
+	_debug_area_label.position = Vector2(12, -48)
+	_debug_area_label.anchor_bottom = 1.0
+	_debug_area_label.anchor_top = 1.0
+	_debug_area_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_debug_area_label.add_theme_color_override("font_color", Color(0.4, 1.0, 1.0))
+	_debug_area_label.add_theme_font_size_override("font_size", 14)
+	add_child(_debug_area_label)
+
+	_debug_label = Label.new()
+	_debug_label.name = "DebugWeaponLabel"
+	_debug_label.position = Vector2(12, -12)
+	_debug_label.anchor_bottom = 1.0
+	_debug_label.anchor_top = 1.0
+	_debug_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_debug_label.add_theme_color_override("font_color", Color(1.0, 1.0, 0.4))
+	_debug_label.add_theme_font_size_override("font_size", 14)
+	add_child(_debug_label)
+	if _player_combat:
+		_player_combat.attack_landed.connect(_debug_on_hit)
+	_debug_update_weapon()
+
+func _debug_update_weapon() -> void:
+	if _debug_label == null or _player == null:
+		return
+	var active: Dictionary = _player.inventory.get_active_weapon()
+	if active.is_empty():
+		_debug_label.text = "[DEBUG] Weapon: Unarmed\nLast hit: %.1f dmg" % _debug_last_hit
+		return
+	var wdef: Dictionary = GameData.get_weapon(active.get("item_id", ""))
+	var dmg: int = wdef.get("damage", 0)
+	var slot_name := "Main" if _player.inventory.active_weapon_slot == 0 else "Backup"
+	_debug_label.text = "[DEBUG] %s (%s) — %d dmg\nLast hit: %.1f dmg" % [
+		wdef.get("name", "?"), slot_name, dmg, _debug_last_hit
+	]
+
+func _debug_on_hit(target: Node, damage: float) -> void:
+	_debug_last_hit = damage
+	_debug_update_weapon()
+# ---------------------------------------------------------------------------
+# END DEBUG OVERLAY
+# ---------------------------------------------------------------------------

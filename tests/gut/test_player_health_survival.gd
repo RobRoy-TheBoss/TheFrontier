@@ -103,10 +103,10 @@ func test_stamina_regen_when_idle_lhp013():
 
 # [LHP-014] Stamina regen multiplied by fatigue_modifier
 func test_stamina_regen_fatigue_modifier_lhp014():
-	_survival.accumulate_fatigue(80.0)
+	_survival.fatigue = 20.0  # below low_threshold (30) — very tired
 	var mult: float = _survival.get_stamina_regen_multiplier()
 	assert_lt(mult, 1.0,
-		"Stamina regen multiplier must be < 1.0 at high fatigue [LHP-014]")
+		"Stamina regen multiplier must be < 1.0 at low fatigue [LHP-014]")
 
 
 # [LHP-015] Stamina regen multiplied by hunger_modifier
@@ -252,12 +252,12 @@ func test_temperature_tracked_lsurv003():
 		"temperature must be a float [LSURV-003]")
 
 
-# [LSURV-004] PlayerSurvival tracks fatigue increasing over time
-func test_fatigue_increases_over_time_lsurv004():
+# [LSURV-004] PlayerSurvival tracks fatigue decreasing over time
+func test_fatigue_decreases_over_time_lsurv004():
 	var before: float = _survival.fatigue
 	_survival.accumulate_fatigue(5.0)
-	assert_gt(_survival.fatigue, before,
-		"accumulate_fatigue must increase fatigue [LSURV-004]")
+	assert_lt(_survival.fatigue, before,
+		"accumulate_fatigue must decrease fatigue [LSURV-004]")
 
 
 # [LSURV-005] hunger < warn_threshold sets stamina_regen_mult = 0.5
@@ -276,11 +276,11 @@ func test_hunger_crit_applies_health_dot_lsurv006():
 		"Hunger critical threshold must be below warn threshold of 30 [LSURV-006]")
 
 
-# [LSURV-007] fatigue > crit_threshold forces pass-out sleep
+# [LSURV-007] fatigue <= crit_threshold forces pass-out sleep
 func test_fatigue_crit_forces_sleep_lsurv007():
 	var crit_thresh = GameData.get_survival_param("fatigue_critical_threshold")
-	assert_gt(crit_thresh, 50.0,
-		"Fatigue critical threshold must be above midpoint [LSURV-007]")
+	assert_lt(crit_thresh, 50.0,
+		"Fatigue critical threshold must be below midpoint [LSURV-007]")
 
 
 # [LSURV-008] Temperature formula: ambient + altitude + time + weather + rain + clothing + discipline

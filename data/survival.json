@@ -18,7 +18,7 @@
     "regen_rate_moving": 5.0,
     "regen_rate_sprinting": 0.0,
     "sprint_drain_per_second": 12.0,
-    "dodge_cost": 20.0,
+    "dodge_cost": 10.0,
     "block_drain_per_second": 8.0,
     "attack_cost_one_handed": 15.0,
     "attack_cost_two_handed": 25.0,
@@ -55,18 +55,19 @@
   },
   "fatigue": {
     "max": 100.0,
-    "gain_per_second_active": 0.003,
-    "gain_per_second_idle": 0.001,
+    "drain_per_second_active": 0.003,
+    "drain_per_second_idle": 0.001,
     "sleep_recovery_per_second": 10.0,
-    "high_threshold": 70.0,
-    "critical_threshold": 90.0,
+    "low_threshold": 30.0,
+    "critical_threshold": 10.0,
     "high_stamina_regen_multiplier": 0.6,
-    "critical_passout_risk_per_second": 0.005,
-    "aim_impairment_threshold": 60.0
+    "aim_impairment_threshold": 40.0
   },
   "encumbrance": {
     "base_carry_weight": 50.0,
+    "max_carry_weight": 100.0,
     "over_encumbered_speed_multiplier": 0.4,
+    "hard_cap_speed_multiplier": 0.05,
     "over_encumbered_no_sprint": true
   },
   "fall_damage": {
@@ -75,7 +76,7 @@
   },
   "rest_health_regen_multiplier": 4.0,
   "hunger_critical_threshold": 10.0,
-  "fatigue_critical_threshold": 90.0,
+  "fatigue_critical_threshold": 10.0,
   "map_marker_types": {
     "fox": "Animal sighting",
     "campsite": "Good camping spot",
