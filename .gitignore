@@ -27,5 +27,10 @@ Thumbs.db
 __pycache__/
 *.pyc
 
-# Claude Code local settings
-.claude/
+# Baked scatter data (regenerate via HexTerrainLoader inspector)
+data/scatter/
+
+# Large installers and temp files
+*.msi
+*.exe
+*.tmp

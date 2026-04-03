@@ -25,6 +25,13 @@ extends Node3D
 @onready var _area_trigger: Area3D = $AreaTrigger
 
 var _discovered_resources: Dictionary = {}
+## Populated at runtime by BiomeEdge nodes. Maps neighbor area_id → biome string.
+var neighbor_biomes: Dictionary = {}
+
+
+func register_neighbor_biome(neighbor_id: String, biome_type: String) -> void:
+	if neighbor_id != "":
+		neighbor_biomes[neighbor_id] = biome_type
 
 
 func _ready() -> void:

@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://n8fqywxh1i1w"]
+
+[ext_resource type="Shader" uid="uid://bwgv5v253ehj3" path="res://shaders/water_depth.gdshader" id="1"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1")
+shader_parameter/color_shallow = Color(0.12, 0.55, 0.65, 0.2)
+shader_parameter/color_mid = Color(0.08, 0.35, 0.55, 0.6)
+shader_parameter/color_deep = Color(0.04, 0.18, 0.45, 0.92)
+shader_parameter/depth_mid = 2.0
+shader_parameter/depth_deep = 4.0
+shader_parameter/metallic = 0.2
+shader_parameter/roughness = 0.05
