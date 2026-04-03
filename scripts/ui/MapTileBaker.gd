@@ -72,7 +72,7 @@ func _bake_mesh(mesh_path: String) -> void:
 	# Angled sun to cast shadows that reveal terrain shape
 	var light := DirectionalLight3D.new()
 	light.rotation_degrees = Vector3(-45.0, 45.0, 0.0)
-	light.light_energy = 1.4
+	light.light_energy = 0.8
 	light.shadow_enabled = true
 	vp.add_child(light)
 
@@ -80,7 +80,7 @@ func _bake_mesh(mesh_path: String) -> void:
 	var env := Environment.new()
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(1.0, 1.0, 1.0)
-	env.ambient_light_energy = 0.3
+	env.ambient_light_energy = 0.6
 	var world_env := WorldEnvironment.new()
 	world_env.environment = env
 	vp.add_child(world_env)
