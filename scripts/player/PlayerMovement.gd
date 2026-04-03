@@ -21,6 +21,8 @@ var _is_swimming: bool = false
 var _is_sprinting: bool = false
 var _road_speed_bonus: float = 0.0
 var _god_mode: bool = false
+var god_mode: bool:
+	get: return _god_mode
 
 # Double-tap dodge detection
 const DOUBLE_TAP_WINDOW := 0.3

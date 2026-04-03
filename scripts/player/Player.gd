@@ -165,7 +165,7 @@ func _toggle_disciplines() -> void:
 
 
 func _toggle_map() -> void:
-	if not inventory.has_item("map_item"):
+	if not inventory.has_item("map"):
 		return
 	_toggle_ui("map_ui")
 
@@ -300,6 +300,7 @@ func _update_weapon_display() -> void:
 
 func _give_starting_items() -> void:
 	inventory.add_item("compass", 1)
+	inventory.add_item("map", 1)
 	inventory.add_item("field_journal", 1)
 	inventory.add_item("hardtack", 5)
 	inventory.add_item("waterskin", 1)
