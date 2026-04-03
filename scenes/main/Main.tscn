@@ -26,7 +26,7 @@
 [ext_resource type="PackedScene" uid="uid://dhhvy0dtdrlh4" path="res://scenes/ui/SaveSlotUI.tscn" id="23"]
 [ext_resource type="PackedScene" uid="uid://dqwp2n5x8egxk" path="res://scenes/ui/SettingsUI.tscn" id="24"]
 [ext_resource type="PackedScene" uid="uid://8cufjgb4br5w" path="res://scenes/ui/PauseMenuUI.tscn" id="25"]
-[ext_resource type="PackedScene" uid="uid://cvx2rgtjn46ld" path="res://scenes/world/EasternFrontier.tscn" id="26"]
+[ext_resource type="PackedScene" uid="uid://cvx2rgtjn46ld" path="res://scenes/world/World.tscn" id="26"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_n12rl"]
 sky_top_color = Color(0.40802884, 0.60338956, 0.9405074, 1)
@@ -48,12 +48,11 @@ light_energy = 1.2
 shadow_enabled = true
 shadow_blur = 2.0
 directional_shadow_blend_splits = true
-directional_shadow_fade_start = 1.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="World" unique_id=631181544]
 environment = SubResource("Environment_u7tt4")
 
-[node name="EasternFrontier" parent="World" unique_id=101846306 instance=ExtResource("26")]
+[node name="World" parent="World" unique_id=101846306 instance=ExtResource("26")]
 
 [node name="Player" parent="World" unique_id=1764318578 instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11, 0)

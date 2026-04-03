@@ -2,14 +2,16 @@
 	"map_id": "eastern_frontier",
 	"tiles": [
 		{ "col":  0, "row": 0, "mesh": "Costal3A.glb",  "facing": 3, "elevation": 2 },
-		{ "col":  1, "row": 0, "mesh": "River3.glb",   "facing": 1, "elevation": 2 },
-		{ "col": -1, "row": 0, "mesh": "River2B.glb",   "facing": 5, "elevation": 2 },
+		{ "col":  1, "row": 0, "mesh": "Hills2A.glb",   "facing": 1, "elevation": 2 },
+		{ "col": -1, "row": 0, "mesh": "River3B.glb",   "facing": 5, "elevation": 2 },
+		{ "col": -2, "row": 1, "mesh": "River3A.glb",   "facing": 3, "elevation": 2 },
 		{ "col":  0, "row": 1, "mesh": "River1A.glb",   "facing": 2, "elevation": 2 },
-		{ "col":  1, "row": 1, "mesh": "River2.glb",   "facing": 3, "elevation": 2 },
-		{ "col": -1, "row": 1, "mesh": "River1.glb",   "facing": 5, "elevation": 2 },
-		{ "col":  2, "row": 1, "mesh": "River3.glb",   "facing": 3, "elevation": 2 },
-		{ "col":  2, "row": 2, "mesh": "River1.glb",   "facing": 0, "elevation": 2 },
-		{ "col":  1, "row": 2, "mesh": "River2.glb",   "facing": 0, "elevation": 2 },
-		{ "col":  1, "row": 3, "mesh": "River3.glb",   "facing": 0, "elevation": 2 }
+		{ "col":  1, "row": 1, "mesh": "Hills2B.glb",   "facing": 3, "elevation": 2 },
+		{ "col": -1, "row": 1, "mesh": "River0A.glb",   "facing": 3, "elevation": 2 },
+		{ "col":  2, "row": 1, "mesh": "Hills2C.glb",   "facing": 3, "elevation": 2 },
+		{ "col":  2, "row": 2, "mesh": "Mountain1A.glb",   "facing": 3, "elevation": 2 },
+		{ "col":  1, "row": 2, "mesh": "Mountain1A.glb",   "facing": 4, "elevation": 2 },
+		{ "col":  0, "row": 2, "mesh": "Plateau1A.glb",   "facing": 4, "elevation": 2 },
+		{ "col":  1, "row": 3, "mesh": "Mountain1A.glb",   "facing": 2, "elevation": 2 }
 	]
 }
