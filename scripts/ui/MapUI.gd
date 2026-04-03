@@ -61,7 +61,7 @@ func _refresh() -> void:
 		var mesh: String = tile.get("mesh", "")
 		var area_id      := "%d_%d_%s" % [col, row, mesh.get_basename()]
 		var discovered   := god_mode or WorldManager.area_data.has(area_id)
-		entries.append({ "col": col, "row": row, "mesh": mesh, "discovered": discovered })
+		entries.append({ "col": col, "row": row, "mesh": mesh, "facing": int(tile.get("facing", 0)), "discovered": discovered })
 
 	_canvas.tile_entries = entries
 	_canvas.queue_redraw()

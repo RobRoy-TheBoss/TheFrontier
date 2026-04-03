@@ -24,6 +24,10 @@ const COLOR_DEFAULT    := Color(0.45, 0.55, 0.40, 1.0)
 const COLOR_UNDISCOVERED := Color(0.15, 0.15, 0.15, 0.0)  # fully transparent
 
 
+const TILE_IMAGE_DIR := "res://data/map_tiles"
+var _tex_cache: Dictionary = {}  # mesh_name -> Texture2D or null
+
+
 func _draw() -> void:
 	if tile_entries.is_empty():
 		return
@@ -36,10 +40,31 @@ func _draw() -> void:
 			continue
 		var center := _tile_screen_pos(entry["col"], entry["row"], scale_factor, offset)
 		var r      := HEX_R * scale_factor
-		var color  := _mesh_color(entry.get("mesh", ""))
-		draw_colored_polygon(_hex_points(center, r), color)
-		draw_polyline(_hex_points(center, r) + PackedVector2Array([_hex_points(center, r)[0]]),
-			color.darkened(0.3), 1.5)
+		var mesh: String = entry.get("mesh", "")
+		var tex := _get_tile_texture(mesh)
+		if tex != null:
+			var rot := deg_to_rad(entry.get("facing", 0) * 60.0)
+			var rd := r * 1.08  # 4% overdraw closes sub-pixel gaps between adjacent tiles
+			draw_set_transform(center, rot)
+			draw_texture_rect(tex, Rect2(Vector2(-rd, -rd), Vector2(rd * 2.0, rd * 2.0)), false)
+			draw_set_transform(Vector2.ZERO, 0.0)
+		else:
+			var color := _mesh_color(mesh)
+			draw_colored_polygon(_hex_points(center, r), color)
+			draw_polyline(_hex_points(center, r) + PackedVector2Array([_hex_points(center, r)[0]]),
+				color.darkened(0.3), 1.5)
+
+
+func _get_tile_texture(mesh: String) -> Texture2D:
+	var key := mesh.get_basename()
+	if _tex_cache.has(key):
+		return _tex_cache[key]
+	var path := "%s/%s.png" % [TILE_IMAGE_DIR, key]
+	var tex: Texture2D = null
+	if ResourceLoader.exists(path):
+		tex = load(path)
+	_tex_cache[key] = tex
+	return tex
 
 
 func _hex_points(center: Vector2, r: float) -> PackedVector2Array:
