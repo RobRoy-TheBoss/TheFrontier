@@ -97,6 +97,7 @@ func _bake_mesh(mesh_path: String) -> void:
 
 	var image := vp.get_texture().get_image()
 	_apply_hex_mask(image)
+	_apply_map_style(image)
 	var name   := mesh_path.get_file().get_basename()
 	var out    := "%s/%s.png" % [OUT_DIR, name]
 	image.save_png(out)
@@ -128,3 +129,53 @@ func _point_in_hex(px: float, py: float, R: float) -> bool:
 	if ax * 0.866025 + ay * 0.5 > R * 0.866025:  # outside diagonal edges
 		return false
 	return true
+
+
+func _apply_map_style(image: Image) -> void:
+	_box_blur(image, 2)
+	_greyscale_tint(image)
+
+
+# Simple box blur — only samples opaque pixels so it doesn't bleed outside the hex mask.
+func _box_blur(image: Image, radius: int) -> void:
+	var w := image.get_width()
+	var h := image.get_height()
+	var src := image.duplicate()
+	for y in range(h):
+		for x in range(w):
+			if src.get_pixel(x, y).a < 0.01:
+				continue
+			var sum := Color(0.0, 0.0, 0.0, 0.0)
+			var count := 0
+			for dy in range(-radius, radius + 1):
+				for dx in range(-radius, radius + 1):
+					var nx := x + dx
+					var ny := y + dy
+					if nx >= 0 and nx < w and ny >= 0 and ny < h:
+						var p := src.get_pixel(nx, ny)
+						if p.a > 0.01:
+							sum += p
+							count += 1
+			if count > 0:
+				image.set_pixel(x, y, sum / float(count))
+
+
+# Converts to greyscale then applies a parchment tint.
+# Tune TINT to shift the colour cast.
+func _greyscale_tint(image: Image) -> void:
+	# Warm parchment tint — tweak these to taste
+	const TINT := Color(0.82, 0.70, 0.48, 1.0)
+	var w := image.get_width()
+	var h := image.get_height()
+	for y in range(h):
+		for x in range(w):
+			var c := image.get_pixel(x, y)
+			if c.a < 0.01:
+				continue
+			var grey: float = c.r * 0.299 + c.g * 0.587 + c.b * 0.114
+			image.set_pixel(x, y, Color(
+				grey * TINT.r,
+				grey * TINT.g,
+				grey * TINT.b,
+				c.a
+			))

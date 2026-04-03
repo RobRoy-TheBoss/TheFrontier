@@ -69,6 +69,7 @@ script = ExtResource("8")
 
 [node name="MapTileBaker" type="Node" parent="." unique_id=100000002]
 script = ExtResource("10")
+bake_tile_images = true
 
 [node name="DummySpawner" type="Node3D" parent="." unique_id=1669365370]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.8, -8)
