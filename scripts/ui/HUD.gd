@@ -15,10 +15,12 @@ extends Control
 var _player: Node = null
 var _player_health: PlayerHealth = null
 var _player_combat: PlayerCombat = null
+var _compass_bar: Control = null
 
 
 func _ready() -> void:
 	add_to_group("hud")
+	_setup_heading_label()
 	await get_tree().process_frame
 	_player = get_tree().get_first_node_in_group("player")
 	if _player:
@@ -31,6 +33,8 @@ func _ready() -> void:
 		_player_combat.reload_step_completed.connect(_on_reload_step)
 		_player_combat.reload_completed.connect(_on_reload_complete)
 		_player.inventory.inventory_changed.connect(_update_weapon_display)
+		_player.inventory.inventory_changed.connect(_update_compass_visibility)
+		_update_compass_visibility()
 	SaveManager.save_completed.connect(_on_save_completed)
 	SaveManager.save_failed.connect(_on_save_failed)
 	_debug_setup()  # DEBUG — remove with the block below
@@ -58,11 +62,41 @@ func _on_stamina_changed(current: float, maximum: float) -> void:
 		stamina_bar.value = current
 
 
+func _setup_heading_label() -> void:
+	_compass_bar = Control.new()
+	_compass_bar.name = "CompassBar"
+	_compass_bar.set_script(load("res://scripts/ui/CompassBar.gd"))
+	_compass_bar.anchor_left   = 1.0 / 3.0
+	_compass_bar.anchor_right  = 2.0 / 3.0
+	_compass_bar.anchor_top    = 0.0
+	_compass_bar.anchor_bottom = 0.0
+	_compass_bar.offset_left   = 0.0
+	_compass_bar.offset_right  = 0.0
+	_compass_bar.offset_top    = 0.0
+	_compass_bar.offset_bottom = 48.0
+	_compass_bar.visible = false
+	add_child(_compass_bar)
+
+
 func _update_compass() -> void:
 	if _player == null or compass_needle == null:
 		return
-	var player_rot_y: float = _player.rotation.y
-	compass_needle.rotation = -player_rot_y
+	var rot_y: float = _player.camera_pivot.rotation.y
+	compass_needle.rotation = -rot_y
+	_update_heading()
+
+
+func _update_heading() -> void:
+	if _compass_bar == null or not _compass_bar.visible:
+		return
+	_compass_bar.heading_deg = fposmod(rad_to_deg(-_player.camera_pivot.rotation.y), 360.0)
+	_compass_bar.queue_redraw()
+
+
+func _update_compass_visibility() -> void:
+	if _compass_bar == null or _player == null:
+		return
+	_compass_bar.visible = _player.inventory.has_item("compass")
 
 
 func _update_weapon_display() -> void:
