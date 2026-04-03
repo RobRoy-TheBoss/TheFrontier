@@ -22,8 +22,8 @@ const OUT_DIR      := "user://map_tiles"
 const HEX_R_WORLD := 200.0   # circumradius in world units, must match HexAssetScatterer
 
 # Height range for the height-map pass (model-space Y).
-const Y_MIN := -2.0
-const Y_MAX :=  8.0
+const Y_MIN :=  0.0
+const Y_MAX := 20.0
 
 # Radius (in pixels) over which to sum elevation change.
 const RELIEF_RADIUS := 4
@@ -32,7 +32,7 @@ const RELIEF_RADIUS := 4
 const GRADIENT_SCALE := 4.0
 
 # Relief below this value is ignored (suppresses micro-detail noise).
-const GRADIENT_THRESHOLD := 0.01
+const GRADIENT_THRESHOLD := 0.02
 
 const HEIGHTMAP_SHADER := "
 shader_type spatial;
@@ -138,7 +138,7 @@ func _apply_hex_mask(image: Image) -> void:
 	var h  := image.get_height()
 	var cx := w / 2.0
 	var cy := h / 2.0
-	var R_px: float = float(w) * HEX_R_WORLD / ORTHO_SIZE - 1.0
+	var R_px: float = float(w) * HEX_R_WORLD / ORTHO_SIZE - 2.0
 	for y in range(h):
 		for x in range(w):
 			if not _point_in_hex(float(x) - cx, float(y) - cy, R_px):
@@ -158,6 +158,7 @@ func _point_in_hex(px: float, py: float, R: float) -> bool:
 # Converts the raw height map into relief-shaded greyscale.
 # Sums absolute height differences between centre and all pixels within
 # RELIEF_RADIUS — flat areas stay bright, rough/hilly areas go dark.
+
 func _apply_gradient_shading(image: Image) -> void:
 	var src := image.duplicate()
 	var w := image.get_width()
