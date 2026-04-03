@@ -1,92 +1,117 @@
 ## MapUI
-## Displays the map item. No player position shown. Shows terrain, settlements,
-## named landmarks, and roads. Map data comes from map item instance.
+## Displays the hex map. Tiles are revealed as the player discovers areas.
+## In god mode all tiles are shown.
 extends Control
 
-@onready var map_texture: TextureRect = $Panel/MapTexture
 @onready var settlement_markers: Control = $Panel/SettlementMarkers
-@onready var landmark_labels: Control = $Panel/LandmarkLabels
+@onready var landmark_labels:    Control = $Panel/LandmarkLabels
 
-var _current_map_data: Dictionary = {}
+var _canvas: Control = null
+var _tile_defs: Array = []   # raw tile list from map JSON
 
 
 func _ready() -> void:
 	add_to_group("map_ui")
 	visible = false
+	_load_tile_defs()
+	_setup_canvas()
 
 
 func toggle() -> void:
 	visible = not visible
 	if visible:
-		_load_current_map()
+		_refresh()
 
 
-func _load_current_map() -> void:
-	var player := get_tree().get_first_node_in_group("player")
-	if player == null:
+func _setup_canvas() -> void:
+	_canvas = Control.new()
+	_canvas.name = "HexMapCanvas"
+	_canvas.set_script(load("res://scripts/ui/HexMapCanvas.gd"))
+	_canvas.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	$Panel.add_child(_canvas)
+	# Keep markers/labels on top
+	$Panel.move_child(_canvas, 0)
+
+
+func _load_tile_defs() -> void:
+	var path := "res://data/maps/%s.json" % WorldManager.current_map_id
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
 		return
-	# Find map item in inventory
-	for entry in player.inventory.items:
-		if entry["item_id"] == "map_item":
-			_current_map_data = entry.get("map_data", {})
-			_render_map()
+	var data = JSON.parse_string(file.get_as_text())
+	file.close()
+	if data is Dictionary and data.has("tiles"):
+		_tile_defs = data["tiles"]
+
+
+func _refresh() -> void:
+	if _canvas == null or _tile_defs.is_empty():
+		return
+
+	var player   := get_tree().get_first_node_in_group("player")
+	var god_mode: bool = player != null and player.movement.god_mode
+
+	# Auto-discover starting tile (col 0, row 0) so map is never blank at start
+	_ensure_starting_tile_discovered()
+
+	var entries: Array = []
+	for tile in _tile_defs:
+		var col: int     = int(tile["col"])
+		var row: int     = int(tile["row"])
+		var mesh: String = tile.get("mesh", "")
+		var area_id      := "%d_%d_%s" % [col, row, mesh.get_basename()]
+		var discovered   := god_mode or WorldManager.area_data.has(area_id)
+		entries.append({ "col": col, "row": row, "mesh": mesh, "facing": int(tile.get("facing", 0)), "discovered": discovered })
+
+	_canvas.tile_entries = entries
+	_canvas.queue_redraw()
+	_render_overlays()
+
+
+func _ensure_starting_tile_discovered() -> void:
+	for tile in _tile_defs:
+		if int(tile["col"]) == 0 and int(tile["row"]) == 0:
+			var mesh: String = tile.get("mesh", "")
+			var area_id      := "0_0_%s" % mesh.get_basename()
+			if not WorldManager.area_data.has(area_id):
+				WorldManager.enter_area(area_id)
 			return
 
 
-func _render_map() -> void:
-	if _current_map_data.is_empty():
-		return
-	# Clear existing markers
+func _render_overlays() -> void:
 	for child in settlement_markers.get_children():
 		child.queue_free()
 	for child in landmark_labels.get_children():
 		child.queue_free()
 
-	# Render settlement markers
-	var map_bounds: Dictionary = _current_map_data.get("bounds", {})
 	for sid in SettlementManager.settlements:
 		var s: SettlementManager.SettlementData = SettlementManager.settlements[sid]
-		if not _current_map_data.get("known_settlements", []).has(sid):
-			continue
 		var marker := Label.new()
 		marker.text = "●"
-		var screen_pos := _world_to_map_coords(s.position, map_bounds)
-		marker.position = screen_pos
+		marker.position = _world_to_canvas(Vector3(s.position.x, 0, s.position.z))
 		var tier := GameData.get_tier_by_index(s.tier_index)
 		match tier.get("id", "trading_post"):
 			"trading_post": marker.add_theme_color_override("font_color", Color.WHITE)
-			"village": marker.add_theme_color_override("font_color", Color.YELLOW)
-			"town": marker.add_theme_color_override("font_color", Color.ORANGE)
-			"city": marker.add_theme_color_override("font_color", Color.GOLD)
+			"village":      marker.add_theme_color_override("font_color", Color.YELLOW)
+			"town":         marker.add_theme_color_override("font_color", Color.ORANGE)
+			"city":         marker.add_theme_color_override("font_color", Color.GOLD)
 		settlement_markers.add_child(marker)
 
-	# Render named landmarks
 	for landmark_id in GameState.named_landmarks:
 		var player_name: String = GameState.named_landmarks[landmark_id]
-		var landmark_node: Node = null
 		for n in get_tree().get_nodes_in_group("landmark"):
 			if n.landmark_id == landmark_id:
-				landmark_node = n
+				var lbl := Label.new()
+				lbl.text = player_name
+				lbl.position = _world_to_canvas(n.global_position)
+				lbl.add_theme_color_override("font_color", Color.LIGHT_BLUE)
+				landmark_labels.add_child(lbl)
 				break
-		if landmark_node == null:
-			continue
-		var lbl := Label.new()
-		lbl.text = player_name
-		var screen_pos := _world_to_map_coords(landmark_node.global_position, map_bounds)
-		lbl.position = screen_pos
-		lbl.add_theme_color_override("font_color", Color.LIGHT_BLUE)
-		landmark_labels.add_child(lbl)
 
 
-func _world_to_map_coords(world_pos: Vector3, bounds: Dictionary) -> Vector2:
-	if bounds.is_empty():
+func _world_to_canvas(world_pos: Vector3) -> Vector2:
+	if _canvas == null or _tile_defs.is_empty():
 		return Vector2.ZERO
-	var map_size := Vector2(600, 400)  # Map display size in pixels
-	var world_min := Vector2(bounds.get("min_x", -500), bounds.get("min_z", -500))
-	var world_max := Vector2(bounds.get("max_x", 500), bounds.get("max_z", 500))
-	var world_range := world_max - world_min
-	var normalized := Vector2(
-		(world_pos.x - world_min.x) / world_range.x,
-		(world_pos.z - world_min.y) / world_range.y
-	)
-	return normalized * map_size
+	var scale_factor: float = _canvas._compute_scale()
+	var offset: Vector2     = _canvas._compute_offset(scale_factor)
+	return Vector2(world_pos.x * scale_factor, world_pos.z * scale_factor) + offset
