@@ -21,6 +21,32 @@ const ORTHO_SIZE   := 430.0   # world units visible across the viewport (hex dia
 const OUT_DIR      := "user://map_tiles"
 const HEX_R_WORLD := 200.0   # circumradius in world units, must match HexAssetScatterer
 
+# Height range for the height-map pass (model-space Y).
+const Y_MIN := -2.0
+const Y_MAX :=  8.0
+
+# Radius (in pixels) over which to sum elevation change.
+const RELIEF_RADIUS := 4
+
+# How strongly accumulated relief darkens pixels. Tune after baking.
+const GRADIENT_SCALE := 4.0
+
+# Relief below this value is ignored (suppresses micro-detail noise).
+const GRADIENT_THRESHOLD := 0.01
+
+const HEIGHTMAP_SHADER := "
+shader_type spatial;
+render_mode unshaded;
+uniform float y_min = -2.0;
+uniform float y_max = 8.0;
+void fragment() {
+	float world_y = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).y;
+	float t = clamp((world_y - y_min) / (y_max - y_min), 0.0, 1.0);
+	ALBEDO = vec3(t);
+	ALPHA = 1.0;
+}
+"
+
 
 func _bake_all() -> void:
 	DirAccess.make_dir_absolute(OUT_DIR)
@@ -69,35 +95,17 @@ func _bake_mesh(mesh_path: String) -> void:
 	cam.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
 	vp.add_child(cam)
 
-	# Angled sun to cast shadows that reveal terrain shape
-	var light := DirectionalLight3D.new()
-	light.rotation_degrees = Vector3(-45.0, 45.0, 0.0)
-	light.light_energy = 0.8
-	light.shadow_enabled = true
-	vp.add_child(light)
-
-	# Low ambient so shadows are dark but not pure black
-	var env := Environment.new()
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(1.0, 1.0, 1.0)
-	env.ambient_light_energy = 0.6
-	var world_env := WorldEnvironment.new()
-	world_env.environment = env
-	vp.add_child(world_env)
-
 	var mesh_inst := packed.instantiate()
 	vp.add_child(mesh_inst)
 
-	# Flat water plane at the correct relative height (world water Y=8.5, tile Y=10.0)
-	var water_plane := PlaneMesh.new()
-	water_plane.size = Vector2(ORTHO_SIZE, ORTHO_SIZE)
-	var water_mat := StandardMaterial3D.new()
-	water_mat.albedo_color = Color(0.06, 0.28, 0.55, 1.0)
-	water_plane.surface_set_material(0, water_mat)
-	var water_mi := MeshInstance3D.new()
-	water_mi.mesh = water_plane
-	water_mi.position = Vector3(0.0, -1.5, 0.0)
-	vp.add_child(water_mi)
+	# Override every mesh surface with the height shader
+	var shader := Shader.new()
+	shader.code = HEIGHTMAP_SHADER
+	var height_mat := ShaderMaterial.new()
+	height_mat.shader = shader
+	height_mat.set_shader_parameter("y_min", Y_MIN)
+	height_mat.set_shader_parameter("y_max", Y_MAX)
+	_apply_material_recursive(mesh_inst, height_mat)
 
 	# Wait two frames: one to process, one to render
 	await get_tree().process_frame
@@ -105,13 +113,24 @@ func _bake_mesh(mesh_path: String) -> void:
 
 	var image := vp.get_texture().get_image()
 	_apply_hex_mask(image)
-	_greyscale_sepia(image)
+	_apply_gradient_shading(image)
+	_apply_sepia(image)
 	var name := mesh_path.get_file().get_basename()
 	var out  := "%s/%s.png" % [OUT_DIR, name]
 	image.save_png(out)
 	print("  saved: ", out)
 
 	vp.queue_free()
+
+
+func _apply_material_recursive(node: Node, mat: ShaderMaterial) -> void:
+	if node is MeshInstance3D:
+		var mi := node as MeshInstance3D
+		if mi.mesh != null:
+			for i in mi.mesh.get_surface_count():
+				mi.set_surface_override_material(i, mat)
+	for child in node.get_children():
+		_apply_material_recursive(child, mat)
 
 
 func _apply_hex_mask(image: Image) -> void:
@@ -136,32 +155,39 @@ func _point_in_hex(px: float, py: float, R: float) -> bool:
 	return true
 
 
-# Simple box blur — only samples opaque pixels so it doesn't bleed outside the hex mask.
-func _box_blur(image: Image, radius: int) -> void:
+# Converts the raw height map into relief-shaded greyscale.
+# Sums absolute height differences between centre and all pixels within
+# RELIEF_RADIUS — flat areas stay bright, rough/hilly areas go dark.
+func _apply_gradient_shading(image: Image) -> void:
+	var src := image.duplicate()
 	var w := image.get_width()
 	var h := image.get_height()
-	var src := image.duplicate()
 	for y in range(h):
 		for x in range(w):
-			if src.get_pixel(x, y).a < 0.01:
+			var c: Color = src.get_pixel(x, y)
+			if c.a < 0.01:
 				continue
-			var sum := Color(0.0, 0.0, 0.0, 0.0)
+			var centre_h := c.r
+			var relief := 0.0
 			var count := 0
-			for dy in range(-radius, radius + 1):
-				for dx in range(-radius, radius + 1):
-					var nx := x + dx
-					var ny := y + dy
-					if nx >= 0 and nx < w and ny >= 0 and ny < h:
-						var p: Color = src.get_pixel(nx, ny)
-						if p.a > 0.01:
-							sum += p
-							count += 1
+			for dy in range(-RELIEF_RADIUS, RELIEF_RADIUS + 1):
+				for dx in range(-RELIEF_RADIUS, RELIEF_RADIUS + 1):
+					if dx == 0 and dy == 0:
+						continue
+					var nx := clampi(x + dx, 0, w - 1)
+					var ny := clampi(y + dy, 0, h - 1)
+					var n: Color = src.get_pixel(nx, ny)
+					if n.a > 0.01:
+						relief += absf(n.r - centre_h)
+						count += 1
 			if count > 0:
-				image.set_pixel(x, y, sum / float(count))
+				relief /= float(count)
+			var relief_filtered := maxf(relief - GRADIENT_THRESHOLD, 0.0)
+			var brightness := 1.0 - clampf(relief_filtered * GRADIENT_SCALE, 0.0, 1.0)
+			image.set_pixel(x, y, Color(brightness, brightness, brightness, c.a))
 
 
-# Greyscale then sepia tint
-func _greyscale_sepia(image: Image) -> void:
+func _apply_sepia(image: Image) -> void:
 	const TINT := Color(0.96, 0.90, 0.52, 1.0)
 	var w := image.get_width()
 	var h := image.get_height()
@@ -170,5 +196,4 @@ func _greyscale_sepia(image: Image) -> void:
 			var c := image.get_pixel(x, y)
 			if c.a < 0.01:
 				continue
-			var grey: float = c.r * 0.299 + c.g * 0.587 + c.b * 0.114
-			image.set_pixel(x, y, Color(grey * TINT.r, grey * TINT.g, grey * TINT.b, c.a))
+			image.set_pixel(x, y, Color(c.r * TINT.r, c.r * TINT.g, c.r * TINT.b, c.a))

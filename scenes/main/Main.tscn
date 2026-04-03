@@ -39,7 +39,7 @@ background_mode = 2
 sky = SubResource("Sky_0cxqb")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_map_panel"]
-bg_color = Color(0.267, 0.251, 0.145, 1.0)
+bg_color = Color(0.96, 0.90, 0.52, 1.0)
 border_width_left = 0
 border_width_top = 0
 border_width_right = 0
@@ -296,6 +296,7 @@ anchor_left = 0.05
 anchor_top = 0.05
 anchor_right = 0.95
 anchor_bottom = 0.95
+theme_override_styles/panel = SubResource("StyleBoxFlat_map_panel")
 
 [node name="MapTexture" type="TextureRect" parent="UI/MapUI/Panel" unique_id=277092445]
 layout_mode = 2
