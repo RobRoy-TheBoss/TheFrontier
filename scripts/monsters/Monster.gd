@@ -117,7 +117,7 @@ func _run_ai(delta: float) -> void:
 		if _can_see_player(player):
 			_has_detected_player = true
 			_target = player
-			if _state not in [State.CHASE, State.WINDUP, State.ATTACK]:
+			if _state not in [State.CHASE, State.WINDUP, State.ATTACK, State.RECOVER]:
 				_state = State.CHASE
 
 	match _state:
