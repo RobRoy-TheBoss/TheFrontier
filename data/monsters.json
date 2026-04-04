@@ -19,7 +19,7 @@
       "aggro_range": 15.0
     },
     "territory": "terrestrial",
-    "recovery_time": 2.0,
+    "recovery_time": 0.5,
     "fire_reaction": "avoid",
     "light_reaction": "neutral",
     "is_apex": false,
@@ -81,6 +81,7 @@
       "aggro_range": 5.0,
       "armor": 15
     },
+    "territory": "terrestrial",
     "fire_reaction": "neutral",
     "light_reaction": "neutral",
     "is_apex": false,
@@ -140,6 +141,7 @@
       "detection_range": 12.0,
       "aggro_range": 8.0
     },
+    "territory": "amphibious",
     "fire_reaction": "avoid",
     "light_reaction": "neutral",
     "is_apex": false,
@@ -206,6 +208,7 @@
       "detection_range": 15.0,
       "aggro_range": 10.0
     },
+    "territory": "aerial",
     "fire_reaction": "avoid",
     "light_reaction": "neutral",
     "is_apex": false,
@@ -261,6 +264,7 @@
       "aggro_range": 12.0,
       "armor": 40
     },
+    "territory": "terrestrial",
     "fire_reaction": "attracted",
     "light_reaction": "neutral",
     "is_apex": false,
@@ -326,6 +330,7 @@
       "aggro_range": 4.0,
       "hearing_range": 35.0
     },
+    "territory": "terrestrial",
     "fire_reaction": "avoid",
     "light_reaction": "attracted",
     "is_apex": false,
@@ -383,6 +388,7 @@
       "aggro_range": 30.0,
       "armor": 25
     },
+    "territory": "aquatic",
     "fire_reaction": "neutral",
     "light_reaction": "repelled",
     "is_apex": true,
@@ -477,6 +483,7 @@
       "detection_range": 30.0,
       "aggro_range": 25.0
     },
+    "territory": "terrestrial",
     "fire_reaction": "avoid",
     "light_reaction": "neutral",
     "is_apex": true,

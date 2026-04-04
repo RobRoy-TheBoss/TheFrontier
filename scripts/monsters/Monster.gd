@@ -3,7 +3,7 @@
 ## combat, loot, and XP trigger reporting.
 extends CharacterBody3D
 
-enum State { IDLE, PATROL, ALERT, CHASE, WINDUP, ATTACK, RECOVER, SEEK_LAND, FLEE, DESPAWN, DEAD }
+enum State { IDLE, PATROL, ALERT, CHASE, WINDUP, ATTACK, RECOVER, SEEK_LAND, SEEK_WATER, FLEE, DESPAWN, DEAD }
 
 @export var monster_id: String = "prowler"
 @export var static_mode: bool = false  # If true: no AI, no movement, no attacks
@@ -38,8 +38,9 @@ var _ind_fill_axis: String = "xz"  # "xz" = radius/arc/circle, "x" = line
 
 const GRAVITY := 9.8
 const DEFAULT_WINDUP := 0.6
-const WATER_LEVEL := 8.5       # must match HexAssetScatterer.WATER_LEVEL
-const SEEK_LAND_MARGIN := 2.0  # metres above waterline before resuming normal AI
+const WATER_LEVEL := 8.5           # must match HexAssetScatterer.WATER_LEVEL
+const SEEK_LAND_MARGIN := 2.0      # terrestrial: must be this far above water
+const AMPHIBIOUS_PATROL_ABOVE := 5.0  # amphibious: patrol up to this many metres above waterline
 
 signal died(monster_id: String, position: Vector3)
 
@@ -109,12 +110,28 @@ func _run_ai(delta: float) -> void:
 	var detection_range: float = _stats.get("detection_range", 20.0)
 	var aggro_range: float = _stats.get("aggro_range", 15.0)
 
-	# Territory override — terrestrial monsters seek land when below waterline
-	if _data.get("territory", "") == "terrestrial" and global_position.y < WATER_LEVEL + SEEK_LAND_MARGIN:
-		if _state != State.SEEK_LAND:
-			_state = State.SEEK_LAND
-		_seek_land(delta)
-		return
+	# Territory overrides
+	var territory: String = _data.get("territory", "")
+	var in_combat := _state in [State.CHASE, State.WINDUP, State.ATTACK, State.RECOVER]
+	match territory:
+		"terrestrial":
+			# Let provoked monsters chase freely; redirect only when idle/patrolling in water
+			if not in_combat and global_position.y < WATER_LEVEL + SEEK_LAND_MARGIN:
+				_state = State.SEEK_LAND
+				_seek_land(delta)
+				return
+		"aquatic":
+			# Never leaves water, even when provoked
+			if global_position.y > WATER_LEVEL:
+				_state = State.SEEK_WATER
+				_seek_water(delta)
+				return
+		"amphibious":
+			# Chases freely on land when provoked; returns to waterline when idle
+			if not in_combat and global_position.y > WATER_LEVEL + AMPHIBIOUS_PATROL_ABOVE:
+				_state = State.SEEK_WATER
+				_seek_water(delta)
+				return
 
 	# Detection
 	var player_health: PlayerHealth = player.get("health") as PlayerHealth
@@ -208,6 +225,37 @@ func _seek_land(delta: float) -> void:
 		_move_toward(global_position + best_dir, delta)
 	# Exit SEEK_LAND once safely above waterline
 	if global_position.y >= WATER_LEVEL + SEEK_LAND_MARGIN:
+		_state = State.IDLE
+
+
+func _seek_water(delta: float) -> void:
+	# Sample terrain height in 8 directions and move toward the lowest — toward water.
+	var space := get_world_3d().direct_space_state
+	var best_dir := Vector3.ZERO
+	var best_y := INF
+	var probe_dist := 8.0
+	for i in range(8):
+		var angle := TAU * float(i) / 8.0
+		var dir := Vector3(sin(angle), 0.0, cos(angle))
+		var probe_xz := global_position + dir * probe_dist
+		var ray := PhysicsRayQueryParameters3D.create(
+			Vector3(probe_xz.x, global_position.y + 60.0, probe_xz.z),
+			Vector3(probe_xz.x, global_position.y - 20.0, probe_xz.z)
+		)
+		ray.collision_mask = 1
+		ray.exclude = [self]
+		var hit := space.intersect_ray(ray)
+		var terrain_y: float = hit["position"].y if not hit.is_empty() else global_position.y
+		if terrain_y < best_y:
+			best_y = terrain_y
+			best_dir = dir
+	if best_dir != Vector3.ZERO:
+		_move_toward(global_position + best_dir, delta)
+	# Aquatic: exit when back in water. Amphibious: exit when within patrol zone.
+	var territory: String = _data.get("territory", "")
+	var at_water := global_position.y <= WATER_LEVEL
+	var in_patrol_zone := global_position.y <= WATER_LEVEL + AMPHIBIOUS_PATROL_ABOVE
+	if (territory == "aquatic" and at_water) or (territory == "amphibious" and in_patrol_zone):
 		_state = State.IDLE
 
 
@@ -523,8 +571,38 @@ func _perform_aoe(attack_data: Dictionary) -> void:
 
 
 func _pick_patrol_point() -> void:
+	var territory: String = _data.get("territory", "")
+	if territory == "aquatic" or territory == "amphibious":
+		_pick_patrol_point_near_water()
+		return
 	var offset := Vector3(randf_range(-40, 40), 0, randf_range(-40, 40))
 	_patrol_target = global_position + offset
+
+
+func _pick_patrol_point_near_water() -> void:
+	# Find a patrol point where terrain sits within the waterline band.
+	var territory: String = _data.get("territory", "")
+	var min_y := WATER_LEVEL - 6.0
+	var max_y := WATER_LEVEL + (0.0 if territory == "aquatic" else AMPHIBIOUS_PATROL_ABOVE)
+	var space := get_world_3d().direct_space_state
+	for _attempt in range(12):
+		var offset := Vector3(randf_range(-40, 40), 0, randf_range(-40, 40))
+		var probe_xz := global_position + offset
+		var ray := PhysicsRayQueryParameters3D.create(
+			Vector3(probe_xz.x, global_position.y + 80.0, probe_xz.z),
+			Vector3(probe_xz.x, global_position.y - 30.0, probe_xz.z)
+		)
+		ray.collision_mask = 1
+		ray.exclude = [self]
+		var hit := space.intersect_ray(ray)
+		if hit.is_empty():
+			continue
+		var terrain_y: float = hit["position"].y
+		if terrain_y >= min_y and terrain_y <= max_y:
+			_patrol_target = hit["position"] + Vector3(0.0, 0.1, 0.0)
+			return
+	# Fallback: stay near current position
+	_patrol_target = global_position + Vector3(randf_range(-10, 10), 0, randf_range(-10, 10))
 
 
 func take_damage(amount: float, attacker: Node = null) -> void:
@@ -541,7 +619,8 @@ func take_damage(amount: float, attacker: Node = null) -> void:
 
 	_flash_hit()
 
-	if attacker != null and _state == State.IDLE:
+	var provokable := _state in [State.IDLE, State.PATROL, State.SEEK_LAND, State.SEEK_WATER]
+	if attacker != null and provokable:
 		_target = attacker
 		_state = State.CHASE
 		_has_detected_player = true

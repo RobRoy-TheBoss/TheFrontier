@@ -134,9 +134,19 @@ func _find_spawn_position(territory: String = "") -> Vector3:
 			attempts -= 1
 			continue
 		var pos: Vector3 = hit["position"] + Vector3(0.0, 0.1, 0.0)
-		if territory == "terrestrial" and pos.y <= WATER_LEVEL:
-			attempts -= 1
-			continue
+		match territory:
+			"terrestrial":
+				if pos.y <= WATER_LEVEL:
+					attempts -= 1
+					continue
+			"aquatic":
+				if pos.y > WATER_LEVEL:
+					attempts -= 1
+					continue
+			"amphibious":
+				if pos.y > WATER_LEVEL + 3.0 or pos.y < WATER_LEVEL - 6.0:
+					attempts -= 1
+					continue
 		if player and pos.distance_to(player.global_position) < MIN_SPAWN_DIST_FROM_PLAYER:
 			attempts -= 1
 			continue
