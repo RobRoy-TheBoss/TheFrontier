@@ -144,7 +144,7 @@ func _find_spawn_position(territory: String = "") -> Vector3:
 					attempts -= 1
 					continue
 			"amphibious":
-				if pos.y > WATER_LEVEL + 3.0 or pos.y < WATER_LEVEL - 6.0:
+				if pos.y < 8.0 or pos.y > 8.5:
 					attempts -= 1
 					continue
 		if player and pos.distance_to(player.global_position) < MIN_SPAWN_DIST_FROM_PLAYER:
