@@ -32,7 +32,8 @@ var _deathmark_cripple_count: int = 0
 var _mesh_material: StandardMaterial3D = null
 var _mesh_albedo_original: Color = Color.WHITE
 var _attack_indicator: MeshInstance3D = null
-var _indicator_material: StandardMaterial3D = null
+var _ind_fill_mat: StandardMaterial3D = null
+var _ind_edge_mat: StandardMaterial3D = null
 
 const GRAVITY := 9.8
 const DEFAULT_WINDUP := 0.6
@@ -196,8 +197,10 @@ func _update_telegraph_visual() -> void:
 	var t := 1.0 - (_windup_timer / duration)  # 0.0 at start, 1.0 just before strike
 	if _mesh_material:
 		_mesh_material.albedo_color = Color(1.0, lerpf(0.45, 0.0, t), 0.0)
-	if _indicator_material:
-		_indicator_material.albedo_color = Color(1.0, lerpf(0.45, 0.0, t), 0.0, lerpf(0.35, 0.75, t))
+	if _ind_fill_mat:
+		_ind_fill_mat.albedo_color = Color(1.0, lerpf(0.45, 0.0, t), 0.0, lerpf(0.20, 0.40, t))
+	if _ind_edge_mat:
+		_ind_edge_mat.albedo_color = Color(1.0, lerpf(0.45, 0.0, t), 0.0, 1.0)
 
 
 func _finish_windup() -> void:
@@ -226,15 +229,24 @@ func _show_attack_indicator() -> void:
 	var mesh := _build_indicator_mesh(shape)
 	if mesh == null:
 		return
-	_indicator_material = StandardMaterial3D.new()
-	_indicator_material.albedo_color = Color(1.0, 0.45, 0.0, 0.35)
-	_indicator_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_indicator_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_indicator_material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	_indicator_material.render_priority = 1
+
+	_ind_fill_mat = StandardMaterial3D.new()
+	_ind_fill_mat.albedo_color = Color(1.0, 0.45, 0.0, 0.20)
+	_ind_fill_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_ind_fill_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_ind_fill_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_ind_fill_mat.render_priority = 1
+
+	_ind_edge_mat = StandardMaterial3D.new()
+	_ind_edge_mat.albedo_color = Color(1.0, 0.45, 0.0, 1.0)
+	_ind_edge_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_ind_edge_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_ind_edge_mat.render_priority = 2
+
 	_attack_indicator = MeshInstance3D.new()
 	_attack_indicator.mesh = mesh
-	_attack_indicator.material_override = _indicator_material
+	_attack_indicator.set_surface_override_material(0, _ind_fill_mat)
+	_attack_indicator.set_surface_override_material(1, _ind_edge_mat)
 	_attack_indicator.position = Vector3(0.0, 0.05, 0.0)
 	add_child(_attack_indicator)
 
@@ -243,58 +255,77 @@ func _hide_attack_indicator() -> void:
 	if _attack_indicator != null:
 		_attack_indicator.queue_free()
 		_attack_indicator = null
-	_indicator_material = null
+	_ind_fill_mat = null
+	_ind_edge_mat = null
+
+
+# Adds a flat quad (two triangles) along a line segment, raised slightly above fill.
+func _add_edge_quad(verts: PackedVector3Array, a: Vector3, b: Vector3, width: float) -> void:
+	var dir := b - a
+	dir.y = 0.0
+	if dir.length() < 0.001:
+		return
+	dir = dir.normalized()
+	var perp := Vector3(-dir.z, 0.0, dir.x) * (width * 0.5)
+	var lift := Vector3(0.0, 0.02, 0.0)
+	verts.append(a - perp + lift); verts.append(b - perp + lift); verts.append(b + perp + lift)
+	verts.append(a - perp + lift); verts.append(b + perp + lift); verts.append(a + perp + lift)
 
 
 func _build_indicator_mesh(shape: Dictionary) -> ArrayMesh:
-	const SEGMENTS := 32
+	const SEG  := 32
+	const EW   := 0.08  # edge quad width in metres
 	var type: String = shape.get("type", "radius")
-	var verts := PackedVector3Array()
+	var fill := PackedVector3Array()
+	var edge := PackedVector3Array()
 
 	match type:
-		"radius":
-			var r: float = shape.get("range", 2.5)
-			for i in range(SEGMENTS):
-				var a0 := TAU * i / SEGMENTS
-				var a1 := TAU * (i + 1) / SEGMENTS
-				verts.append(Vector3.ZERO)
-				verts.append(Vector3(sin(a0) * r, 0.0, cos(a0) * r))
-				verts.append(Vector3(sin(a1) * r, 0.0, cos(a1) * r))
 		"arc":
 			var r: float = shape.get("range", 2.5)
 			var half := deg_to_rad(shape.get("half_angle_deg", 60.0))
-			# Centred on -Z (forward). In XZ polar: -Z = angle 0 here, sweep ±half.
-			for i in range(SEGMENTS):
-				var a0 := -half + TAU * i / SEGMENTS * (half * 2.0 / TAU)
-				var a1 := -half + TAU * (i + 1) / SEGMENTS * (half * 2.0 / TAU)
-				verts.append(Vector3.ZERO)
-				verts.append(Vector3(sin(a0) * r, 0.0, -cos(a0) * r))
-				verts.append(Vector3(sin(a1) * r, 0.0, -cos(a1) * r))
+			for i in range(SEG):
+				var a0 := lerp(-half, half, float(i) / SEG)
+				var a1 := lerp(-half, half, float(i + 1) / SEG)
+				var p0 := Vector3(sin(a0) * r, 0.0, -cos(a0) * r)
+				var p1 := Vector3(sin(a1) * r, 0.0, -cos(a1) * r)
+				fill.append(Vector3.ZERO); fill.append(p0); fill.append(p1)
+				_add_edge_quad(edge, p0, p1, EW)
+			_add_edge_quad(edge, Vector3.ZERO, Vector3(sin(-half) * r, 0.0, -cos(-half) * r), EW)
+			_add_edge_quad(edge, Vector3.ZERO, Vector3(sin( half) * r, 0.0, -cos( half) * r), EW)
+		"radius":
+			var r: float = shape.get("range", 2.5)
+			for i in range(SEG):
+				var a0 := TAU * float(i) / SEG
+				var a1 := TAU * float(i + 1) / SEG
+				var p0 := Vector3(sin(a0) * r, 0.0, cos(a0) * r)
+				var p1 := Vector3(sin(a1) * r, 0.0, cos(a1) * r)
+				fill.append(Vector3.ZERO); fill.append(p0); fill.append(p1)
+				_add_edge_quad(edge, p0, p1, EW)
 		"line":
 			var length: float = shape.get("length", 3.0)
 			var hw: float = shape.get("width", 0.8) * 0.5
-			verts.append(Vector3(-hw, 0.0,  0.0))
-			verts.append(Vector3( hw, 0.0,  0.0))
-			verts.append(Vector3( hw, 0.0, -length))
-			verts.append(Vector3(-hw, 0.0,  0.0))
-			verts.append(Vector3( hw, 0.0, -length))
-			verts.append(Vector3(-hw, 0.0, -length))
+			var c := [Vector3(-hw,0,0), Vector3(hw,0,0), Vector3(hw,0,-length), Vector3(-hw,0,-length)]
+			fill.append(c[0]); fill.append(c[1]); fill.append(c[2])
+			fill.append(c[0]); fill.append(c[2]); fill.append(c[3])
+			for i in range(4):
+				_add_edge_quad(edge, c[i], c[(i + 1) % 4], EW)
 		"circle":
 			var r: float = shape.get("radius", 1.5)
-			for i in range(SEGMENTS):
-				var a0 := TAU * i / SEGMENTS
-				var a1 := TAU * (i + 1) / SEGMENTS
-				verts.append(Vector3.ZERO)
-				verts.append(Vector3(sin(a0) * r, 0.0, cos(a0) * r))
-				verts.append(Vector3(sin(a1) * r, 0.0, cos(a1) * r))
+			for i in range(SEG):
+				var a0 := TAU * float(i) / SEG
+				var a1 := TAU * float(i + 1) / SEG
+				var p0 := Vector3(sin(a0) * r, 0.0, cos(a0) * r)
+				var p1 := Vector3(sin(a1) * r, 0.0, cos(a1) * r)
+				fill.append(Vector3.ZERO); fill.append(p0); fill.append(p1)
+				_add_edge_quad(edge, p0, p1, EW)
 
-	if verts.is_empty():
+	if fill.is_empty():
 		return null
-	var arr := Array()
-	arr.resize(Mesh.ARRAY_MAX)
-	arr[Mesh.ARRAY_VERTEX] = verts
+	var a0 := Array(); a0.resize(Mesh.ARRAY_MAX); a0[Mesh.ARRAY_VERTEX] = fill
+	var a1 := Array(); a1.resize(Mesh.ARRAY_MAX); a1[Mesh.ARRAY_VERTEX] = edge
 	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, a0)  # surface 0 = fill
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, a1)  # surface 1 = edge
 	return mesh
 
 
