@@ -7,14 +7,14 @@ extends Node3D
 @export var area_id: String = ""
 @export var east_west_scalar: float = 1.0  # 0 = east (easy), 1 = west (hardest)
 @export var spawn_table: Array = []  # Override from area data, else loaded from data
-@export var max_monsters: int = 8
+@export var max_monsters: int = 80
 @export var despawn_distance: float = 150.0
 
 const SPAWN_INTERVAL := 30.0
 const MIN_SPAWN_DIST_FROM_PLAYER := 30.0
 
 var _active_monsters: Array = []
-var _spawn_timer: float = SPAWN_INTERVAL
+var _spawn_timer: float = 0.0
 var _suppression_percent: float = 0.0
 var _settlement_in_area: String = ""
 
@@ -61,20 +61,23 @@ func _try_spawn() -> void:
 	if randf() < _suppression_percent:
 		return
 
-	var monster_id := _pick_monster_from_table()
-	if monster_id == "":
-		return
-
-	var spawn_pos := _find_spawn_position()
-	if spawn_pos == Vector3.ZERO:
-		return
-
-	var monster_instance := MONSTER_SCENE.instantiate()
-	monster_instance.monster_id = monster_id
-	get_tree().root.add_child(monster_instance)
-	monster_instance.global_position = spawn_pos
-	monster_instance.connect("died", _on_monster_died)
-	_active_monsters.append(monster_instance)
+	# Batch fill on first spawn (timer was 0.0); trickle after that
+	var batch := max_monsters if _active_monsters.is_empty() else 1
+	for i in range(batch):
+		if _active_monsters.size() >= max_monsters:
+			break
+		var monster_id := _pick_monster_from_table()
+		if monster_id == "":
+			break
+		var spawn_pos := _find_spawn_position()
+		if spawn_pos == Vector3.ZERO:
+			continue
+		var monster_instance := MONSTER_SCENE.instantiate()
+		monster_instance.monster_id = monster_id
+		get_tree().root.add_child(monster_instance)
+		monster_instance.global_position = spawn_pos
+		monster_instance.connect("died", _on_monster_died)
+		_active_monsters.append(monster_instance)
 
 
 func _pick_monster_from_table() -> String:
@@ -114,7 +117,7 @@ func _find_spawn_position() -> Vector3:
 	var player := get_tree().get_first_node_in_group("player")
 	var attempts := 10
 	while attempts > 0:
-		var offset := Vector3(randf_range(-60, 60), 0, randf_range(-60, 60))
+		var offset := Vector3(randf_range(-160, 160), 0, randf_range(-160, 160))
 		var pos := global_position + offset
 		# Not too close to player
 		if player and pos.distance_to(player.global_position) < MIN_SPAWN_DIST_FROM_PLAYER:

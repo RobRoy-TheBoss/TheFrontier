@@ -3,7 +3,7 @@
 ## combat, loot, and XP trigger reporting.
 extends CharacterBody3D
 
-enum State { IDLE, PATROL, ALERT, CHASE, ATTACK, FLEE, DESPAWN, DEAD }
+enum State { IDLE, PATROL, ALERT, CHASE, WINDUP, ATTACK, FLEE, DESPAWN, DEAD }
 
 @export var monster_id: String = "prowler"
 @export var static_mode: bool = false  # If true: no AI, no movement, no attacks
@@ -16,6 +16,7 @@ var _health: float = 0.0
 var _max_health: float = 0.0
 var _alert_timer: float = 0.0
 var _attack_cooldown: float = 0.0
+var _windup_timer: float = 0.0
 var _patrol_timer: float = 0.0
 var _patrol_target: Vector3 = Vector3.ZERO
 var _has_detected_player: bool = false
@@ -27,8 +28,10 @@ var _bleed_timer: float = 0.0
 var _deathmark_active: bool = false
 var _deathmark_cripple_count: int = 0
 var _mesh_material: StandardMaterial3D = null
+var _mesh_albedo_original: Color = Color.WHITE
 
 const GRAVITY := 9.8
+const WINDUP_DURATION := 0.6  # seconds of visible telegraph before attack lands
 
 signal died(monster_id: String, position: Vector3)
 
@@ -49,6 +52,7 @@ func _ready() -> void:
 		if mat:
 			_mesh_material = mat.duplicate() as StandardMaterial3D
 			mesh.set_surface_override_material(0, _mesh_material)
+			_mesh_albedo_original = _mesh_material.albedo_color
 
 
 func _physics_process(delta: float) -> void:
@@ -70,6 +74,11 @@ func _tick_timers(delta: float) -> void:
 			_state = State.PATROL
 	if _cripple_timer > 0.0:
 		_cripple_timer -= delta
+	if _windup_timer > 0.0:
+		_windup_timer -= delta
+		_update_telegraph_visual()
+		if _windup_timer <= 0.0:
+			_finish_windup()
 
 
 func _run_ai(delta: float) -> void:
@@ -93,7 +102,7 @@ func _run_ai(delta: float) -> void:
 		if _can_see_player(player):
 			_has_detected_player = true
 			_target = player
-			if _state not in [State.CHASE, State.ATTACK]:
+			if _state not in [State.CHASE, State.WINDUP, State.ATTACK]:
 				_state = State.CHASE
 
 	match _state:
@@ -116,16 +125,21 @@ func _run_ai(delta: float) -> void:
 				_target = null
 				return
 			_move_toward(_target.global_position, delta)
-			if dist_to_player <= 2.0 and _attack_cooldown <= 0.0:
-				_state = State.ATTACK
+			if dist_to_player <= 1.4 and _attack_cooldown <= 0.0:
+				_state = State.WINDUP
+				_windup_timer = WINDUP_DURATION
+				_start_telegraph_visual()
+		State.WINDUP:
+			# Freeze movement; face the target while telegraphing
+			velocity.x = 0.0
+			velocity.z = 0.0
+			if _target != null:
+				var dir: Vector3 = _target.global_position - global_position
+				dir.y = 0.0
+				if dir.length() > 0.01:
+					look_at(global_position + dir.normalized(), Vector3.UP)
 		State.ATTACK:
-			if _target == null:
-				_state = State.IDLE
-				return
-			_telegraph_attack()
-			_perform_attack(_target)
-			_attack_cooldown = 1.0 / _stats.get("attack_speed", 1.0)
-			_state = State.CHASE
+			pass  # Reached only if windup was skipped externally; handled in _finish_windup
 
 
 func _can_see_player(player: Node) -> bool:
@@ -155,10 +169,30 @@ func _apply_gravity(delta: float) -> void:
 		velocity.y = 0.0
 
 
-func _telegraph_attack() -> void:
-	# Plays telegraph animation — monsters must telegraph per MEL-043
-	# Animation node: $AnimationPlayer.play("telegraph")
-	pass
+func _start_telegraph_visual() -> void:
+	if _mesh_material:
+		_mesh_material.albedo_color = Color(1.0, 0.45, 0.0)
+
+
+func _update_telegraph_visual() -> void:
+	if _mesh_material == null or _windup_timer <= 0.0:
+		return
+	var t := 1.0 - (_windup_timer / WINDUP_DURATION)  # 0.0 at start, 1.0 just before strike
+	_mesh_material.albedo_color = Color(1.0, lerpf(0.45, 0.0, t), 0.0)
+
+
+func _finish_windup() -> void:
+	if _mesh_material:
+		_mesh_material.albedo_color = _mesh_albedo_original
+	if _state == State.WINDUP:
+		_state = State.ATTACK
+		# Only land the hit if the player is still within reach
+		if _target != null:
+			var dist := global_position.distance_to(_target.global_position)
+			if dist <= 2.5:
+				_perform_attack(_target)
+		_attack_cooldown = 1.0 / _stats.get("attack_speed", 1.0)
+		_state = State.CHASE
 
 
 func _perform_attack(target: Node) -> void:
@@ -208,7 +242,7 @@ func _perform_aoe(attack_data: Dictionary) -> void:
 
 
 func _pick_patrol_point() -> void:
-	var offset := Vector3(randf_range(-8, 8), 0, randf_range(-8, 8))
+	var offset := Vector3(randf_range(-40, 40), 0, randf_range(-40, 40))
 	_patrol_target = global_position + offset
 
 
@@ -351,7 +385,10 @@ func is_apex() -> bool:
 func _flash_hit() -> void:
 	if _mesh_material == null:
 		return
-	var original: Color = _mesh_material.albedo_color
 	_mesh_material.albedo_color = Color.WHITE
 	await get_tree().create_timer(0.1).timeout
-	_mesh_material.albedo_color = original
+	# Restore telegraph color if still winding up, otherwise restore base color
+	if _state == State.WINDUP and _windup_timer > 0.0:
+		_update_telegraph_visual()
+	else:
+		_mesh_material.albedo_color = _mesh_albedo_original

@@ -79,6 +79,11 @@ func _spawn(tile: Dictionary) -> void:
 	area.set("area_id",     "%d_%d_%s" % [col, row, mesh.get_basename()])
 	area.set("biome",       "forest")
 	area.set("area_bounds", Vector3(360, 20, 360))
+	# Inject spawn table before _ready() so AreaSpawnManager picks it up
+	var spawn_table_id: String = tile.get("spawn_table_id", "")
+	if spawn_table_id != "":
+		var table_entries: Array = DataLoader.get_spawn_table(spawn_table_id).get("entries", [])
+		area.set("spawn_table", table_entries)
 	add_child(area)
 
 	var loader := Node.new()
