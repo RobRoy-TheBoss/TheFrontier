@@ -51,6 +51,9 @@ func _ready() -> void:
 	_stats = _data.get("stats", {})
 	_max_health = _stats.get("max_health", 60.0)
 	_health = _max_health
+	var label := get_node_or_null("FacingLabel") as Label3D
+	if label:
+		label.text = ">:( " + monster_id
 	var mesh: MeshInstance3D = get_node_or_null("MeshInstance3D")
 	if mesh:
 		var mat := mesh.get_surface_override_material(0)
@@ -226,6 +229,7 @@ func _finish_windup() -> void:
 func _show_attack_indicator() -> void:
 	_hide_attack_indicator()
 	var shape: Dictionary = _current_attack.get("shape", {})
+	print("[Monster] %s | attack: %s | shape: %s" % [monster_id, _current_attack.get("name", "?"), shape.get("type", "?")])
 	var mesh := _build_indicator_mesh(shape)
 	if mesh == null:
 		return
