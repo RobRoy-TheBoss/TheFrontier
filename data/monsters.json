@@ -48,7 +48,9 @@
     "xp_type": "bow_kill",
     "audio_cue": "prowler_howl",
     "mesh_rotation_deg": [90, 0, 0],
-    "label_offset": [0, 1.0, -1.05],
+    "mesh_position": [0, 0.5, 0],
+    "label_offset": [0, 1.1, -1.1],
+    "label_rotation_deg": [0, 180, 0],
     "attacks": [
       { "name": "bite",  "damage_multiplier": 1.0, "windup_duration": 0.5, "cooldown": 1.2, "shape": { "type": "arc",    "range": 2.2, "half_angle_deg": 65 } },
       { "name": "lunge", "damage_multiplier": 1.6, "windup_duration": 0.8, "cooldown": 4.0, "shape": { "type": "line",    "range": 5.5, "half_angle_deg": 40 } }

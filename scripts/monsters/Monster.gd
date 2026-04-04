@@ -60,12 +60,18 @@ func _ready() -> void:
 		label.text = ">:( " + monster_id
 		var lo: Array = _data.get("label_offset", [])
 		if lo.size() == 3:
-			label.position = Vector3(lo[0], lo[1], lo[2])
+			label.position = Vector3(float(lo[0]), float(lo[1]), float(lo[2]))
+		var lr: Array = _data.get("label_rotation_deg", [])
+		if lr.size() == 3:
+			label.rotation_degrees = Vector3(float(lr[0]), float(lr[1]), float(lr[2]))
 	var mesh: MeshInstance3D = get_node_or_null("MeshInstance3D")
 	if mesh:
 		var rot: Array = _data.get("mesh_rotation_deg", [])
 		if rot.size() == 3:
-			mesh.rotation_degrees = Vector3(rot[0], rot[1], rot[2])
+			mesh.rotation_degrees = Vector3(float(rot[0]), float(rot[1]), float(rot[2]))
+		var mpos: Array = _data.get("mesh_position", [])
+		if mpos.size() == 3:
+			mesh.position = Vector3(float(mpos[0]), float(mpos[1]), float(mpos[2]))
 		var mat := mesh.get_surface_override_material(0)
 		if mat:
 			_mesh_material = mat.duplicate() as StandardMaterial3D
