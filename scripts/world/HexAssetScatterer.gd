@@ -45,9 +45,12 @@ const BIOME_ASSETS := {
 	"coastal": {
 		"slot_spacing": 2.5,
 		"assets": [
-			{ "path": _N + "CommonTree_1.gltf",          "density": 0.025, "scale": 1.5 },
+			{ "path": _N + "CommonTree_1.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_3.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_5.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_1.gltf",          "density": 0.025, "scale": 1.5 },			
 			{ "path": _N + "CommonTree_3.gltf",          "density": 0.02, "scale": 1.5 },
-			{ "path": _N + "CommonTree_5.gltf",          "density": 0.02, "scale": 1.5 },
+			{ "path": _N + "CommonTree_5.gltf",          "density": 0.02, "scale": 1.5 },			
 			{ "path": _N + "TwistedTree_1.gltf",         "density": 0.005, "scale": 0.75 },
 			{ "path": _N + "DeadTree_2.gltf",            "density": 0.005, "scale": 1.0 },
 			{ "path": _N + "Bush_Common_Flowers.gltf",   "density": 0.005, "scale": 1.0 },
@@ -74,11 +77,14 @@ const BIOME_ASSETS := {
 		],
 	},
 	"river": {
-		"slot_spacing": 5.0,
+		"slot_spacing": 2.5,
 		"assets": [
-			{ "path": _N + "CommonTree_2.gltf",         "density": 0.05, "scale": 1.5 },
-			{ "path": _N + "CommonTree_4.gltf",         "density": 0.05, "scale": 1.5 },
-			{ "path": _N + "CommonTree_1.gltf",         "density": 0.04, "scale": 1.5 },
+			{ "path": _N + "CommonTree_1.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_2.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_4.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_2.gltf",         "density": 0.025, "scale": 1.5 },
+			{ "path": _N + "CommonTree_4.gltf",         "density": 0.025, "scale": 1.5 },
+			{ "path": _N + "CommonTree_1.gltf",         "density": 0.02, "scale": 1.5 },
 			{ "path": _N + "TwistedTree_3.gltf",        "density": 0.02, "scale": 0.75 },
 			{ "path": _N + "TwistedTree_5.gltf",        "density": 0.01, "scale": 0.75 },
 			{ "path": _N + "DeadTree_1.gltf",           "density": 0.01, "scale": 1.0 },
@@ -95,6 +101,9 @@ const BIOME_ASSETS := {
 	"forest": {
 		"slot_spacing": 6.0,
 		"assets": [
+			{ "path": _N + "CommonTree_1.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_2.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_4.gltf",          "density": 0.0001, "scale": 5 },
 			{ "path": _N + "CommonTree_1.gltf",       "density": 0.23, "scale": 1.5 },
 			{ "path": _N + "CommonTree_2.gltf",       "density": 0.20, "scale": 1.5 },
 			{ "path": _N + "CommonTree_3.gltf",       "density": 0.17, "scale": 1.5 },
