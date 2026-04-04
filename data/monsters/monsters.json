@@ -1,6 +1,5 @@
-{
-  "monsters": [
-    {
+[
+  {
       "id": "prowler",
       "name": "Prowler",
       "description": "A lean, fast predator resembling an oversized wolf. Hunts in packs.",
@@ -330,5 +329,4 @@
       "xp_type": "melee_kill",
       "audio_cue": "stalker_roar"
     }
-  ]
-}
+]
