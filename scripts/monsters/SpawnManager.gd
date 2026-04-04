@@ -66,7 +66,7 @@ func _try_spawn() -> void:
 	for i in range(batch):
 		if _active_monsters.size() >= max_monsters:
 			break
-		var monster_id := _pick_monster_from_table()
+		var monster_id := "prowler"  # DEBUG: locked to prowler for testing
 		if monster_id == "":
 			break
 		var spawn_pos := _find_spawn_position()
