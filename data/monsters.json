@@ -18,6 +18,7 @@
       "detection_range": 20.0,
       "aggro_range": 15.0
     },
+    "recovery_time": 0.5,
     "fire_reaction": "avoid",
     "light_reaction": "neutral",
     "is_apex": false,

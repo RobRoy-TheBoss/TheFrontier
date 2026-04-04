@@ -3,7 +3,7 @@
 ## combat, loot, and XP trigger reporting.
 extends CharacterBody3D
 
-enum State { IDLE, PATROL, ALERT, CHASE, WINDUP, ATTACK, FLEE, DESPAWN, DEAD }
+enum State { IDLE, PATROL, ALERT, CHASE, WINDUP, ATTACK, RECOVER, FLEE, DESPAWN, DEAD }
 
 @export var monster_id: String = "prowler"
 @export var static_mode: bool = false  # If true: no AI, no movement, no attacks
@@ -19,6 +19,7 @@ var _attack_cooldown: float = 0.0   # global stagger/flinch blocker
 var _attack_cooldowns: Dictionary = {}  # attack name → remaining cooldown
 var _current_attack: Dictionary = {}    # attack selected at windup start
 var _windup_timer: float = 0.0
+var _recovery_timer: float = 0.0
 var _patrol_timer: float = 0.0
 var _patrol_target: Vector3 = Vector3.ZERO
 var _has_detected_player: bool = false
@@ -87,6 +88,10 @@ func _tick_timers(delta: float) -> void:
 		_update_telegraph_visual()
 		if _windup_timer <= 0.0:
 			_finish_windup()
+	if _recovery_timer > 0.0:
+		_recovery_timer -= delta
+		if _recovery_timer <= 0.0 and _state == State.RECOVER:
+			_state = State.CHASE
 	for atk_name in _attack_cooldowns:
 		_attack_cooldowns[atk_name] = maxf(0.0, _attack_cooldowns[atk_name] - delta)
 
@@ -152,7 +157,11 @@ func _run_ai(delta: float) -> void:
 			velocity.x = 0.0
 			velocity.z = 0.0
 		State.ATTACK:
-			pass  # Reached only if windup was skipped externally; handled in _finish_windup
+			pass  # Handled in _finish_windup
+		State.RECOVER:
+			# Post-attack freeze — can't move or start new attacks
+			velocity.x = 0.0
+			velocity.z = 0.0
 
 
 func _can_see_player(player: Node) -> bool:
@@ -214,7 +223,9 @@ func _finish_windup() -> void:
 		var atk_name: String = _current_attack.get("name", "attack")
 		var cd: float = _current_attack.get("cooldown", 1.0 / _stats.get("attack_speed", 1.0))
 		_attack_cooldowns[atk_name] = cd
-		_state = State.CHASE
+		var recovery: float = _data.get("recovery_time", 0.4)
+		_recovery_timer = recovery
+		_state = State.RECOVER
 
 
 func _show_attack_indicator() -> void:
