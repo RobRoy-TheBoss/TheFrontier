@@ -48,7 +48,7 @@
     "xp_type": "bow_kill",
     "audio_cue": "prowler_howl",
     "mesh_rotation_deg": [90, 0, 0],
-    "mesh_position": [0, 0.0, 0],
+    "mesh_position": [0, 0.5, 0],
     "label_offset": [0, 0.6, -1.1],
     "label_rotation_deg": [0, 180, 90],
     "attacks": [
