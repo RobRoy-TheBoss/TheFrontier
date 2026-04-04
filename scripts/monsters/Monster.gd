@@ -55,15 +55,18 @@ func _ready() -> void:
 	_stats = _data.get("stats", {})
 	_max_health = _stats.get("max_health", 60.0)
 	_health = _max_health
-	var label := get_node_or_null("FacingLabel") as Label3D
-	if label:
-		label.text = ">:( " + monster_id
+	var facing_label := get_node_or_null("FacingLabel") as Label3D
+	if facing_label:
+		facing_label.text = ">:("
 		var lo: Array = _data.get("label_offset", [])
 		if lo.size() == 3:
-			label.position = Vector3(float(lo[0]), float(lo[1]), float(lo[2]))
+			facing_label.position = Vector3(float(lo[0]), float(lo[1]), float(lo[2]))
 		var lr: Array = _data.get("label_rotation_deg", [])
 		if lr.size() == 3:
-			label.rotation_degrees = Vector3(float(lr[0]), float(lr[1]), float(lr[2]))
+			facing_label.rotation_degrees = Vector3(float(lr[0]), float(lr[1]), float(lr[2]))
+	var name_label := get_node_or_null("NameLabel") as Label3D
+	if name_label:
+		name_label.text = _data.get("name", monster_id)
 	var mesh: MeshInstance3D = get_node_or_null("MeshInstance3D")
 	if mesh:
 		var rot: Array = _data.get("mesh_rotation_deg", [])
