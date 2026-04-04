@@ -28,7 +28,7 @@ mesh = SubResource("CapsuleMesh_1")
 surface_material_override/0 = SubResource("StandardMaterial3D_1")
 
 [node name="FacingLabel" type="Label3D" parent="."]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 1.4, -0.52)
+transform = Transform3D(0, 1, 0, 1, 0, 0, 0, 0, -1, 0, 1.4, -0.52)
 text = ">:("
 font_size = 64
 pixel_size = 0.008
