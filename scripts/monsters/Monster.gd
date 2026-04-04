@@ -15,7 +15,9 @@ var _target: Node = null
 var _health: float = 0.0
 var _max_health: float = 0.0
 var _alert_timer: float = 0.0
-var _attack_cooldown: float = 0.0
+var _attack_cooldown: float = 0.0   # global stagger/flinch blocker
+var _attack_cooldowns: Dictionary = {}  # attack name → remaining cooldown
+var _current_attack: Dictionary = {}    # attack selected at windup start
 var _windup_timer: float = 0.0
 var _patrol_timer: float = 0.0
 var _patrol_target: Vector3 = Vector3.ZERO
@@ -31,7 +33,7 @@ var _mesh_material: StandardMaterial3D = null
 var _mesh_albedo_original: Color = Color.WHITE
 
 const GRAVITY := 9.8
-const WINDUP_DURATION := 0.6  # seconds of visible telegraph before attack lands
+const DEFAULT_WINDUP := 0.6
 
 signal died(monster_id: String, position: Vector3)
 
@@ -79,6 +81,8 @@ func _tick_timers(delta: float) -> void:
 		_update_telegraph_visual()
 		if _windup_timer <= 0.0:
 			_finish_windup()
+	for atk_name in _attack_cooldowns:
+		_attack_cooldowns[atk_name] = maxf(0.0, _attack_cooldowns[atk_name] - delta)
 
 
 func _run_ai(delta: float) -> void:
@@ -125,10 +129,13 @@ func _run_ai(delta: float) -> void:
 				_target = null
 				return
 			_move_toward(_target.global_position, delta)
-			if dist_to_player <= 1.4 and _attack_cooldown <= 0.0:
-				_state = State.WINDUP
-				_windup_timer = WINDUP_DURATION
-				_start_telegraph_visual()
+			if _attack_cooldown <= 0.0:
+				var atk := _pick_attack(dist_to_player)
+				if not atk.is_empty():
+					_current_attack = atk
+					_state = State.WINDUP
+					_windup_timer = atk.get("windup_duration", DEFAULT_WINDUP)
+					_start_telegraph_visual()
 		State.WINDUP:
 			# Freeze movement; face the target while telegraphing
 			velocity.x = 0.0
@@ -177,7 +184,8 @@ func _start_telegraph_visual() -> void:
 func _update_telegraph_visual() -> void:
 	if _mesh_material == null or _windup_timer <= 0.0:
 		return
-	var t := 1.0 - (_windup_timer / WINDUP_DURATION)  # 0.0 at start, 1.0 just before strike
+	var duration: float = _current_attack.get("windup_duration", DEFAULT_WINDUP)
+	var t := 1.0 - (_windup_timer / duration)  # 0.0 at start, 1.0 just before strike
 	_mesh_material.albedo_color = Color(1.0, lerpf(0.45, 0.0, t), 0.0)
 
 
@@ -186,13 +194,63 @@ func _finish_windup() -> void:
 		_mesh_material.albedo_color = _mesh_albedo_original
 	if _state == State.WINDUP:
 		_state = State.ATTACK
-		# Only land the hit if the player is still within reach
-		if _target != null:
-			var dist := global_position.distance_to(_target.global_position)
-			if dist <= 2.5:
-				_perform_attack(_target)
-		_attack_cooldown = 1.0 / _stats.get("attack_speed", 1.0)
+		if _target != null and _check_attack_shape(_target):
+			_perform_attack(_target)
+		var atk_name: String = _current_attack.get("name", "attack")
+		var cd: float = _current_attack.get("cooldown", 1.0 / _stats.get("attack_speed", 1.0))
+		_attack_cooldowns[atk_name] = cd
 		_state = State.CHASE
+
+
+func _pick_attack(dist: float) -> Dictionary:
+	var available: Array = []
+	for atk in _data.get("attacks", []):
+		var shape: Dictionary = atk.get("shape", {})
+		var atk_range: float = shape.get("range", shape.get("length", 2.5))
+		if dist > atk_range:
+			continue
+		var atk_name: String = atk.get("name", "attack")
+		if _attack_cooldowns.get(atk_name, 0.0) > 0.0:
+			continue
+		available.append(atk)
+	if available.is_empty():
+		return {}
+	return available[randi() % available.size()]
+
+
+func _check_attack_shape(target: Node) -> bool:
+	var to_target: Vector3 = target.global_position - global_position
+	to_target.y = 0.0
+	var dist := to_target.length()
+	var shape: Dictionary = _current_attack.get("shape", {})
+	var type: String = shape.get("type", "radius")
+
+	match type:
+		"radius":
+			return dist <= shape.get("range", 2.5)
+		"arc":
+			if dist > shape.get("range", 2.5):
+				return false
+			if dist < 0.01:
+				return true
+			var forward := -global_transform.basis.z
+			forward.y = 0.0
+			forward = forward.normalized()
+			var half_angle := deg_to_rad(shape.get("half_angle_deg", 60.0))
+			return forward.dot(to_target.normalized()) >= cos(half_angle)
+		"line":
+			var forward := -global_transform.basis.z
+			forward.y = 0.0
+			forward = forward.normalized()
+			var fwd_dist := forward.dot(to_target)
+			if fwd_dist < 0.0 or fwd_dist > shape.get("length", 3.0):
+				return false
+			return (to_target - forward * fwd_dist).length() <= shape.get("width", 0.8)
+		"circle":
+			# Pounce: circle centered at a world position set by the special attack
+			var center: Vector3 = shape.get("center", global_position)
+			return target.global_position.distance_to(center) <= shape.get("radius", 1.5)
+	return false
 
 
 func _perform_attack(target: Node) -> void:
@@ -203,7 +261,7 @@ func _perform_attack(target: Node) -> void:
 		return
 
 	var damage: float = _stats.get("damage", 10.0)
-	# Apply deathmark bonus
+	damage *= _current_attack.get("damage_multiplier", 1.0)
 	if _deathmark_active:
 		damage *= 1.30
 
