@@ -7,7 +7,7 @@ extends Node3D
 @export var area_id: String = ""
 @export var east_west_scalar: float = 1.0  # 0 = east (easy), 1 = west (hardest)
 @export var spawn_table: Array = []  # Override from area data, else loaded from data
-@export var max_monsters: int = 80
+@export var max_monsters: int = 40
 @export var despawn_distance: float = 150.0
 
 const SPAWN_INTERVAL := 30.0

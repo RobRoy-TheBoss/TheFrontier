@@ -20,6 +20,7 @@ var _attack_cooldowns: Dictionary = {}  # attack name → remaining cooldown
 var _current_attack: Dictionary = {}    # attack selected at windup start
 var _windup_timer: float = 0.0
 var _recovery_timer: float = 0.0
+var _charge_timer: float = 0.0  # ambush burst speed on first aggro
 var _patrol_timer: float = 0.0
 var _patrol_target: Vector3 = Vector3.ZERO
 var _has_detected_player: bool = false
@@ -128,6 +129,8 @@ func _tick_timers(delta: float) -> void:
 		_recovery_timer -= delta
 		if _recovery_timer <= 0.0 and _state == State.RECOVER:
 			_state = State.CHASE
+	if _charge_timer > 0.0:
+		_charge_timer -= delta
 	for atk_name in _attack_cooldowns:
 		_attack_cooldowns[atk_name] = maxf(0.0, _attack_cooldowns[atk_name] - delta)
 
@@ -183,14 +186,18 @@ func _run_ai(delta: float) -> void:
 				var at_full_health: bool = _health >= _max_health
 				if not (territory == "terrestrial" and player_in_water and at_full_health):
 					_state = State.CHASE
+					if _data.get("behavior_type", "") == "ambush":
+						_charge_timer = _data.get("charge_duration", 1.5)
 
 	match _state:
 		State.IDLE:
-			_patrol_timer -= delta
-			if _patrol_timer <= 0.0:
-				_pick_patrol_point()
-				_patrol_timer = randf_range(3.0, 8.0)
-				_state = State.PATROL
+			# Ambush monsters stay still and wait — no patrol
+			if _data.get("behavior_type", "") != "ambush":
+				_patrol_timer -= delta
+				if _patrol_timer <= 0.0:
+					_pick_patrol_point()
+					_patrol_timer = randf_range(3.0, 8.0)
+					_state = State.PATROL
 		State.PATROL:
 			_move_toward(_patrol_target, delta)
 			if global_position.distance_to(_patrol_target) < 1.0:
@@ -307,6 +314,8 @@ func _move_toward(target_pos: Vector3, delta: float) -> void:
 		return
 	direction = direction / dir_len
 	var speed: float = _stats.get("move_speed", 4.5)
+	if _charge_timer > 0.0:
+		speed *= _data.get("charge_speed_multiplier", 2.0)
 	velocity.x = direction.x * speed
 	velocity.z = direction.z * speed
 	look_at(global_position + direction, Vector3.UP)
@@ -664,6 +673,8 @@ func take_damage(amount: float, attacker: Node = null) -> void:
 		_target = attacker
 		_state = State.CHASE
 		_has_detected_player = true
+		if _data.get("behavior_type", "") == "ambush":
+			_charge_timer = _data.get("charge_duration", 1.5)
 
 	if _health <= 0.0:
 		_die()

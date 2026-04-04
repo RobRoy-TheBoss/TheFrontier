@@ -146,6 +146,8 @@
       "aggro_range": 8.0
     },
     "territory": "amphibious",
+    "charge_duration": 2.0,
+    "charge_speed_multiplier": 2.2,
     "mesh_type": "cylinder",
     "mesh_radius": 0.5,
     "mesh_height": 0.5,
