@@ -99,10 +99,10 @@ func is_edge_passable(area_a: String, area_b: String) -> bool:
 	# Keys are "col_row"; parse col/row and pass as q/r for edge direction math
 	var parts_a := area_a.split("_")
 	var parts_b := area_b.split("_")
-	var q_a := int(parts_a[0]) if parts_a.size() >= 2 else data_a.get("col", 0)
-	var r_a := int(parts_a[1]) if parts_a.size() >= 2 else data_a.get("row", 0)
-	var q_b := int(parts_b[0]) if parts_b.size() >= 2 else data_b.get("col", 0)
-	var r_b := int(parts_b[1]) if parts_b.size() >= 2 else data_b.get("row", 0)
+	var q_a: int = int(parts_a[0]) if parts_a.size() >= 2 else int(data_a.get("col", 0))
+	var r_a: int = int(parts_a[1]) if parts_a.size() >= 2 else int(data_a.get("row", 0))
+	var q_b: int = int(parts_b[0]) if parts_b.size() >= 2 else int(data_b.get("col", 0))
+	var r_b: int = int(parts_b[1]) if parts_b.size() >= 2 else int(data_b.get("row", 0))
 
 	var edge_index := HexGrid.get_shared_edge_index(q_a, r_a, q_b, r_b)
 	if edge_index == -1:
