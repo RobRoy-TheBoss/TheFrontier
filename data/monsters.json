@@ -53,7 +53,7 @@
     "label_rotation_deg": [0, 180, 90],
     "attacks": [
       { "name": "bite",  "damage_multiplier": 1.0, "windup_duration": 0.5, "cooldown": 1.2, "shape": { "type": "arc",    "range": 2.2, "half_angle_deg": 65 } },
-      { "name": "lunge", "damage_multiplier": 1.6, "windup_duration": 0.8, "cooldown": 4.0, "shape": { "type": "line",    "range": 5.5, "half_angle_deg": 40 } }
+      { "name": "lunge", "damage_multiplier": 1.6, "windup_duration": 0.8, "cooldown": 4.0, "shape": { "type": "line", "length": 3.5, "width": 0.8 } }
     ],
     "health": 60,
     "move_speed": 6.0,
