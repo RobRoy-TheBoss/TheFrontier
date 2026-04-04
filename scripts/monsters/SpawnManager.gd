@@ -38,10 +38,11 @@ func _physics_process(delta: float) -> void:
 		_spawn_timer = SPAWN_INTERVAL
 
 
+const DEFAULT_SPAWN_TABLE := "crestport_coast"
+
 func _load_area_spawn_data() -> void:
-	# Placeholder: real area data loaded from map JSON
-	# spawn_table already set by Area node or exported
-	pass
+	if spawn_table.is_empty():
+		spawn_table = DataLoader.get_spawn_table(DEFAULT_SPAWN_TABLE).get("entries", [])
 
 
 func recalculate_suppression() -> void:
@@ -67,7 +68,7 @@ func _try_spawn() -> void:
 	for i in range(batch):
 		if _active_monsters.size() >= max_monsters:
 			break
-		var monster_id := "prowler" if randf() < 0.3 else "bog_lurker"  # DEBUG
+		var monster_id := _pick_monster_from_table()
 		if monster_id == "":
 			break
 		var monster_data: Dictionary = DataLoader.get_monster(monster_id)
@@ -144,7 +145,7 @@ func _find_spawn_position(territory: String = "") -> Vector3:
 					attempts -= 1
 					continue
 			"amphibious":
-				if pos.y < 8.0 or pos.y > 8.5:
+				if pos.y < 6.0 or pos.y > 8.5:
 					attempts -= 1
 					continue
 		if player and pos.distance_to(player.global_position) < MIN_SPAWN_DIST_FROM_PLAYER:
