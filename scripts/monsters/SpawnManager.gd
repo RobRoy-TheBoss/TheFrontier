@@ -67,7 +67,7 @@ func _try_spawn() -> void:
 	for i in range(batch):
 		if _active_monsters.size() >= max_monsters:
 			break
-		var monster_id := "prowler" if randf() < 0.6 else "bog_lurker"  # DEBUG
+		var monster_id := "prowler" if randf() < 0.3 else "bog_lurker"  # DEBUG
 		if monster_id == "":
 			break
 		var monster_data: Dictionary = DataLoader.get_monster(monster_id)
