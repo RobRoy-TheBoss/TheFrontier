@@ -115,15 +115,25 @@ func _pick_monster_from_table() -> String:
 
 func _find_spawn_position() -> Vector3:
 	var player := get_tree().get_first_node_in_group("player")
+	var space := get_world_3d().direct_space_state
 	var attempts := 10
 	while attempts > 0:
 		var offset := Vector3(randf_range(-160, 160), 0, randf_range(-160, 160))
-		var pos := global_position + offset
-		# Not too close to player
+		var xz := global_position + offset
+		# Raycast straight down from above to find terrain surface
+		var ray := PhysicsRayQueryParameters3D.create(
+			Vector3(xz.x, xz.y + 200.0, xz.z),
+			Vector3(xz.x, xz.y - 50.0,  xz.z)
+		)
+		ray.collision_mask = 1  # terrain layer
+		var hit := space.intersect_ray(ray)
+		if hit.is_empty():
+			attempts -= 1
+			continue
+		var pos: Vector3 = hit["position"] + Vector3(0.0, 0.1, 0.0)
 		if player and pos.distance_to(player.global_position) < MIN_SPAWN_DIST_FROM_PLAYER:
 			attempts -= 1
 			continue
-		# Not in settlement safe zone
 		if _in_safe_zone(pos):
 			attempts -= 1
 			continue
