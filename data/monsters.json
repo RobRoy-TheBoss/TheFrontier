@@ -45,6 +45,10 @@
     ],
     "xp_type": "bow_kill",
     "audio_cue": "prowler_howl",
+    "attacks": [
+      { "name": "bite",  "damage_multiplier": 1.0, "windup_duration": 0.5, "cooldown": 1.2, "shape": { "type": "arc",    "range": 2.2, "half_angle_deg": 65 } },
+      { "name": "lunge", "damage_multiplier": 1.6, "windup_duration": 0.8, "cooldown": 4.0, "shape": { "type": "arc",    "range": 3.5, "half_angle_deg": 40 } }
+    ],
     "health": 60,
     "move_speed": 6.0,
     "spawn_weight": 0.35,
@@ -102,6 +106,10 @@
     ],
     "xp_type": "melee_kill",
     "audio_cue": "crawler_chittering",
+    "attacks": [
+      { "name": "body_slam", "damage_multiplier": 1.0, "windup_duration": 0.9, "cooldown": 2.5, "shape": { "type": "radius", "range": 2.0 } },
+      { "name": "claw_snap", "damage_multiplier": 0.7, "windup_duration": 0.4, "cooldown": 1.0, "shape": { "type": "arc",    "range": 1.8, "half_angle_deg": 55 } }
+    ],
     "health": 120,
     "move_speed": 4.5,
     "spawn_weight": 0.25,
@@ -164,6 +172,10 @@
     ],
     "xp_type": "melee_kill",
     "audio_cue": "lurker_gurgle",
+    "attacks": [
+      { "name": "lunge_bite",  "damage_multiplier": 1.0, "windup_duration": 0.7, "cooldown": 2.0, "shape": { "type": "line", "length": 3.5, "width": 0.9 } },
+      { "name": "tail_sweep",  "damage_multiplier": 0.6, "windup_duration": 0.5, "cooldown": 1.5, "shape": { "type": "arc",  "range": 2.2,  "half_angle_deg": 120 } }
+    ],
     "health": 180,
     "move_speed": 5.0,
     "spawn_weight": 0.2,
@@ -215,6 +227,9 @@
     ],
     "xp_type": "melee_kill",
     "audio_cue": "swarm_buzzing",
+    "attacks": [
+      { "name": "engulf", "damage_multiplier": 1.0, "windup_duration": 0.3, "cooldown": 0.6, "shape": { "type": "radius", "range": 2.5 } }
+    ],
     "health": 80,
     "move_speed": 7.0,
     "spawn_weight": 0.15,
@@ -275,6 +290,10 @@
     ],
     "xp_type": "melee_kill",
     "audio_cue": "sentinel_grinding",
+    "attacks": [
+      { "name": "arm_sweep", "damage_multiplier": 1.0, "windup_duration": 1.2, "cooldown": 3.0, "shape": { "type": "arc",    "range": 3.5, "half_angle_deg": 100 } },
+      { "name": "stomp",     "damage_multiplier": 1.4, "windup_duration": 1.5, "cooldown": 6.0, "shape": { "type": "radius", "range": 2.5 } }
+    ],
     "health": 450,
     "move_speed": 2.5,
     "spawn_weight": 0.1,
@@ -329,6 +348,10 @@
     ],
     "xp_type": "stealth_kill",
     "audio_cue": "bonewalker_clicking",
+    "attacks": [
+      { "name": "reach_grab", "damage_multiplier": 1.0, "windup_duration": 0.6, "cooldown": 1.8, "shape": { "type": "line", "length": 4.0, "width": 0.7 } },
+      { "name": "rake",       "damage_multiplier": 0.5, "windup_duration": 0.3, "cooldown": 0.8, "shape": { "type": "arc",  "range": 1.8,  "half_angle_deg": 70 } }
+    ],
     "health": 240,
     "move_speed": 5.5,
     "spawn_weight": 0.2,
@@ -411,6 +434,10 @@
     ],
     "xp_type": "melee_kill",
     "audio_cue": "horror_ambient",
+    "attacks": [
+      { "name": "crush", "damage_multiplier": 1.0, "windup_duration": 1.0, "cooldown": 2.5, "shape": { "type": "radius", "range": 4.0 } },
+      { "name": "slam",  "damage_multiplier": 2.0, "windup_duration": 1.8, "cooldown": 8.0, "shape": { "type": "circle", "radius": 5.0 } }
+    ],
     "health": 1200,
     "move_speed": 4.0,
     "spawn_weight": 0.05,
@@ -491,6 +518,10 @@
     ],
     "xp_type": "melee_kill",
     "audio_cue": "stalker_roar",
+    "attacks": [
+      { "name": "claw_swipe", "damage_multiplier": 1.0, "windup_duration": 0.5, "cooldown": 1.5, "shape": { "type": "arc",    "range": 2.8, "half_angle_deg": 75 } },
+      { "name": "pounce",     "damage_multiplier": 2.5, "windup_duration": 1.0, "cooldown": 7.0, "shape": { "type": "circle", "radius": 2.0 } }
+    ],
     "health": 650,
     "move_speed": 9.0,
     "spawn_weight": 0.05,
@@ -532,6 +563,10 @@
     "loot_table": "elite_undead",
     "xp_type": "elite",
     "audio_cue": "grave_titan_ambient",
+    "attacks": [
+      { "name": "charge_slam", "damage_multiplier": 1.0, "windup_duration": 1.3, "cooldown": 4.0, "shape": { "type": "line",   "length": 5.0, "width": 1.2 } },
+      { "name": "ground_smash","damage_multiplier": 1.5, "windup_duration": 1.8, "cooldown": 7.0, "shape": { "type": "radius", "range": 3.0 } }
+    ],
     "spawn_weight": 0.05,
     "detection_range": 18.0,
     "aggro_range": 10.0,
