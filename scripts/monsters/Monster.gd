@@ -162,11 +162,16 @@ func _can_see_player(player: Node) -> bool:
 func _move_toward(target_pos: Vector3, delta: float) -> void:
 	if _cripple_timer > 0.0:
 		return
-	var direction := (target_pos - global_position).normalized()
+	var direction := (target_pos - global_position)
 	direction.y = 0
+	var dir_len := direction.length()
+	if dir_len < 0.01:
+		return
+	direction = direction / dir_len
 	var speed: float = _stats.get("move_speed", 4.5)
 	velocity.x = direction.x * speed
 	velocity.z = direction.z * speed
+	look_at(global_position + direction, Vector3.UP)
 
 
 func _apply_gravity(delta: float) -> void:
@@ -194,8 +199,14 @@ func _finish_windup() -> void:
 		_mesh_material.albedo_color = _mesh_albedo_original
 	if _state == State.WINDUP:
 		_state = State.ATTACK
-		if _target != null and _check_attack_shape(_target):
-			_perform_attack(_target)
+		if _target != null:
+			# Snap facing before shape check to avoid frame-order lag
+			var dir: Vector3 = _target.global_position - global_position
+			dir.y = 0.0
+			if dir.length() > 0.01:
+				look_at(global_position + dir.normalized(), Vector3.UP)
+			if _check_attack_shape(_target):
+				_perform_attack(_target)
 		var atk_name: String = _current_attack.get("name", "attack")
 		var cd: float = _current_attack.get("cooldown", 1.0 / _stats.get("attack_speed", 1.0))
 		_attack_cooldowns[atk_name] = cd
