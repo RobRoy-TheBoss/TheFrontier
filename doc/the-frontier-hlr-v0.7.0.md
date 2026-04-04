@@ -183,6 +183,7 @@
 | MON-007 | Monster definitions in JSON: stats, behavior, loot, fire/light reaction. | MUST |
 | MON-008 | Docile animals (rabbits, birds, deer): flee, drop meat on kill. | MUST |
 | MON-009 | Minimum 8 monster types at launch across all categories. | SHOULD |
+| MON-010 | Monster shall telegraph attacks. | MUST |
 
 ---
 
