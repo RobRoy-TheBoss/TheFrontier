@@ -144,7 +144,10 @@ func _run_ai(delta: float) -> void:
 			_has_detected_player = true
 			_target = player
 			if _state not in [State.CHASE, State.WINDUP, State.ATTACK, State.RECOVER]:
-				_state = State.CHASE
+				# Terrestrial monsters won't initiate combat against a player in water
+				var player_in_water := player.global_position.y <= WATER_LEVEL
+				if not (territory == "terrestrial" and player_in_water):
+					_state = State.CHASE
 
 	match _state:
 		State.IDLE:
