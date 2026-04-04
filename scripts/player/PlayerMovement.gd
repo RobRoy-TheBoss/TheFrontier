@@ -35,6 +35,7 @@ var _last_tap_time: Dictionary = {
 }
 var _dodge_actions: Array[String] = ["move_forward", "move_backward", "move_left", "move_right"]
 var _dodge_timer: float = 0.0
+var _dodge_direction: Vector3 = Vector3.ZERO
 
 
 func _ready() -> void:
@@ -94,6 +95,16 @@ func _handle_movement(delta: float) -> void:
 	# Tick dodge timer
 	if _dodge_timer > 0.0:
 		_dodge_timer -= delta
+		if _player.is_on_floor():
+			var floor_normal := _player.get_floor_normal()
+			var slide_dir := _dodge_direction.slide(floor_normal).normalized()
+			_player.velocity.x = slide_dir.x * DODGE_SPEED
+			_player.velocity.z = slide_dir.z * DODGE_SPEED
+			_player.velocity.y = slide_dir.y * DODGE_SPEED
+		else:
+			_player.velocity.x = _dodge_direction.x * DODGE_SPEED
+			_player.velocity.z = _dodge_direction.z * DODGE_SPEED
+			_player.velocity.y -= GRAVITY * delta
 		_player.move_and_slide()
 		return
 
@@ -200,6 +211,7 @@ func _trigger_dodge(action: String) -> void:
 		"move_backward": impulse = -fwd
 		"move_left":     impulse = -right
 		"move_right":    impulse = right
+	_dodge_direction = impulse
 	_player.velocity = impulse * DODGE_SPEED
 	_player.velocity.y = DODGE_HOP
 	_dodge_timer = DODGE_DURATION

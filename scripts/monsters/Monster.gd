@@ -375,7 +375,7 @@ func _show_attack_indicator() -> void:
 	fill_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	fill_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	fill_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	fill_mat.no_depth_test = true
+	fill_mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
 	fill_mat.render_priority = 1
 
 	_ind_fill_node = MeshInstance3D.new()
@@ -394,7 +394,7 @@ func _show_attack_indicator() -> void:
 		edge_mat.albedo_color = Color(1.0, 0.5, 0.0, 1.0)
 		edge_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		edge_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-		edge_mat.no_depth_test = true
+		edge_mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
 		edge_mat.render_priority = 2
 
 		_ind_edge_node = MeshInstance3D.new()

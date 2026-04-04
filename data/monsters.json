@@ -85,7 +85,8 @@
       "aggro_range": 5.0,
       "armor": 15
     },
-    "territory": "terrestrial",
+    "territory": "terrestrial",        
+    "recovery_time": 0.5,
     "fire_reaction": "neutral",
     "light_reaction": "neutral",
     "is_apex": false,
