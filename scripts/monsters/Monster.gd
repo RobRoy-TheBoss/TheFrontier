@@ -69,16 +69,34 @@ func _ready() -> void:
 		name_label.text = _data.get("name", monster_id)
 	var mesh: MeshInstance3D = get_node_or_null("MeshInstance3D")
 	if mesh:
+		# Swap mesh geometry if specified in data
+		var mesh_type: String = _data.get("mesh_type", "")
+		match mesh_type:
+			"cylinder":
+				var cyl := CylinderMesh.new()
+				cyl.top_radius    = float(_data.get("mesh_radius", 0.5))
+				cyl.bottom_radius = cyl.top_radius
+				cyl.height        = float(_data.get("mesh_height", 1.0))
+				mesh.mesh = cyl
 		var rot: Array = _data.get("mesh_rotation_deg", [])
 		if rot.size() == 3:
 			mesh.rotation_degrees = Vector3(float(rot[0]), float(rot[1]), float(rot[2]))
 		var mpos: Array = _data.get("mesh_position", [])
 		if mpos.size() == 3:
 			mesh.position = Vector3(float(mpos[0]), float(mpos[1]), float(mpos[2]))
-		var mat := mesh.get_surface_override_material(0)
-		if mat:
-			_mesh_material = mat.duplicate() as StandardMaterial3D
+		# Build material — use mesh_color if provided, else fall back to scene default
+		var mc: Array = _data.get("mesh_color", [])
+		if mc.size() >= 3:
+			_mesh_material = StandardMaterial3D.new()
+			_mesh_material.albedo_color = Color(float(mc[0]), float(mc[1]), float(mc[2]),
+					float(mc[3]) if mc.size() >= 4 else 1.0)
 			mesh.set_surface_override_material(0, _mesh_material)
+		else:
+			var mat := mesh.get_surface_override_material(0)
+			if mat:
+				_mesh_material = mat.duplicate() as StandardMaterial3D
+				mesh.set_surface_override_material(0, _mesh_material)
+		if _mesh_material:
 			_mesh_albedo_original = _mesh_material.albedo_color
 
 

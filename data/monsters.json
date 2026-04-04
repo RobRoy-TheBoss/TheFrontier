@@ -146,6 +146,11 @@
       "aggro_range": 8.0
     },
     "territory": "amphibious",
+    "mesh_type": "cylinder",
+    "mesh_radius": 0.5,
+    "mesh_height": 0.5,
+    "mesh_color": [0.55, 0.78, 0.95, 1.0],
+    "mesh_position": [0, 0.25, 0],
     "fire_reaction": "avoid",
     "light_reaction": "neutral",
     "is_apex": false,
