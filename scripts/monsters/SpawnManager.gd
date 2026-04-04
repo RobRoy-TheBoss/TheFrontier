@@ -12,6 +12,7 @@ extends Node3D
 
 const SPAWN_INTERVAL := 30.0
 const MIN_SPAWN_DIST_FROM_PLAYER := 30.0
+const WATER_LEVEL := 8.5  # must match HexAssetScatterer.WATER_LEVEL
 
 var _active_monsters: Array = []
 var _spawn_timer: float = 0.0
@@ -69,7 +70,9 @@ func _try_spawn() -> void:
 		var monster_id := "prowler"  # DEBUG: locked to prowler for testing
 		if monster_id == "":
 			break
-		var spawn_pos := _find_spawn_position()
+		var monster_data: Dictionary = DataLoader.get_monster(monster_id)
+		var territory: String = monster_data.get("territory", "")
+		var spawn_pos := _find_spawn_position(territory)
 		if spawn_pos == Vector3.ZERO:
 			continue
 		var monster_instance := MONSTER_SCENE.instantiate()
@@ -113,7 +116,7 @@ func _pick_monster_from_table() -> String:
 	return ""
 
 
-func _find_spawn_position() -> Vector3:
+func _find_spawn_position(territory: String = "") -> Vector3:
 	var player := get_tree().get_first_node_in_group("player")
 	var space := get_world_3d().direct_space_state
 	var attempts := 10
@@ -131,6 +134,9 @@ func _find_spawn_position() -> Vector3:
 			attempts -= 1
 			continue
 		var pos: Vector3 = hit["position"] + Vector3(0.0, 0.1, 0.0)
+		if territory == "terrestrial" and pos.y <= WATER_LEVEL:
+			attempts -= 1
+			continue
 		if player and pos.distance_to(player.global_position) < MIN_SPAWN_DIST_FROM_PLAYER:
 			attempts -= 1
 			continue

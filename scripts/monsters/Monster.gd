@@ -3,7 +3,7 @@
 ## combat, loot, and XP trigger reporting.
 extends CharacterBody3D
 
-enum State { IDLE, PATROL, ALERT, CHASE, WINDUP, ATTACK, RECOVER, FLEE, DESPAWN, DEAD }
+enum State { IDLE, PATROL, ALERT, CHASE, WINDUP, ATTACK, RECOVER, SEEK_LAND, FLEE, DESPAWN, DEAD }
 
 @export var monster_id: String = "prowler"
 @export var static_mode: bool = false  # If true: no AI, no movement, no attacks
@@ -38,6 +38,8 @@ var _ind_fill_axis: String = "xz"  # "xz" = radius/arc/circle, "x" = line
 
 const GRAVITY := 9.8
 const DEFAULT_WINDUP := 0.6
+const WATER_LEVEL := 8.5       # must match HexAssetScatterer.WATER_LEVEL
+const SEEK_LAND_MARGIN := 2.0  # metres above waterline before resuming normal AI
 
 signal died(monster_id: String, position: Vector3)
 
@@ -107,6 +109,13 @@ func _run_ai(delta: float) -> void:
 	var detection_range: float = _stats.get("detection_range", 20.0)
 	var aggro_range: float = _stats.get("aggro_range", 15.0)
 
+	# Territory override — terrestrial monsters seek land when below waterline
+	if _data.get("territory", "") == "terrestrial" and global_position.y < WATER_LEVEL + SEEK_LAND_MARGIN:
+		if _state != State.SEEK_LAND:
+			_state = State.SEEK_LAND
+		_seek_land(delta)
+		return
+
 	# Detection
 	var player_health: PlayerHealth = player.get("health") as PlayerHealth
 	if player_health and player_health.is_dead:
@@ -172,6 +181,34 @@ func _can_see_player(player: Node) -> bool:
 	query.exclude = [self]
 	var result := space.intersect_ray(query)
 	return result.is_empty() or result.get("collider") == player
+
+
+func _seek_land(delta: float) -> void:
+	# Sample terrain height in 8 directions and move toward the highest one.
+	var space := get_world_3d().direct_space_state
+	var best_dir := Vector3.ZERO
+	var best_y := -INF
+	var probe_dist := 8.0
+	for i in range(8):
+		var angle := TAU * float(i) / 8.0
+		var dir := Vector3(sin(angle), 0.0, cos(angle))
+		var probe_xz := global_position + dir * probe_dist
+		var ray := PhysicsRayQueryParameters3D.create(
+			Vector3(probe_xz.x, global_position.y + 60.0, probe_xz.z),
+			Vector3(probe_xz.x, global_position.y - 20.0, probe_xz.z)
+		)
+		ray.collision_mask = 1
+		ray.exclude = [self]
+		var hit := space.intersect_ray(ray)
+		var terrain_y: float = hit["position"].y if not hit.is_empty() else global_position.y
+		if terrain_y > best_y:
+			best_y = terrain_y
+			best_dir = dir
+	if best_dir != Vector3.ZERO:
+		_move_toward(global_position + best_dir, delta)
+	# Exit SEEK_LAND once safely above waterline
+	if global_position.y >= WATER_LEVEL + SEEK_LAND_MARGIN:
+		_state = State.IDLE
 
 
 func _move_toward(target_pos: Vector3, delta: float) -> void:
