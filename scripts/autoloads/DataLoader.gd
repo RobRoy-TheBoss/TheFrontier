@@ -11,6 +11,8 @@ const DATA_PATH := "res://data/"
 # --- Raw data stores (id -> Dictionary for O(1) lookup) ---
 var monsters: Dictionary = {}
 var spawn_tables: Dictionary = {}
+var hex_templates: Dictionary = {}          # template_id → template
+var hex_template_by_mesh: Dictionary = {}   # mesh filename (lowercase) → template
 var resources: Dictionary = {}
 var areas: Dictionary = {}
 var settlement_tiers: Dictionary = {}
@@ -46,6 +48,12 @@ func _load_all() -> void:
 	# Spawn tables (array root)
 	for s in _load_json_array("spawn_tables.json"):
 		spawn_tables[s["id"]] = s
+
+	# Hex templates — also build mesh-name → template lookup
+	for t in _load_json_array("hex_templates.json"):
+		hex_templates[t["template_id"]] = t
+		for mesh_name in t.get("meshes", []):
+			hex_template_by_mesh[mesh_name.to_lower()] = t
 
 	# Resources (array root)
 	for r in _load_json_array("resources.json"):
@@ -249,6 +257,10 @@ func get_season_by_index(index: int) -> Dictionary:
 
 func get_spawn_table(id: String) -> Dictionary:
 	return spawn_tables.get(id, {})
+
+
+func get_hex_template_for_mesh(mesh_filename: String) -> Dictionary:
+	return hex_template_by_mesh.get(mesh_filename.to_lower(), {})
 
 
 func get_resource(id: String) -> Dictionary:
