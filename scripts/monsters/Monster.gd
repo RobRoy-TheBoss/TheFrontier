@@ -141,16 +141,16 @@ func _run_ai(delta: float) -> void:
 					_current_attack = atk
 					_state = State.WINDUP
 					_windup_timer = atk.get("windup_duration", DEFAULT_WINDUP)
+					# Lock facing at windup start — won't track player during telegraph
+					var dir: Vector3 = _target.global_position - global_position
+					dir.y = 0.0
+					if dir.length() > 0.01:
+						look_at(global_position + dir.normalized(), Vector3.UP)
 					_start_telegraph_visual()
 		State.WINDUP:
-			# Freeze movement; face the target while telegraphing
+			# Freeze movement and facing — committed to the attack angle
 			velocity.x = 0.0
 			velocity.z = 0.0
-			if _target != null:
-				var dir: Vector3 = _target.global_position - global_position
-				dir.y = 0.0
-				if dir.length() > 0.01:
-					look_at(global_position + dir.normalized(), Vector3.UP)
 		State.ATTACK:
 			pass  # Reached only if windup was skipped externally; handled in _finish_windup
 
@@ -209,11 +209,6 @@ func _finish_windup() -> void:
 	if _state == State.WINDUP:
 		_state = State.ATTACK
 		if _target != null:
-			# Snap facing before shape check to avoid frame-order lag
-			var dir: Vector3 = _target.global_position - global_position
-			dir.y = 0.0
-			if dir.length() > 0.01:
-				look_at(global_position + dir.normalized(), Vector3.UP)
 			if _check_attack_shape(_target):
 				_perform_attack(_target)
 		var atk_name: String = _current_attack.get("name", "attack")
