@@ -47,6 +47,19 @@ func _process(delta: float) -> void:
 	if _debug_pos_label and _player:
 		var p: Vector3 = _player.global_position
 		_debug_pos_label.text = "[POS] %.1f, %.1f, %.1f" % [p.x, p.y, p.z]
+	queue_redraw()
+
+
+func _draw() -> void:
+	var c := size / 2.0
+	var col := Color(1.0, 1.0, 1.0, 0.85)
+	var gap  := 4.0
+	var arm  := 10.0
+	var thick := 2.0
+	draw_rect(Rect2(c.x - gap - arm, c.y - thick * 0.5, arm, thick), col)
+	draw_rect(Rect2(c.x + gap,       c.y - thick * 0.5, arm, thick), col)
+	draw_rect(Rect2(c.x - thick * 0.5, c.y - gap - arm, thick, arm), col)
+	draw_rect(Rect2(c.x - thick * 0.5, c.y + gap,       thick, arm), col)
 
 
 func _on_health_changed(current: float, maximum: float) -> void:

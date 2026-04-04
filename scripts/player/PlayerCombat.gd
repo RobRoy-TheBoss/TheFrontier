@@ -164,13 +164,19 @@ func _get_melee_target(weapon_reach: float) -> Node:
 	var origin: Vector3 = camera.global_position
 	var range: float = SPRING_ARM_LENGTH + weapon_reach
 	var end: Vector3 = origin + (-camera.global_transform.basis.z * range)
-	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, end)
-	query.exclude = [_player]
-	query.collision_mask = 0b10  # Monster layer
-	var result: Dictionary = space.intersect_ray(query)
-	if result.is_empty():
-		return null
-	return result.get("collider")
+
+	var sphere := SphereShape3D.new()
+	sphere.radius = 0.4
+	var sq := PhysicsShapeQueryParameters3D.new()
+	sq.shape = sphere
+	sq.transform = Transform3D(Basis.IDENTITY, end)
+	sq.exclude = [_player.get_rid()]
+	sq.collision_mask = 0b10
+	var hits: Array = space.intersect_shape(sq, 1)
+	if not hits.is_empty():
+		return hits[0].get("collider")
+
+	return null
 
 
 func _deal_damage(target: Node, damage: float) -> void:
