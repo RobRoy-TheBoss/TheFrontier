@@ -284,8 +284,8 @@ func _build_indicator_mesh(shape: Dictionary) -> ArrayMesh:
 			var r: float = shape.get("range", 2.5)
 			var half := deg_to_rad(shape.get("half_angle_deg", 60.0))
 			for i in range(SEG):
-				var a0 := lerp(-half, half, float(i) / SEG)
-				var a1 := lerp(-half, half, float(i + 1) / SEG)
+				var a0: float = lerp(-half, half, float(i) / SEG)
+				var a1: float = lerp(-half, half, float(i + 1) / SEG)
 				var p0 := Vector3(sin(a0) * r, 0.0, -cos(a0) * r)
 				var p1 := Vector3(sin(a1) * r, 0.0, -cos(a1) * r)
 				fill.append(Vector3.ZERO); fill.append(p0); fill.append(p1)
