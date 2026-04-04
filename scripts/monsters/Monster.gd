@@ -115,8 +115,9 @@ func _run_ai(delta: float) -> void:
 	var in_combat := _state in [State.CHASE, State.WINDUP, State.ATTACK, State.RECOVER]
 	match territory:
 		"terrestrial":
-			# Let provoked monsters chase freely; redirect only when idle/patrolling in water
-			if not in_combat and global_position.y < WATER_LEVEL + SEEK_LAND_MARGIN:
+			# At full health: never enter water. Damaged: chase freely into water.
+			var at_full_health: bool = _health >= _max_health
+			if (at_full_health or not in_combat) and global_position.y < WATER_LEVEL + SEEK_LAND_MARGIN:
 				_state = State.SEEK_LAND
 				_seek_land(delta)
 				return
@@ -144,9 +145,10 @@ func _run_ai(delta: float) -> void:
 			_has_detected_player = true
 			_target = player
 			if _state not in [State.CHASE, State.WINDUP, State.ATTACK, State.RECOVER]:
-				# Terrestrial monsters won't initiate combat against a player in water
+				# Terrestrial at full health won't initiate on a player in water
 				var player_in_water: bool = player.global_position.y <= WATER_LEVEL
-				if not (territory == "terrestrial" and player_in_water):
+				var at_full_health: bool = _health >= _max_health
+				if not (territory == "terrestrial" and player_in_water and at_full_health):
 					_state = State.CHASE
 
 	match _state:
