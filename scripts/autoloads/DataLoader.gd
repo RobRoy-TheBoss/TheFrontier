@@ -59,9 +59,14 @@ func _load_all() -> void:
 	for r in _load_json_array("resources.json"):
 		resources[r["id"]] = r
 
-	# Areas (array root)
+	# Areas (sparse overlay keyed by "col_row")
 	for a in _load_json_array("areas.json"):
-		areas[a["id"]] = a
+		var key: String = "%d_%d" % [int(a["col"]), int(a["row"])]
+		a["_key"] = key
+		areas[key] = a
+		# Also index by human id if present, for settlement lookups
+		if a.has("id"):
+			areas[a["id"]] = a
 
 	# Settlement tiers (array root — store as {"tiers": [...]} for compatibility)
 	var tiers_array: Array = _load_json_array("settlement_tiers.json")

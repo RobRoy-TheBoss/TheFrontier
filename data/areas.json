@@ -1,111 +1,63 @@
 [
   {
+    "col":  0, "row": 0,
     "id": "crestport_bay",
-    "region_id": "eastern_frontier",
-    "biome": "coast",
-    "hex_coords": { "q": 0, "r": 0 },
-    "neighbors": ["greenwood_vale", "marshfen_crossing"],
     "resource_tags": ["fish", "salt", "timber"],
-    "spawn_table_id": "crestport_coast",
-    "difficulty": 1,
-    "tags": ["coastal", "settled", "flat"],
-    "edge_features": [
-      { "edge_index": 2, "type": "river" }
-    ],
-    "settlement_site": {
-      "has_settlement": true,
-      "settlement_tier": "village",
-      "settlement_id": "crestport"
-    },
-    "precursor_site_index": -1
+    "edges": [[], [], ["river"], [], [], []],
+    "settlement": {
+      "id": "crestport",
+      "starting_tier": "village",
+      "deep_water_port": true
+    }
   },
   {
+    "col":  1, "row": 0,
     "id": "greenwood_vale",
-    "region_id": "eastern_frontier",
-    "biome": "forest",
-    "hex_coords": { "q": 1, "r": 0 },
-    "neighbors": ["crestport_bay", "ironpeak_ridge", "stonehill_pass"],
     "resource_tags": ["timber", "game", "red_heartleaf"],
-    "spawn_table_id": "greenwood_forest",
-    "difficulty": 2,
-    "tags": ["forest", "dense_canopy", "flat"],
-    "edge_features": [],
-    "settlement_site": {
-      "has_settlement": false
-    },
-    "precursor_site_index": 0
+    "edges": [],
+    "precursor_site": true
   },
   {
-    "id": "ironpeak_ridge",
-    "region_id": "eastern_frontier",
-    "biome": "mountain",
-    "hex_coords": { "q": 2, "r": -1 },
-    "neighbors": ["greenwood_vale", "stonehill_pass"],
-    "resource_tags": ["iron", "stone", "coal"],
-    "spawn_table_id": "ironpeak_mountain",
-    "difficulty": 4,
-    "tags": ["mountain", "rocky", "exposed"],
-    "edge_features": [
-      { "edge_index": 0, "type": "cliff" },
-      { "edge_index": 5, "type": "cliff" }
-    ],
-    "settlement_site": {
-      "has_settlement": false
-    },
-    "precursor_site_index": 1
+    "col": -1, "row": 0,
+    "id": "marshfen_north",
+    "resource_tags": ["clay", "reeds", "game"],
+    "edges": [[], [], [], ["ford"], [], []]
   },
   {
+    "col": -2, "row": 1,
+    "id": "marshfen_west",
+    "resource_tags": ["clay", "fire_herb"],
+    "edges": []
+  },
+  {
+    "col": -2, "row": 2,
+    "id": "marshfen_south",
+    "resource_tags": ["clay", "reeds"],
+    "edges": []
+  },
+  {
+    "col":  0, "row": 1,
     "id": "marshfen_crossing",
-    "region_id": "eastern_frontier",
-    "biome": "swamp",
-    "hex_coords": { "q": 0, "r": 1 },
-    "neighbors": ["crestport_bay", "verdant_reach"],
     "resource_tags": ["clay", "game", "fire_herb"],
-    "spawn_table_id": "marshfen_swamp",
-    "difficulty": 3,
-    "tags": ["swamp", "wetland", "slow_travel"],
-    "edge_features": [
-      { "edge_index": 1, "type": "river" },
-      { "edge_index": 3, "type": "ford" }
-    ],
-    "settlement_site": {
-      "has_settlement": false
-    },
-    "precursor_site_index": -1
+    "edges": [[], ["river"], [], ["ford"], [], []]
   },
   {
-    "id": "stonehill_pass",
-    "region_id": "eastern_frontier",
-    "biome": "mountain",
-    "hex_coords": { "q": 2, "r": 0 },
-    "neighbors": ["greenwood_vale", "ironpeak_ridge", "verdant_reach"],
-    "resource_tags": ["stone", "furs", "game"],
-    "spawn_table_id": "ironpeak_mountain",
-    "difficulty": 3,
-    "tags": ["mountain_pass", "rocky", "windy"],
-    "edge_features": [
-      { "edge_index": 0, "type": "cliff" },
-      { "edge_index": 2, "type": "rapids" }
-    ],
-    "settlement_site": {
-      "has_settlement": false
-    },
-    "precursor_site_index": -1
-  },
-  {
+    "col":  1, "row": 1,
     "id": "verdant_reach",
-    "region_id": "eastern_frontier",
-    "biome": "plains",
-    "hex_coords": { "q": 1, "r": 1 },
-    "neighbors": ["marshfen_crossing", "stonehill_pass"],
-    "resource_tags": ["timber", "game", "red_heartleaf", "furs"],
-    "spawn_table_id": "greenwood_forest",
-    "difficulty": 2,
-    "tags": ["grassland", "open", "fertile"],
-    "edge_features": [],
-    "settlement_site": {
-      "has_settlement": false
-    },
-    "precursor_site_index": -1
+    "resource_tags": ["timber", "game", "furs"],
+    "edges": []
+  },
+  {
+    "col":  2, "row": 1,
+    "id": "stonehill_pass",
+    "resource_tags": ["stone", "furs", "game"],
+    "edges": [["cliff"], [], ["rapids"], [], [], []]
+  },
+  {
+    "col":  2, "row": 2,
+    "id": "ironpeak_ridge",
+    "resource_tags": ["iron", "stone", "coal"],
+    "edges": [["cliff"], [], [], [], [], ["cliff"]],
+    "precursor_site": true
   }
 ]

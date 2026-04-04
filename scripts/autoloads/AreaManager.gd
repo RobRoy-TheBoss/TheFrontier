@@ -41,18 +41,16 @@ func _load_areas() -> void:
 
 # --- Coordinate lookup ---
 
-## Return the area_id whose axial position is nearest to world_pos.
-## O(n) scan — cache results on the caller side for hot paths.
+## Return the area overlay key ("col_row") for the hex containing world_pos.
+## Uses the same grid formula as HexMapLoader / HexGrid.
 func get_area(world_pos: Vector3) -> String:
-	var axial := HexGrid.world_to_axial(world_pos)
-	# Areas store their axial coords as {"q": int, "r": int} in the data
-	for area_id in DataLoader.areas:
-		var data: Dictionary = DataLoader.areas[area_id]
-		var aq: int = data.get("q", 0)
-		var ar: int = data.get("r", 0)
-		if aq == axial.x and ar == axial.y:
-			return area_id
-	return ""
+	const COL_STEP   := 300.0
+	const ROW_STEP   := 346.0
+	const ODD_OFFSET := 173.0
+	var col := roundi(world_pos.x / COL_STEP)
+	var wz_base := world_pos.z - (ODD_OFFSET if absi(col) % 2 == 1 else 0.0)
+	var row := roundi(wz_base / ROW_STEP)
+	return "%d_%d" % [col, row]
 
 
 ## Return the merged static+runtime data for an area.
@@ -98,10 +96,13 @@ func discover_all(area_id: String) -> void:
 func is_edge_passable(area_a: String, area_b: String) -> bool:
 	var data_a := DataLoader.get_area(area_a)
 	var data_b := DataLoader.get_area(area_b)
-	var q_a: int = data_a.get("q", 0)
-	var r_a: int = data_a.get("r", 0)
-	var q_b: int = data_b.get("q", 0)
-	var r_b: int = data_b.get("r", 0)
+	# Keys are "col_row"; parse col/row and pass as q/r for edge direction math
+	var parts_a := area_a.split("_")
+	var parts_b := area_b.split("_")
+	var q_a := int(parts_a[0]) if parts_a.size() >= 2 else data_a.get("col", 0)
+	var r_a := int(parts_a[1]) if parts_a.size() >= 2 else data_a.get("row", 0)
+	var q_b := int(parts_b[0]) if parts_b.size() >= 2 else data_b.get("col", 0)
+	var r_b := int(parts_b[1]) if parts_b.size() >= 2 else data_b.get("row", 0)
 
 	var edge_index := HexGrid.get_shared_edge_index(q_a, r_a, q_b, r_b)
 	if edge_index == -1:
