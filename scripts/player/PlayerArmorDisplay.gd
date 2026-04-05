@@ -61,23 +61,26 @@ func _attach_slot(slot: String, item_id: String, mesh_path: String) -> void:
 	var outfit_root: Node = packed.instantiate()
 	var meshes: Array = []
 	_collect_skinned_meshes(outfit_root, meshes)
+	print("PlayerArmorDisplay: slot=%s meshes_found=%d path=%s" % [slot, meshes.size(), mesh_path])
 
 	if meshes.is_empty():
-		outfit_root.queue_free()
-		push_warning("PlayerArmorDisplay: no skinned meshes found in %s" % mesh_path)
+		outfit_root.free()
+		push_warning("PlayerArmorDisplay: no skinned meshes in %s" % mesh_path)
 		return
 
 	var attached: Array = []
 	for mi: MeshInstance3D in meshes:
-		mi.reparent(_skeleton)
+		# reparent() requires scene-tree membership; use remove+add instead
+		var parent := mi.get_parent()
+		if parent:
+			parent.remove_child(mi)
 		mi.name = "ArmorMesh_%s" % slot
-		# Ensure this mesh uses the player skeleton (its new parent)
+		_skeleton.add_child(mi)
 		mi.skeleton = NodePath("..")
 		attached.append(mi)
+		print("  attached mesh: ", mi.name, " skeleton=", mi.skeleton)
 
-	# Free whatever remains of the outfit scene (its own skeleton, root node, etc.)
-	outfit_root.queue_free()
-
+	outfit_root.free()
 	_slot_meshes[slot] = { "item_id": item_id, "nodes": attached }
 
 
