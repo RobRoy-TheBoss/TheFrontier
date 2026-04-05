@@ -69,11 +69,20 @@ func _setup() -> void:
 	_play("idle")
 
 
+const ANIM_SPEED := {
+	"run": 1.8,
+	"sprint": 1.6,
+	"crouch_walk": 1.4,
+	"swim": 1.2,
+	"carry": 1.4,
+}
+
 func _play(key: String) -> void:
 	if not ANIM_MAP.has(key):
 		return
 	var full_name: String = ANIM_MAP[key]
 	if _anim_player.has_animation(full_name):
+		_anim_player.speed_scale = ANIM_SPEED.get(key, 1.0)
 		_anim_player.play(full_name)
 		_current = key
 
