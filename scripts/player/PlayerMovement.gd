@@ -63,6 +63,7 @@ func _attach_weapon_to_hand() -> void:
 	skeleton.add_child(attach)
 	wh.reparent(attach)
 	wh.transform = Transform3D.IDENTITY
+	wh.rotation_degrees.y = 180.0
 
 
 func _physics_process(delta: float) -> void:
