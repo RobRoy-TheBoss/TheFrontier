@@ -1,6 +1,6 @@
 ## PlayerAnimations
 ## Drives idle / walk / sprint / jump / crouch / swim / attack state on the
-## AnimationPlayer inside CharacterModel (Player2.tscn). Uses UAL library.
+## AnimationPlayer inside CharacterModel (PlayerModel.tscn). Uses UAL library.
 class_name PlayerAnimations
 extends Node
 

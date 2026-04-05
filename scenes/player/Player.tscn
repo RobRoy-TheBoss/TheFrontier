@@ -10,7 +10,7 @@
 [ext_resource type="Script" uid="uid://crn4pwnsecmsd" path="res://scripts/world/CampDeployer.gd" id="8"]
 [ext_resource type="Script" uid="uid://d0po2qyhcey3v" path="res://scripts/navigation/SurveyingTool.gd" id="9"]
 [ext_resource type="Script" uid="uid://g6oqugp6rx3t" path="res://scripts/navigation/FieldJournal.gd" id="10"]
-[ext_resource type="PackedScene" uid="uid://b8r4y566qep7d" path="res://scenes/player/Player2.tscn" id="11_5stf6"]
+[ext_resource type="PackedScene" uid="uid://b8r4y566qep7d" path="res://scenes/player/PlayerModel.tscn" id="11_5stf6"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.4
