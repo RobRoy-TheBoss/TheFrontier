@@ -57,13 +57,23 @@ func recalculate_suppression() -> void:
 			return
 
 
+func activate() -> void:
+	_spawn_timer = 0.0
+
+
 func _try_spawn() -> void:
+	# Don't spawn if the player isn't in range — avoids all areas batch-spawning
+	# on frame 1 and then immediately despawning those monsters.
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null or player.global_position.distance_to(global_position) > despawn_distance:
+		return
 	if _active_monsters.size() >= max_monsters:
 		return
 	if randf() < _suppression_percent:
 		return
 
-	# Batch fill on first spawn (timer was 0.0); trickle after that
+	# Batch fill on first spawn (or after area was emptied); trickle after that
+	_cleanup_dead_monsters()
 	var batch := max_monsters if _active_monsters.is_empty() else 1
 	for i in range(batch):
 		if _active_monsters.size() >= max_monsters:

@@ -58,6 +58,8 @@ func _setup_spawn_manager() -> void:
 
 func on_player_enter() -> void:
 	WorldManager.enter_area(area_id)
+	if spawn_manager:
+		spawn_manager.activate()
 	# Discover non-hidden surface resources on entry
 	for res in area_resources:
 		if not res.get("hidden", false):

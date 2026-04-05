@@ -33,8 +33,8 @@ var _deathmark_active: bool = false
 var _deathmark_cripple_count: int = 0
 var _mesh_material: StandardMaterial3D = null
 var _mesh_albedo_original: Color = Color.WHITE
-var _ind_fill_node: MeshInstance3D = null
-var _ind_edge_node: MeshInstance3D = null
+var _ind_decal: Decal = null
+var _ind_decal_full_size: Vector3 = Vector3.ONE
 var _ind_fill_axis: String = "xz"  # "xz" = radius/arc/circle, "x" = line
 
 const GRAVITY := 9.8
@@ -333,14 +333,14 @@ func _start_telegraph_visual() -> void:
 
 
 func _update_telegraph_visual() -> void:
-	if _windup_timer <= 0.0 or _ind_fill_node == null:
+	if _windup_timer <= 0.0 or _ind_decal == null:
 		return
 	var duration: float = _current_attack.get("windup_duration", DEFAULT_WINDUP)
 	var t := clampf(1.0 - (_windup_timer / duration), 0.001, 1.0)
 	if _ind_fill_axis == "x":
-		_ind_fill_node.scale = Vector3(t, 1.0, 1.0)
+		_ind_decal.size = Vector3(_ind_decal_full_size.x * t, _ind_decal_full_size.y, _ind_decal_full_size.z)
 	else:
-		_ind_fill_node.scale = Vector3(t, 1.0, t)
+		_ind_decal.size = Vector3(_ind_decal_full_size.x * t, _ind_decal_full_size.y, _ind_decal_full_size.z * t)
 
 
 func _finish_windup() -> void:
@@ -366,160 +366,130 @@ func _show_attack_indicator() -> void:
 	var type: String = shape.get("type", "radius")
 	_ind_fill_axis = "x" if type == "line" else "xz"
 
-	var fill_mesh := _build_fill_mesh(shape)
-	if fill_mesh == null:
+	var tex := _build_telegraph_texture(shape)
+	if tex == null:
 		return
 
-	var fill_mat := StandardMaterial3D.new()
-	fill_mat.albedo_color = Color(0.85, 0.0, 0.0, 0.65)
-	fill_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	fill_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	fill_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	fill_mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
-	fill_mat.render_priority = 1
+	_ind_decal = Decal.new()
+	_ind_decal.texture_albedo = tex
+	_ind_decal.albedo_mix = 1.0
+	_ind_decal.cull_mask = 1 << 2  # layer 3 only — terrain meshes only
 
-	_ind_fill_node = MeshInstance3D.new()
-	_ind_fill_node.mesh = fill_mesh
-	_ind_fill_node.set_surface_override_material(0, fill_mat)
-	_ind_fill_node.position = Vector3(0.0, 0.05, 0.0)
+	# Forward direction on the XZ plane (for line/arc orientation)
+	var fwd := -global_transform.basis.z
+	fwd.y = 0.0
+	if fwd.length() > 0.001:
+		fwd = fwd.normalized()
+
+	# Basis keeps only the Y rotation so the decal always projects straight down
+	var y_rot_basis := Basis(Vector3.UP, global_rotation.y)
+	# Centre the decal 5 m above the monster's feet.
+	# size.y = 16 → box reaches from 3 m underground to 13 m above, handling steep slopes.
+	var origin := global_position + Vector3.UP * 5.0
+
+	match type:
+		"radius":
+			var r: float = shape.get("range", 2.5)
+			_ind_decal_full_size = Vector3(r * 2.0, 16.0, r * 2.0)
+		"circle":
+			var r: float = shape.get("radius", 1.5)
+			_ind_decal_full_size = Vector3(r * 2.0, 16.0, r * 2.0)
+		"arc":
+			var r: float = shape.get("range", 2.5)
+			_ind_decal_full_size = Vector3(r * 2.0, 16.0, r * 2.0)
+		"line":
+			var length: float = shape.get("length", 3.0)
+			var width: float = shape.get("width", 0.8)
+			_ind_decal_full_size = Vector3(width, 16.0, length)
+			origin += fwd * length * 0.5
+
+	# Start near-zero and animate to full in _update_telegraph_visual
 	if _ind_fill_axis == "x":
-		_ind_fill_node.scale = Vector3(0.001, 1.0, 1.0)
+		_ind_decal.size = Vector3(0.001, _ind_decal_full_size.y, _ind_decal_full_size.z)
 	else:
-		_ind_fill_node.scale = Vector3(0.001, 1.0, 0.001)
-	add_child(_ind_fill_node)
+		_ind_decal.size = Vector3(0.001, _ind_decal_full_size.y, 0.001)
 
-	var edge_mesh := _build_edge_mesh(shape)
-	if edge_mesh != null:
-		var edge_mat := StandardMaterial3D.new()
-		edge_mat.albedo_color = Color(1.0, 0.5, 0.0, 1.0)
-		edge_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		edge_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-		edge_mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
-		edge_mat.render_priority = 2
-
-		_ind_edge_node = MeshInstance3D.new()
-		_ind_edge_node.mesh = edge_mesh
-		_ind_edge_node.set_surface_override_material(0, edge_mat)
-		_ind_edge_node.position = Vector3(0.0, 0.07, 0.0)
-		add_child(_ind_edge_node)
+	# Add to scene root so the decal is not inside the monster's own geometry
+	get_tree().current_scene.add_child(_ind_decal)
+	_ind_decal.global_transform = Transform3D(y_rot_basis, origin)
 
 
 func _hide_attack_indicator() -> void:
-	if _ind_fill_node != null:
-		_ind_fill_node.queue_free()
-		_ind_fill_node = null
-	if _ind_edge_node != null:
-		_ind_edge_node.queue_free()
-		_ind_edge_node = null
+	if _ind_decal != null:
+		_ind_decal.queue_free()
+		_ind_decal = null
 
 
-# Adds a flat quad (two triangles) along a line segment, raised slightly above fill.
-func _add_edge_quad(verts: PackedVector3Array, a: Vector3, b: Vector3, width: float) -> void:
-	var dir := b - a
-	dir.y = 0.0
-	if dir.length() < 0.001:
-		return
-	dir = dir.normalized()
-	var perp := Vector3(-dir.z, 0.0, dir.x) * (width * 0.5)
-	var lift := Vector3(0.0, 0.02, 0.0)
-	verts.append(a - perp + lift); verts.append(b - perp + lift); verts.append(b + perp + lift)
-	verts.append(a - perp + lift); verts.append(b + perp + lift); verts.append(a + perp + lift)
+# -- Texture builders ---------------------------------------------------------
+
+const _IND_FILL_COL := Color(0.85, 0.0, 0.0, 0.65)
+const _IND_EDGE_COL := Color(1.0, 0.5, 0.0, 1.0)
+const _IND_EDGE_FRAC := 0.88  # outer 12% of radius = edge ring
 
 
-func _build_fill_mesh(shape: Dictionary) -> ArrayMesh:
-	const SEG := 32
+func _build_telegraph_texture(shape: Dictionary) -> ImageTexture:
+	const SZ := 256
 	var type: String = shape.get("type", "radius")
-	var fill := PackedVector3Array()
-
+	var img: Image
 	match type:
-		"arc":
-			var r: float = shape.get("range", 2.5)
-			var half := deg_to_rad(shape.get("half_angle_deg", 60.0))
-			for i in range(SEG):
-				var a0: float = lerp(-half, half, float(i) / SEG)
-				var a1: float = lerp(-half, half, float(i + 1) / SEG)
-				var p0 := Vector3(sin(a0) * r, 0.0, -cos(a0) * r)
-				var p1 := Vector3(sin(a1) * r, 0.0, -cos(a1) * r)
-				fill.append(Vector3.ZERO); fill.append(p0); fill.append(p1)
 		"radius":
-			var r: float = shape.get("range", 2.5)
-			for i in range(SEG):
-				var a0 := TAU * float(i) / SEG
-				var a1 := TAU * float(i + 1) / SEG
-				var p0 := Vector3(sin(a0) * r, 0.0, cos(a0) * r)
-				var p1 := Vector3(sin(a1) * r, 0.0, cos(a1) * r)
-				fill.append(Vector3.ZERO); fill.append(p0); fill.append(p1)
-		"line":
-			# Full-size rect centered on forward axis. Scale animates X (widens from center).
-			var length: float = shape.get("length", 3.0)
-			var hw: float = shape.get("width", 0.8) * 0.5
-			var c := [Vector3(-hw, 0, 0), Vector3(hw, 0, 0), Vector3(hw, 0, -length), Vector3(-hw, 0, -length)]
-			fill.append(c[0]); fill.append(c[1]); fill.append(c[2])
-			fill.append(c[0]); fill.append(c[2]); fill.append(c[3])
+			img = _ind_disc_image(SZ)
 		"circle":
-			var r: float = shape.get("radius", 1.5)
-			for i in range(SEG):
-				var a0 := TAU * float(i) / SEG
-				var a1 := TAU * float(i + 1) / SEG
-				var p0 := Vector3(sin(a0) * r, 0.0, cos(a0) * r)
-				var p1 := Vector3(sin(a1) * r, 0.0, cos(a1) * r)
-				fill.append(Vector3.ZERO); fill.append(p0); fill.append(p1)
-
-	if fill.is_empty():
-		return null
-	var arr := Array(); arr.resize(Mesh.ARRAY_MAX); arr[Mesh.ARRAY_VERTEX] = fill
-	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
-	return mesh
-
-
-func _build_edge_mesh(shape: Dictionary) -> ArrayMesh:
-	const SEG := 32
-	const EW  := 0.08
-	var type: String = shape.get("type", "radius")
-	var edge := PackedVector3Array()
-
-	match type:
+			img = _ind_disc_image(SZ)
 		"arc":
-			var r: float = shape.get("range", 2.5)
-			var half := deg_to_rad(shape.get("half_angle_deg", 60.0))
-			for i in range(SEG):
-				var a0: float = lerp(-half, half, float(i) / SEG)
-				var a1: float = lerp(-half, half, float(i + 1) / SEG)
-				var p0 := Vector3(sin(a0) * r, 0.0, -cos(a0) * r)
-				var p1 := Vector3(sin(a1) * r, 0.0, -cos(a1) * r)
-				_add_edge_quad(edge, p0, p1, EW)
-			_add_edge_quad(edge, Vector3.ZERO, Vector3(sin(-half) * r, 0.0, -cos(-half) * r), EW)
-			_add_edge_quad(edge, Vector3.ZERO, Vector3(sin( half) * r, 0.0, -cos( half) * r), EW)
-		"radius":
-			var r: float = shape.get("range", 2.5)
-			for i in range(SEG):
-				var a0 := TAU * float(i) / SEG
-				var a1 := TAU * float(i + 1) / SEG
-				var p0 := Vector3(sin(a0) * r, 0.0, cos(a0) * r)
-				var p1 := Vector3(sin(a1) * r, 0.0, cos(a1) * r)
-				_add_edge_quad(edge, p0, p1, EW)
+			img = _ind_arc_image(SZ, deg_to_rad(shape.get("half_angle_deg", 60.0)))
 		"line":
-			var length: float = shape.get("length", 3.0)
-			var hw: float = shape.get("width", 0.8) * 0.5
-			var c := [Vector3(-hw, 0, 0), Vector3(hw, 0, 0), Vector3(hw, 0, -length), Vector3(-hw, 0, -length)]
-			for i in range(4):
-				_add_edge_quad(edge, c[i], c[(i + 1) % 4], EW)
-		"circle":
-			var r: float = shape.get("radius", 1.5)
-			for i in range(SEG):
-				var a0 := TAU * float(i) / SEG
-				var a1 := TAU * float(i + 1) / SEG
-				var p0 := Vector3(sin(a0) * r, 0.0, cos(a0) * r)
-				var p1 := Vector3(sin(a1) * r, 0.0, cos(a1) * r)
-				_add_edge_quad(edge, p0, p1, EW)
+			img = _ind_rect_image(SZ)
+		_:
+			return null
+	return ImageTexture.create_from_image(img)
 
-	if edge.is_empty():
-		return null
-	var arr := Array(); arr.resize(Mesh.ARRAY_MAX); arr[Mesh.ARRAY_VERTEX] = edge
-	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
-	return mesh
+
+func _ind_disc_image(sz: int) -> Image:
+	var img := Image.create(sz, sz, false, Image.FORMAT_RGBA8)
+	var h := sz * 0.5
+	for py in range(sz):
+		for px in range(sz):
+			var d := Vector2(px - h, py - h).length() / h
+			if d > 1.0:
+				continue
+			img.set_pixel(px, py, _IND_EDGE_COL if d >= _IND_EDGE_FRAC else _IND_FILL_COL)
+	return img
+
+
+func _ind_arc_image(sz: int, half_angle: float) -> Image:
+	# Texture UV: U=0.5,V=0.5 = monster origin; V decreases toward forward (-Z world).
+	# Decal local axes: +X = world +X, +Z = world +Z, so V increases with world +Z (backward).
+	# Forward (-Z) = low V direction.
+	var img := Image.create(sz, sz, false, Image.FORMAT_RGBA8)
+	var h := sz * 0.5
+	var cos_half := cos(half_angle)
+	var edge_ang_cos := cos(half_angle - deg_to_rad(3.5))
+	for py in range(sz):
+		for px in range(sz):
+			var dx := (px - h) / h
+			var dz := (py - h) / h  # positive = world +Z = backward
+			var d := sqrt(dx * dx + dz * dz)
+			if d < 0.001 or d > 1.0:
+				continue
+			# Angle from forward (-Z): cos = -dz/d
+			var cos_a := -dz / d
+			if cos_a < cos_half:
+				continue
+			var on_outer := d >= _IND_EDGE_FRAC
+			var on_radial := cos_a <= edge_ang_cos  # near either side edge
+			img.set_pixel(px, py, _IND_EDGE_COL if (on_outer or on_radial) else _IND_FILL_COL)
+	return img
+
+
+func _ind_rect_image(sz: int) -> Image:
+	var img := Image.create(sz, sz, false, Image.FORMAT_RGBA8)
+	const BORDER := 12
+	for py in range(sz):
+		for px in range(sz):
+			var on_edge := px < BORDER or px >= sz - BORDER or py < BORDER or py >= sz - BORDER
+			img.set_pixel(px, py, _IND_EDGE_COL if on_edge else _IND_FILL_COL)
+	return img
 
 
 func _pick_attack(dist: float) -> Dictionary:
