@@ -27,6 +27,8 @@ var mouse_sensitivity: float = 0.002
 # Keyboard look speed (radians per second)
 const KEY_TURN_SPEED := 1.8
 
+var target_lock: PlayerTargetLock = null
+
 
 func _ready() -> void:
 	add_to_group("player")
@@ -39,15 +41,21 @@ func _ready() -> void:
 	var anim_node: Node = preload("res://scripts/player/PlayerAnimations.gd").new()
 	anim_node.name = "PlayerAnimations"
 	add_child(anim_node)
+	target_lock = PlayerTargetLock.new()
+	target_lock.name = "PlayerTargetLock"
+	add_child(target_lock)
 
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and not GameState.is_paused_for_ui:
-		var aim_mult := survival.get_aim_sensitivity_multiplier() if survival else 1.0
-		var effective_sens := mouse_sensitivity * aim_mult
-		camera_pivot.rotate_y(-event.relative.x * effective_sens)
-		spring_arm.rotate_x(-event.relative.y * effective_sens)
-		spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(-60), deg_to_rad(20))
+		if target_lock and target_lock.is_locked():
+			pass  # camera driven by PlayerTargetLock while locked
+		else:
+			var aim_mult := survival.get_aim_sensitivity_multiplier() if survival else 1.0
+			var effective_sens := mouse_sensitivity * aim_mult
+			camera_pivot.rotate_y(-event.relative.x * effective_sens)
+			spring_arm.rotate_x(-event.relative.y * effective_sens)
+			spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(-60), deg_to_rad(20))
 
 	if event is InputEventMouseButton and not GameState.is_paused_for_ui:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP:

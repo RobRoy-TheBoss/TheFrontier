@@ -15,6 +15,7 @@ var _player: Node = null
 var _player_health: PlayerHealth = null
 var _player_combat: PlayerCombat = null
 var _compass_bar: Control = null
+var _target_lock: PlayerTargetLock = null
 
 
 func _ready() -> void:
@@ -34,6 +35,7 @@ func _ready() -> void:
 		_player.inventory.inventory_changed.connect(_update_weapon_display)
 		_player.inventory.inventory_changed.connect(_update_compass_visibility)
 		_update_compass_visibility()
+		_target_lock = _player.target_lock
 	SaveManager.save_completed.connect(_on_save_completed)
 	SaveManager.save_failed.connect(_on_save_failed)
 	_debug_setup()  # DEBUG — remove with the block below
@@ -41,11 +43,44 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_update_compass()
+	queue_redraw()
 	if _debug_area_label:
 		_debug_area_label.text = "[AREA] %s" % GameState.current_area_id
 	if _debug_pos_label and _player:
 		var p: Vector3 = _player.global_position
 		_debug_pos_label.text = "[POS] %.1f, %.1f, %.1f" % [p.x, p.y, p.z]
+
+
+func _draw() -> void:
+	if _target_lock == null or not _target_lock.is_locked():
+		return
+	var target: Node = _target_lock.locked_target
+	if not is_instance_valid(target):
+		return
+	var cam: Camera3D = _player.camera
+	var world_pos: Vector3 = target.global_position + Vector3.UP * 1.0
+	if cam.is_position_behind(world_pos):
+		return
+	_draw_lock_bracket(cam.unproject_position(world_pos))
+
+
+func _draw_lock_bracket(c: Vector2) -> void:
+	const SZ   := 22.0   # half-size of bracket box
+	const ARM  :=  8.0   # length of each corner arm
+	const T    :=  2.0   # line thickness
+	const COL  := Color(1.0, 0.85, 0.1, 0.92)
+	# Top-left
+	draw_rect(Rect2(c.x - SZ,         c.y - SZ,         ARM, T  ), COL)
+	draw_rect(Rect2(c.x - SZ,         c.y - SZ,         T,   ARM), COL)
+	# Top-right
+	draw_rect(Rect2(c.x + SZ - ARM,   c.y - SZ,         ARM, T  ), COL)
+	draw_rect(Rect2(c.x + SZ - T,     c.y - SZ,         T,   ARM), COL)
+	# Bottom-left
+	draw_rect(Rect2(c.x - SZ,         c.y + SZ - T,     ARM, T  ), COL)
+	draw_rect(Rect2(c.x - SZ,         c.y + SZ - ARM,   T,   ARM), COL)
+	# Bottom-right
+	draw_rect(Rect2(c.x + SZ - ARM,   c.y + SZ - T,     ARM, T  ), COL)
+	draw_rect(Rect2(c.x + SZ - T,     c.y + SZ - ARM,   T,   ARM), COL)
 
 
 func _on_health_changed(current: float, maximum: float) -> void:
