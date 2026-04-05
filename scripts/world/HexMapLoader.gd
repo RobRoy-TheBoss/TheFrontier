@@ -77,8 +77,13 @@ func _spawn(tile: Dictionary) -> void:
 	area.name = "%d_%d" % [col, row]
 	area.transform = Transform3D(Basis(Vector3.UP, rot_rad), Vector3(wx, wy, wz))
 	area.set("area_id",     "%d_%d_%s" % [col, row, mesh.get_basename()])
-	area.set("biome",       "forest")
 	area.set("area_bounds", Vector3(360, 20, 360))
+	# Derive spawn table and biome from hex template via mesh filename
+	var hex_template: Dictionary = DataLoader.get_hex_template_for_mesh(mesh)
+	area.set("biome", hex_template.get("biome_type", "forest"))
+	var spawn_entries: Array = hex_template.get("spawn_entries", [])
+	if not spawn_entries.is_empty():
+		area.set("spawn_table", spawn_entries)
 	add_child(area)
 
 	var loader := Node.new()

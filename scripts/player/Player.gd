@@ -17,7 +17,6 @@ const ZOOM_STEP := 0.4
 @onready var survival: PlayerSurvival = $PlayerSurvival
 @onready var inventory: PlayerInventory = $PlayerInventory
 @onready var combat: PlayerCombat = $PlayerCombat
-@onready var interaction_ray: RayCast3D = $CameraPivot/SpringArm3D/Camera3D/InteractionRay
 @onready var ability_system: AbilitySystem = $AbilitySystem
 @onready var camp_deployer: CampDeployer = $CampDeployer
 @onready var surveying_tool: SurveyingTool = $SurveyingTool
@@ -27,11 +26,12 @@ var mouse_sensitivity: float = 0.002
 # Keyboard look speed (radians per second)
 const KEY_TURN_SPEED := 1.8
 
+var target_lock: PlayerTargetLock = null
+
 
 func _ready() -> void:
 	add_to_group("player")
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	interaction_ray.add_exception(self)
 	_give_starting_items()
 	health.player_died.connect(_on_player_died)
 	inventory.inventory_changed.connect(_update_weapon_display)
@@ -39,15 +39,21 @@ func _ready() -> void:
 	var anim_node: Node = preload("res://scripts/player/PlayerAnimations.gd").new()
 	anim_node.name = "PlayerAnimations"
 	add_child(anim_node)
+	target_lock = PlayerTargetLock.new()
+	target_lock.name = "PlayerTargetLock"
+	add_child(target_lock)
 
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and not GameState.is_paused_for_ui:
-		var aim_mult := survival.get_aim_sensitivity_multiplier() if survival else 1.0
-		var effective_sens := mouse_sensitivity * aim_mult
-		camera_pivot.rotate_y(-event.relative.x * effective_sens)
-		spring_arm.rotate_x(-event.relative.y * effective_sens)
-		spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(-60), deg_to_rad(20))
+		if target_lock and target_lock.is_locked():
+			pass  # camera driven by PlayerTargetLock while locked
+		else:
+			var aim_mult := survival.get_aim_sensitivity_multiplier() if survival else 1.0
+			var effective_sens := mouse_sensitivity * aim_mult
+			camera_pivot.rotate_y(-event.relative.x * effective_sens)
+			spring_arm.rotate_x(-event.relative.y * effective_sens)
+			spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(-60), deg_to_rad(20))
 
 	if event is InputEventMouseButton and not GameState.is_paused_for_ui:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
@@ -105,17 +111,18 @@ func _process(delta: float) -> void:
 
 
 func _try_interact() -> void:
-	var hud := get_tree().get_first_node_in_group("hud")
-	if not interaction_ray.is_colliding():
-		if hud: hud.show_message("interact: no collision", 2.0)
+	var hud  := get_tree().get_first_node_in_group("hud")
+	var cb: Basis = camera_pivot.global_transform.basis
+	var fwd  := Vector3(-cb.z.x, 0.0, -cb.z.z).normalized()
+	var origin := global_position + Vector3.UP * 1.0
+	var query  := PhysicsRayQueryParameters3D.create(origin, origin + fwd * INTERACTION_DISTANCE)
+	query.exclude = [self]
+	var result := get_world_3d().direct_space_state.intersect_ray(query)
+	if result.is_empty():
+		if hud: hud.show_message("interact: nothing ahead", 2.0)
 		return
-	var collider := interaction_ray.get_collider()
+	var collider: Node = result.get("collider")
 	if collider == null:
-		if hud: hud.show_message("interact: collider null", 2.0)
-		return
-	var dist := global_position.distance_to(interaction_ray.get_collision_point())
-	if dist > INTERACTION_DISTANCE:
-		if hud: hud.show_message("interact: too far (%.1f)" % dist, 2.0)
 		return
 	var target: Node = collider if collider.has_method("interact") else collider.get_parent()
 	if target and target.has_method("interact"):
@@ -232,41 +239,24 @@ func in_settlement() -> bool:
 const _FT := "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/"
 const _RM := "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/"
 
-# Native GLB sizes (measured):
-#   blade.glb          X=0.111  Y=2.000  Z=0.430  (upright — Y is blade length)
-#   planks-half.glb    X=0.500  Y=0.060  Z=1.000  (flat — rotate 90°X to stand up)
-#   planks.glb         X=1.000  Y=0.060  Z=1.000  (flat — rotate 90°X to stand up)
-#   column-wood.glb    X=0.300  Y=1.000  Z=0.300  (upright column)
-#   structure-pole.glb X=0.100  Y=1.000  Z=0.100  (single thin pole, upright)
-#   poles-horizontal   X=0.100  Y=1.000  Z=1.000  (use Z as barrel axis)
-#
-# planks rot(90,0,0) remaps: world-Y = native-Z, world-Z = native-Y (thin)
-# Scale is applied before rotation in Godot, so scale against native axes.
-
+# Fallback placeholder meshes for weapons without real assets (firearms, shields)
 const WEAPON_MESH_CONFIG := {
-	# blade.glb — zweihander=(0.40,1.00,1.20) is reference; others scaled by real-world length ratio
-	"hunting_knife":   { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.06, 0.16, 0.19), "rot": Vector3.ZERO },
-	"shortsword":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.16, 0.41, 0.49), "rot": Vector3.ZERO },
-	"arming_sword":    { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.21, 0.53, 0.64), "rot": Vector3.ZERO },
-	"cavalry_saber":   { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.24, 0.59, 0.71), "rot": Vector3.ZERO },
-	"greatsword":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.32, 0.81, 0.97), "rot": Vector3.ZERO },
-	"zweihander":      { "mesh": "blade.glb",            "pack": "FT", "scale": Vector3(0.40, 1.00, 1.20), "rot": Vector3.ZERO },
-	# planks-half rot90X → world: X=native-X*s, Y=native-Z*s, Z=native-Y*s (6cm thin)
-	# axe head ~30cm wide × 40cm tall × 6cm deep
-	"woodcutters_axe": { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.60, 1.00, 0.40),  "rot": Vector3(90, 0, 0) },
-	# pistol block ~15cm wide × 25cm tall × 6cm deep
-	"pistol":          { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.30, 1.00, 0.25),  "rot": Vector3(90, 0, 0) },
-	# buckler ~40cm × 40cm × 6cm
-	"buckler":         { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.80, 1.00, 0.40),  "rot": Vector3(90, 0, 0) },
-	# column-wood — scale Y for handle length, X/Z for head girth
-	"warhammer":       { "mesh": "column-wood.glb",      "pack": "RM", "scale": Vector3(0.50, 0.55, 0.50),  "rot": Vector3.ZERO },
-	# structure-pole — single thin pole, perfect for bows
-	"hunting_bow":     { "mesh": "structure-pole.glb",   "pack": "RM", "scale": Vector3(0.40, 1.20, 0.40),  "rot": Vector3.ZERO },
-	"longbow":         { "mesh": "structure-pole.glb",   "pack": "RM", "scale": Vector3(0.40, 1.50, 0.40),  "rot": Vector3.ZERO },
-	# poles-horizontal — use Z as barrel axis, squash Y to barrel height
-	"musket":          { "mesh": "poles-horizontal.glb", "pack": "FT", "scale": Vector3(0.40, 0.06, 1.20),  "rot": Vector3.ZERO },
-	# planks rot90X → kite shield ~45cm wide × 70cm tall × 6cm deep
-	"kite_shield":     { "mesh": "planks.glb",           "pack": "FT", "scale": Vector3(0.45, 1.00, 0.70),  "rot": Vector3(90, 0, 0) },
+	"pistol":      { "mesh": "planks-half.glb",      "pack": "FT", "scale": Vector3(0.30, 1.00, 0.25), "rot": Vector3(90, 0, 0) },
+	"musket":      { "mesh": "poles-horizontal.glb",  "pack": "FT", "scale": Vector3(0.40, 0.06, 1.20), "rot": Vector3.ZERO },
+	"buckler":     { "mesh": "planks-half.glb",       "pack": "FT", "scale": Vector3(0.80, 1.00, 0.40), "rot": Vector3(90, 0, 0) },
+	"kite_shield": { "mesh": "planks.glb",            "pack": "FT", "scale": Vector3(0.45, 1.00, 0.70), "rot": Vector3(90, 0, 0) },
+}
+
+# Scale/rotation for real weapon assets by category.
+# FBX files are assumed to be modeled upright (blade along +Y).
+# Rotation -90X tips the blade forward to align with the holder's orientation.
+const WEAPON_DISPLAY_CONFIG := {
+	"default":      { "scale": Vector3(1.0, 1.0, 1.0), "rot": Vector3(-90, 0, 0) },
+	"melee_light":  { "scale": Vector3(0.8, 0.8, 0.8), "rot": Vector3(-90, 0, 0) },
+	"melee_medium": { "scale": Vector3(1.0, 1.0, 1.0), "rot": Vector3(-90, 0, 0) },
+	"melee_heavy":  { "scale": Vector3(1.2, 1.2, 1.2), "rot": Vector3(-90, 0, 0) },
+	"spear":        { "scale": Vector3(1.0, 1.0, 1.0), "rot": Vector3(-90, 0, 0) },
+	"bow":          { "scale": Vector3(1.0, 1.0, 1.0), "rot": Vector3(0, 0, 90) },
 }
 
 
@@ -280,22 +270,55 @@ func _update_weapon_display() -> void:
 		return
 
 	var weapon_id: String = active.get("item_id", "")
+	var weapon_data: Dictionary = GameData.get_weapon(weapon_id)
+	var mesh_path: String = weapon_data.get("mesh_path", "")
+
+	if not mesh_path.is_empty():
+		# Real asset from weapons pack
+		var packed = load(mesh_path)
+		if packed == null or not packed is PackedScene:
+			weapon_holder.visible = false
+			return
+		var mesh_node: Node3D = (packed as PackedScene).instantiate()
+		var tex_path: String = weapon_data.get("texture_path", "")
+		if not tex_path.is_empty():
+			var tex = load(tex_path)
+			if tex:
+				_apply_texture(mesh_node, tex)
+		var category: String = weapon_data.get("weapon_category", "default")
+		var dcfg: Dictionary = WEAPON_DISPLAY_CONFIG.get(category, WEAPON_DISPLAY_CONFIG["default"])
+		mesh_node.scale = dcfg["scale"]
+		mesh_node.rotation_degrees = dcfg["rot"]
+		weapon_holder.add_child(mesh_node)
+		weapon_holder.visible = true
+		return
+
+	# Fallback: placeholder mesh for weapons without real assets
 	var cfg: Dictionary = WEAPON_MESH_CONFIG.get(weapon_id, {})
 	if cfg.is_empty():
 		weapon_holder.visible = false
 		return
-
 	var base_path: String = _FT if cfg["pack"] == "FT" else _RM
 	var packed: PackedScene = load(base_path + cfg["mesh"])
 	if packed == null:
 		weapon_holder.visible = false
 		return
-
 	var mesh_instance: Node3D = packed.instantiate()
 	mesh_instance.scale = cfg["scale"]
 	mesh_instance.rotation_degrees = cfg["rot"]
 	weapon_holder.add_child(mesh_instance)
 	weapon_holder.visible = true
+
+
+func _apply_texture(node: Node3D, tex: Texture2D) -> void:
+	if node is MeshInstance3D:
+		var mat := StandardMaterial3D.new()
+		mat.albedo_texture = tex
+		for i in (node as MeshInstance3D).get_surface_override_material_count():
+			(node as MeshInstance3D).set_surface_override_material(i, mat)
+	for child in node.get_children():
+		if child is Node3D:
+			_apply_texture(child, tex)
 
 
 func _give_starting_items() -> void:
@@ -305,10 +328,14 @@ func _give_starting_items() -> void:
 	inventory.add_item("hardtack", 5)
 	inventory.add_item("waterskin", 1)
 	inventory.add_item("bandage", 3)
-	inventory.add_item("zweihander", 1)
-	inventory.add_item("hunting_knife", 1)
-	inventory.equip_to_weapon_slot("zweihander", 0)
-	inventory.equip_to_weapon_slot("hunting_knife", 1)
+	inventory.add_item("short_spear", 1)
+	inventory.add_item("arming_sword", 1)
+	inventory.equip_to_weapon_slot("short_spear", 0)
+	inventory.equip_to_weapon_slot("arming_sword", 1)
+	# Starting armor: Peasant set (light)
+	for armor_id: String in ["light_chest", "light_legs", "light_hands", "light_feet"]:
+		inventory.add_item(armor_id, 1)
+		inventory.equip(armor_id, "auto")
 
 
 func add_item_to_inventory(item_id: String, count: int) -> void:
@@ -396,4 +423,3 @@ func apply_save_data(data: Dictionary) -> void:
 
 func _adjust_zoom(delta: float) -> void:
 	spring_arm.spring_length = clamp(spring_arm.spring_length + delta, ZOOM_MIN, ZOOM_MAX)
-	interaction_ray.target_position.z = -(spring_arm.spring_length + INTERACTION_DISTANCE)

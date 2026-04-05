@@ -1,6 +1,5 @@
-{
-  "monsters": [
-    {
+[
+  {
       "id": "prowler",
       "name": "Prowler",
       "description": "A lean, fast predator resembling an oversized wolf. Hunts in packs.",
@@ -10,11 +9,26 @@
       "stats": {
         "max_health": 60,
         "damage": 12,
-        "attack_speed": 1.3,
         "move_speed": 6.0,
         "detection_range": 20.0,
         "aggro_range": 15.0
       },
+      "attacks": [
+        {
+          "name": "bite",
+          "damage_multiplier": 1.0,
+          "windup_duration": 0.5,
+          "cooldown": 1.2,
+          "shape": { "type": "arc", "range": 2.2, "half_angle_deg": 65 }
+        },
+        {
+          "name": "lunge",
+          "damage_multiplier": 1.6,
+          "windup_duration": 0.8,
+          "cooldown": 4.0,
+          "shape": { "type": "arc", "range": 3.5, "half_angle_deg": 40 }
+        }
+      ],
       "fire_reaction": "avoids",
       "is_apex": false,
       "loot_table": [
@@ -35,12 +49,27 @@
       "stats": {
         "max_health": 120,
         "damage": 22,
-        "attack_speed": 0.8,
         "move_speed": 4.5,
         "detection_range": 8.0,
         "aggro_range": 5.0,
         "armor": 15
       },
+      "attacks": [
+        {
+          "name": "body_slam",
+          "damage_multiplier": 1.0,
+          "windup_duration": 0.9,
+          "cooldown": 2.5,
+          "shape": { "type": "radius", "range": 2.0 }
+        },
+        {
+          "name": "claw_snap",
+          "damage_multiplier": 0.7,
+          "windup_duration": 0.4,
+          "cooldown": 1.0,
+          "shape": { "type": "arc", "range": 1.8, "half_angle_deg": 55 }
+        }
+      ],
       "fire_reaction": "neutral",
       "is_apex": false,
       "loot_table": [
@@ -61,11 +90,26 @@
       "stats": {
         "max_health": 180,
         "damage": 30,
-        "attack_speed": 0.9,
         "move_speed": 5.0,
         "detection_range": 12.0,
         "aggro_range": 8.0
       },
+      "attacks": [
+        {
+          "name": "lunge_bite",
+          "damage_multiplier": 1.0,
+          "windup_duration": 0.7,
+          "cooldown": 2.0,
+          "shape": { "type": "line", "length": 3.5, "width": 0.9 }
+        },
+        {
+          "name": "tail_sweep",
+          "damage_multiplier": 0.6,
+          "windup_duration": 0.5,
+          "cooldown": 1.5,
+          "shape": { "type": "arc", "range": 2.2, "half_angle_deg": 120 }
+        }
+      ],
       "fire_reaction": "avoids",
       "is_apex": false,
       "special_attacks": [
@@ -89,17 +133,21 @@
       "stats": {
         "max_health": 80,
         "damage": 8,
-        "attack_speed": 3.0,
         "move_speed": 7.0,
         "detection_range": 15.0,
         "aggro_range": 10.0
       },
+      "attacks": [
+        {
+          "name": "engulf",
+          "damage_multiplier": 1.0,
+          "windup_duration": 0.3,
+          "cooldown": 0.6,
+          "shape": { "type": "radius", "range": 2.5 }
+        }
+      ],
       "fire_reaction": "strongly_avoids",
       "is_apex": false,
-      "swarm_behavior": {
-        "splits_at_health_percent": 0.5,
-        "min_split_size": 30
-      },
       "loot_table": [
         { "item_id": "insect_chitin", "chance": 0.6, "count_range": [2, 5] },
         { "reagent_id": "charged_filament", "chance": 0.03 }
@@ -117,12 +165,27 @@
       "stats": {
         "max_health": 450,
         "damage": 65,
-        "attack_speed": 0.5,
         "move_speed": 2.5,
         "detection_range": 18.0,
         "aggro_range": 12.0,
         "armor": 40
       },
+      "attacks": [
+        {
+          "name": "arm_sweep",
+          "damage_multiplier": 1.0,
+          "windup_duration": 1.2,
+          "cooldown": 3.0,
+          "shape": { "type": "arc", "range": 3.5, "half_angle_deg": 100 }
+        },
+        {
+          "name": "stomp",
+          "damage_multiplier": 1.4,
+          "windup_duration": 1.5,
+          "cooldown": 6.0,
+          "shape": { "type": "radius", "range": 2.5 }
+        }
+      ],
       "fire_reaction": "attracted",
       "is_apex": false,
       "loot_table": [
@@ -144,12 +207,27 @@
       "stats": {
         "max_health": 240,
         "damage": 40,
-        "attack_speed": 1.1,
         "move_speed": 5.5,
         "detection_range": 6.0,
         "aggro_range": 4.0,
         "hearing_range": 35.0
       },
+      "attacks": [
+        {
+          "name": "reach_grab",
+          "damage_multiplier": 1.0,
+          "windup_duration": 0.6,
+          "cooldown": 1.8,
+          "shape": { "type": "line", "length": 4.0, "width": 0.7 }
+        },
+        {
+          "name": "rake",
+          "damage_multiplier": 0.5,
+          "windup_duration": 0.3,
+          "cooldown": 0.8,
+          "shape": { "type": "arc", "range": 1.8, "half_angle_deg": 70 }
+        }
+      ],
       "fire_reaction": "avoids",
       "is_apex": false,
       "attracted_to_sound": true,
@@ -171,12 +249,27 @@
       "stats": {
         "max_health": 1200,
         "damage": 120,
-        "attack_speed": 0.8,
         "move_speed": 4.0,
         "detection_range": 40.0,
         "aggro_range": 30.0,
         "armor": 25
       },
+      "attacks": [
+        {
+          "name": "crush",
+          "damage_multiplier": 1.0,
+          "windup_duration": 1.0,
+          "cooldown": 2.5,
+          "shape": { "type": "radius", "range": 4.0 }
+        },
+        {
+          "name": "slam",
+          "damage_multiplier": 2.0,
+          "windup_duration": 1.8,
+          "cooldown": 8.0,
+          "shape": { "type": "circle", "radius": 5.0 }
+        }
+      ],
       "fire_reaction": "neutral",
       "is_apex": true,
       "immune_to": ["banish", "calm", "stagger", "warcry"],
@@ -204,17 +297,29 @@
       "stats": {
         "max_health": 650,
         "damage": 85,
-        "attack_speed": 1.2,
         "move_speed": 9.0,
         "detection_range": 30.0,
         "aggro_range": 25.0
       },
+      "attacks": [
+        {
+          "name": "claw_swipe",
+          "damage_multiplier": 1.0,
+          "windup_duration": 0.5,
+          "cooldown": 1.5,
+          "shape": { "type": "arc", "range": 2.8, "half_angle_deg": 75 }
+        },
+        {
+          "name": "pounce",
+          "damage_multiplier": 2.5,
+          "windup_duration": 1.0,
+          "cooldown": 7.0,
+          "shape": { "type": "circle", "radius": 2.0 }
+        }
+      ],
       "fire_reaction": "avoids",
       "is_apex": true,
       "immune_to": ["banish", "calm"],
-      "special_attacks": [
-        { "name": "pounce", "damage_multiplier": 2.5, "inflicts_injury": "slowed_movement", "chance": 0.40 }
-      ],
       "loot_table": [
         { "item_id": "stalker_pelt", "chance": 0.85, "count_range": [1, 1] },
         { "item_id": "stalker_fang", "chance": 0.6, "count_range": [1, 3] },
@@ -224,5 +329,4 @@
       "xp_type": "melee_kill",
       "audio_cue": "stalker_roar"
     }
-  ]
-}
+]

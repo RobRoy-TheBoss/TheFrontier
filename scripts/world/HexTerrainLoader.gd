@@ -47,6 +47,9 @@ func _ready() -> void:
 	var instance = packed.instantiate()
 	terrain_node.add_child(instance)
 	_generate_collision(instance)
+	# Layer 3 (bit 2): terrain-only layer so Decals can target ground exclusively.
+	for mi in _all_mesh_instances(instance):
+		(mi as MeshInstance3D).layers = 1 << 2
 	var bake_path := _bake_path()
 	if FileAccess.file_exists(bake_path):
 		_load_baked(terrain_node, bake_path)

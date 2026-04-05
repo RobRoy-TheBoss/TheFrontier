@@ -7,14 +7,15 @@ extends Node3D
 @export var area_id: String = ""
 @export var east_west_scalar: float = 1.0  # 0 = east (easy), 1 = west (hardest)
 @export var spawn_table: Array = []  # Override from area data, else loaded from data
-@export var max_monsters: int = 8
+@export var max_monsters: int = 40
 @export var despawn_distance: float = 150.0
 
 const SPAWN_INTERVAL := 30.0
 const MIN_SPAWN_DIST_FROM_PLAYER := 30.0
+const WATER_LEVEL := 8.5  # must match HexAssetScatterer.WATER_LEVEL
 
 var _active_monsters: Array = []
-var _spawn_timer: float = SPAWN_INTERVAL
+var _spawn_timer: float = 0.0
 var _suppression_percent: float = 0.0
 var _settlement_in_area: String = ""
 
@@ -37,10 +38,11 @@ func _physics_process(delta: float) -> void:
 		_spawn_timer = SPAWN_INTERVAL
 
 
+const DEFAULT_SPAWN_TABLE := "crestport_coast"
+
 func _load_area_spawn_data() -> void:
-	# Placeholder: real area data loaded from map JSON
-	# spawn_table already set by Area node or exported
-	pass
+	if spawn_table.is_empty():
+		spawn_table = DataLoader.get_spawn_table(DEFAULT_SPAWN_TABLE).get("entries", [])
 
 
 func recalculate_suppression() -> void:
@@ -55,26 +57,41 @@ func recalculate_suppression() -> void:
 			return
 
 
+func activate() -> void:
+	_spawn_timer = 0.0
+
+
 func _try_spawn() -> void:
+	# Don't spawn if the player isn't in range — avoids all areas batch-spawning
+	# on frame 1 and then immediately despawning those monsters.
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null or player.global_position.distance_to(global_position) > despawn_distance:
+		return
 	if _active_monsters.size() >= max_monsters:
 		return
 	if randf() < _suppression_percent:
 		return
 
-	var monster_id := _pick_monster_from_table()
-	if monster_id == "":
-		return
-
-	var spawn_pos := _find_spawn_position()
-	if spawn_pos == Vector3.ZERO:
-		return
-
-	var monster_instance := MONSTER_SCENE.instantiate()
-	monster_instance.monster_id = monster_id
-	get_tree().root.add_child(monster_instance)
-	monster_instance.global_position = spawn_pos
-	monster_instance.connect("died", _on_monster_died)
-	_active_monsters.append(monster_instance)
+	# Batch fill on first spawn (or after area was emptied); trickle after that
+	_cleanup_dead_monsters()
+	var batch := max_monsters if _active_monsters.is_empty() else 1
+	for i in range(batch):
+		if _active_monsters.size() >= max_monsters:
+			break
+		var monster_id := _pick_monster_from_table()
+		if monster_id == "":
+			break
+		var monster_data: Dictionary = DataLoader.get_monster(monster_id)
+		var territory: String = monster_data.get("territory", "")
+		var spawn_pos := _find_spawn_position(territory)
+		if spawn_pos == Vector3.ZERO:
+			continue
+		var monster_instance := MONSTER_SCENE.instantiate()
+		monster_instance.monster_id = monster_id
+		get_tree().root.add_child(monster_instance)
+		monster_instance.global_position = spawn_pos
+		monster_instance.connect("died", _on_monster_died)
+		_active_monsters.append(monster_instance)
 
 
 func _pick_monster_from_table() -> String:
@@ -110,17 +127,40 @@ func _pick_monster_from_table() -> String:
 	return ""
 
 
-func _find_spawn_position() -> Vector3:
+func _find_spawn_position(territory: String = "") -> Vector3:
 	var player := get_tree().get_first_node_in_group("player")
+	var space := get_world_3d().direct_space_state
 	var attempts := 10
 	while attempts > 0:
-		var offset := Vector3(randf_range(-60, 60), 0, randf_range(-60, 60))
-		var pos := global_position + offset
-		# Not too close to player
+		var offset := Vector3(randf_range(-160, 160), 0, randf_range(-160, 160))
+		var xz := global_position + offset
+		# Raycast straight down from above to find terrain surface
+		var ray := PhysicsRayQueryParameters3D.create(
+			Vector3(xz.x, xz.y + 200.0, xz.z),
+			Vector3(xz.x, xz.y - 50.0,  xz.z)
+		)
+		ray.collision_mask = 1  # terrain layer
+		var hit := space.intersect_ray(ray)
+		if hit.is_empty():
+			attempts -= 1
+			continue
+		var pos: Vector3 = hit["position"] + Vector3(0.0, 0.1, 0.0)
+		match territory:
+			"terrestrial":
+				if pos.y <= WATER_LEVEL:
+					attempts -= 1
+					continue
+			"aquatic":
+				if pos.y > WATER_LEVEL:
+					attempts -= 1
+					continue
+			"amphibious":
+				if pos.y < 6.0 or pos.y > 8.5:
+					attempts -= 1
+					continue
 		if player and pos.distance_to(player.global_position) < MIN_SPAWN_DIST_FROM_PLAYER:
 			attempts -= 1
 			continue
-		# Not in settlement safe zone
 		if _in_safe_zone(pos):
 			attempts -= 1
 			continue

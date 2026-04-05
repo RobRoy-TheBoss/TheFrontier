@@ -1,0 +1,13 @@
+{
+	"map_id": "eastern_frontier",
+	"tiles": [
+		{ "col":  0, "row": 0, "mesh": "plateu.glb",  "facing": 3, "elevation": 2 },
+		{ "col":  1, "row": 0, "mesh": "Hills2A.glb",   "facing": 1, "elevation": 2 },
+		{ "col":  0, "row": 0, "mesh": "Hills2A.glb",   "facing": 1, "elevation": 2 },
+		{ "col":  -1, "row": 0, "mesh": "Hills2A.glb",   "facing": 1, "elevation": 2 },
+		{ "col":  1, "row": -1, "mesh": "Hills2A.glb",   "facing": 1, "elevation": 2 },
+		{ "col":  0, "row": -1, "mesh": "Hills2A.glb",   "facing": 1, "elevation": 2 },
+		{ "col":  -1, "row": -1, "mesh": "Hills2A.glb",   "facing": 1, "elevation": 2 },
+
+	]
+}

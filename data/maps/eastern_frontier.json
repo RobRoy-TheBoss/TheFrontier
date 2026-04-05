@@ -16,6 +16,6 @@
 		{ "col":  1, "row": 2, "mesh": "Hills2B.glb",   "facing": 4, "elevation": 2 },
 		{ "col":  0, "row": 2, "mesh": "Hills2C.glb",   "facing": 4, "elevation": 2 },
 		{ "col":  1, "row": 3, "mesh": "Hills2A.glb",   "facing": 2, "elevation": 2 },
-		{ "col":  0, "row": 3, "mesh": "Hills2C.glb",   "facing": 2, "elevation": 2 },
+		{ "col":  0, "row": 3, "mesh": "Hills2C.glb",   "facing": 2, "elevation": 2 }
 	]
 }

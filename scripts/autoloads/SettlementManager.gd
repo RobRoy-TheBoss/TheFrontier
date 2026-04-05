@@ -49,7 +49,7 @@ func _ready() -> void:
 func _register_starting_settlement() -> void:
 	var crestport := SettlementData.new()
 	crestport.id = "crestport"
-	crestport.area_id = "crestport_bay"
+	crestport.area_id = "0_0"
 	crestport.tier_index = 2  # index 2 = village tier
 	crestport.is_deep_water_port = true
 	crestport.position = Vector3(0, 0, 0)  # Placeholder; set by world data

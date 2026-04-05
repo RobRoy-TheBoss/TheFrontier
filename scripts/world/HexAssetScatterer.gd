@@ -22,63 +22,144 @@ const WATER_LEVEL := 8.5        # world Y — no assets placed at or below this 
 const HILLTOP_THRESHOLD := 8.0  # within this many metres of the peak = hilltop zone
 const HILLTOP_THIN_CHANCE := 0.5 # probability of skipping a tree in the hilltop zone
 
+const _N := "res://assets/models/Stylized Nature MegaKit[Standard]/glTF/"
+
 const BIOME_ASSETS := {
-	"forest": {
+	# --- Active biomes (matched by hex_templates.json biome_type) ---
+
+	"hills": {
 		"slot_spacing": 5.0,
 		"assets": [
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree.glb",            "density": 0.5,  "scale": 2.0 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree-high.glb",       "density": 0.5,  "scale": 2.0 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree-crooked.glb",    "density": 0.5,  "scale": 2.0 },
-			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-large.glb",    "density": 0.02, "scale": 2.0 },
-			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-shrub.glb",    "density": 0.01, "scale": 2.0 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.01, "scale": 1.0 },
+			{ "path": _N + "CommonTree_1.gltf",       "density": 0.03, "scale": 1.5 },
+			{ "path": _N + "CommonTree_3.gltf",       "density": 0.03, "scale": 1.5 },
+			{ "path": _N + "CommonTree_5.gltf",       "density": 0.02, "scale": 1.5 },
+			{ "path": _N + "Bush_Common.gltf",        "density": 0.04, "scale": 1.0 },
+			{ "path": _N + "Grass_Wispy_Tall.gltf",   "density": 0.50, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Grass_Common_Short.gltf", "density": 0.50, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Rock_Medium_1.gltf",      "density": 0.04, "scale": 1.0 },
+			{ "path": _N + "Rock_Medium_2.gltf",      "density": 0.03, "scale": 1.0 },
+			{ "path": _N + "Pebble_Round_1.gltf",     "density": 0.06, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Pebble_Round_3.gltf",     "density": 0.05, "scale": 1.0, "multimesh": true },
 		],
 	},
-	"coast": {
-		"slot_spacing": 40.0,
+	"coastal": {
+		"slot_spacing": 2.5,
 		"assets": [
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-large.glb",      "density": 0.08, "scale": 1.0 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.12, "scale": 1.0 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-wide.glb",       "density": 0.06, "scale": 1.0 },
+			{ "path": _N + "CommonTree_1.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_3.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_5.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_1.gltf",          "density": 0.025, "scale": 1.5 },			
+			{ "path": _N + "CommonTree_3.gltf",          "density": 0.02, "scale": 1.5 },
+			{ "path": _N + "CommonTree_5.gltf",          "density": 0.02, "scale": 1.5 },			
+			{ "path": _N + "TwistedTree_1.gltf",         "density": 0.005, "scale": 0.75 },
+			{ "path": _N + "DeadTree_2.gltf",            "density": 0.005, "scale": 1.0 },
+			{ "path": _N + "Bush_Common_Flowers.gltf",   "density": 0.005, "scale": 1.0 },
+			{ "path": _N + "Grass_Wispy_Short.gltf",     "density": 0.50, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Grass_Wispy_Tall.gltf",      "density": 0.50, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Pebble_Round_2.gltf",        "density": 0.08, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Rock_Medium_1.gltf",         "density": 0.01, "scale": 1.0 },
 		],
 	},
 	"mountain": {
-		"slot_spacing": 35.0,
+		"slot_spacing": 28.0,
 		"assets": [
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-large.glb",      "density": 0.20, "scale": 1.0 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-wide.glb",       "density": 0.15, "scale": 1.0 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.15, "scale": 1.0 },
+			{ "path": _N + "Pine_1.gltf",               "density": 0.10, "scale": 1.0 },
+			{ "path": _N + "Pine_3.gltf",               "density": 0.08, "scale": 1.0 },
+			{ "path": _N + "Pine_5.gltf",               "density": 0.07, "scale": 1.0 },
+			{ "path": _N + "DeadTree_1.gltf",           "density": 0.06, "scale": 1.0 },
+			{ "path": _N + "DeadTree_3.gltf",           "density": 0.04, "scale": 1.0 },
+			{ "path": _N + "Rock_Medium_1.gltf",        "density": 0.18, "scale": 1.0 },
+			{ "path": _N + "Rock_Medium_2.gltf",        "density": 0.15, "scale": 1.0 },
+			{ "path": _N + "Rock_Medium_3.gltf",        "density": 0.12, "scale": 1.0 },
+			{ "path": _N + "RockPath_Round_Wide.gltf",  "density": 0.08, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Pebble_Square_1.gltf",      "density": 0.10, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Pebble_Square_4.gltf",      "density": 0.08, "scale": 1.0, "multimesh": true },
 		],
 	},
-	"mountain_pass": {
-		"slot_spacing": 40.0,
+	"river": {
+		"slot_spacing": 2.5,
 		"assets": [
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-large.glb",      "density": 0.10, "scale": 1.0 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.10, "scale": 1.0 },
-			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-shrub.glb",    "density": 0.08, "scale": 2.0 },
+			{ "path": _N + "CommonTree_1.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_2.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_4.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_2.gltf",         "density": 0.025, "scale": 1.5 },
+			{ "path": _N + "CommonTree_4.gltf",         "density": 0.025, "scale": 1.5 },
+			{ "path": _N + "CommonTree_1.gltf",         "density": 0.02, "scale": 1.5 },
+			{ "path": _N + "TwistedTree_3.gltf",        "density": 0.02, "scale": 0.75 },
+			{ "path": _N + "TwistedTree_5.gltf",        "density": 0.01, "scale": 0.75 },
+			{ "path": _N + "DeadTree_1.gltf",           "density": 0.01, "scale": 1.0 },
+			{ "path": _N + "Bush_Common_Flowers.gltf",  "density": 0.05, "scale": 1.0 },
+			{ "path": _N + "Grass_Wispy_Tall.gltf",     "density": 0.50, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Fern_1.gltf",               "density": 0.15, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Plant_1.gltf",              "density": 0.10, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Mushroom_Laetiporus.gltf",  "density": 0.01, "scale": 1.0 },
 		],
 	},
-	"swamp": {
-		"slot_spacing": 25.0,
+
+	# --- Reserve biomes (for future hex templates) ---
+
+	"forest": {
+		"slot_spacing": 6.0,
 		"assets": [
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree-crooked.glb",    "density": 0.25, "scale": 2.0 },
-			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-shrub.glb",    "density": 0.15, "scale": 2.0 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.05, "scale": 1.0 },
+			{ "path": _N + "CommonTree_1.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_2.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_4.gltf",          "density": 0.0001, "scale": 5 },
+			{ "path": _N + "CommonTree_1.gltf",       "density": 0.23, "scale": 1.5 },
+			{ "path": _N + "CommonTree_2.gltf",       "density": 0.20, "scale": 1.5 },
+			{ "path": _N + "CommonTree_3.gltf",       "density": 0.17, "scale": 1.5 },
+			{ "path": _N + "CommonTree_4.gltf",       "density": 0.16, "scale": 1.5 },
+			{ "path": _N + "CommonTree_5.gltf",       "density": 0.14, "scale": 1.5 },
+			{ "path": _N + "TwistedTree_2.gltf",      "density": 0.03, "scale": 0.75 },
+			{ "path": _N + "DeadTree_4.gltf",         "density": 0.02, "scale": 1.0 },
+			{ "path": _N + "DeadTree_5.gltf",         "density": 0.02, "scale": 1.0 },
+			{ "path": _N + "Bush_Common.gltf",        "density": 0.16, "scale": 1.0 },
+			{ "path": _N + "Fern_1.gltf",             "density": 0.20, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Mushroom_Common.gltf",    "density": 0.03, "scale": 1.0 },
+			{ "path": _N + "Rock_Medium_1.gltf",      "density": 0.02, "scale": 1.0 },
 		],
 	},
 	"plains": {
-		"slot_spacing": 50.0,
+		"slot_spacing": 32.0,
 		"assets": [
-			{ "path": "res://assets/models/kenney_retro-medieval-kit/Models/GLB format/tree-shrub.glb",    "density": 0.08, "scale": 2.0 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/rock-small.glb",      "density": 0.04, "scale": 1.0 },
-			{ "path": "res://assets/models/kenney_fantasy-town-kit/Models/GLB format/tree.glb",            "density": 0.05, "scale": 2.0 },
+			{ "path": _N + "Grass_Common_Short.gltf", "density": 0.50, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Grass_Common_Tall.gltf",  "density": 0.50, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Clover_1.gltf",           "density": 0.12, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Flower_3_Group.gltf",     "density": 0.08, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "CommonTree_1.gltf",       "density": 0.05, "scale": 1.5 },
+			{ "path": _N + "Bush_Common.gltf",        "density": 0.06, "scale": 1.0 },
+		],
+	},
+	"swamp": {
+		"slot_spacing": 18.0,
+		"assets": [
+			{ "path": _N + "TwistedTree_2.gltf",      "density": 0.20, "scale": 0.75 },
+			{ "path": _N + "TwistedTree_4.gltf",      "density": 0.15, "scale": 0.75 },
+			{ "path": _N + "Plant_7_Big.gltf",        "density": 0.14, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Grass_Wispy_Tall.gltf",   "density": 0.50, "scale": 1.0, "multimesh": true },
+			{ "path": _N + "Mushroom_Common.gltf",    "density": 0.10, "scale": 1.0 },
+			{ "path": _N + "Mushroom_Laetiporus.gltf","density": 0.07, "scale": 1.0 },
 		],
 	},
 }
 
 
 static func scatter(area: Node3D, parent_node: Node3D) -> void:
-	for entry in scatter_dry_run(area, parent_node):
+	var results := scatter_dry_run(area, parent_node)
+
+	# Split into regular instances and multimesh batches (grouped by path).
+	var regular: Array = []
+	var mm_groups: Dictionary = {}  # path -> Array of entries
+	for entry in results:
+		if entry.get("multimesh", false):
+			var path: String = entry["path"]
+			if not mm_groups.has(path):
+				mm_groups[path] = []
+			mm_groups[path].append(entry)
+		else:
+			regular.append(entry)
+
+	# Place regular instances (trees, large rocks, etc.).
+	for entry in regular:
 		var packed := load(entry["path"]) as PackedScene
 		if packed == null:
 			continue
@@ -89,6 +170,62 @@ static func scatter(area: Node3D, parent_node: Node3D) -> void:
 		var s: float = entry.get("scale", 1.0)
 		inst.scale = Vector3(s, s, s)
 		parent_node.add_child(inst)
+
+	# Place multimesh batches — one MMI per unique asset path.
+	for path: String in mm_groups:
+		var entries: Array = mm_groups[path]
+		var mesh := _extract_mesh(path)
+		if mesh == null:
+			# Fallback: place as regular instances if mesh extraction fails.
+			for entry in entries:
+				var packed := load(entry["path"]) as PackedScene
+				if packed == null:
+					continue
+				var p: Array = entry["pos"]
+				var inst := packed.instantiate()
+				inst.position = Vector3(p[0], p[1], p[2])
+				inst.rotation.y = entry["rot_y"]
+				var s: float = entry.get("scale", 1.0)
+				inst.scale = Vector3(s, s, s)
+				parent_node.add_child(inst)
+			continue
+
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.instance_count = entries.size()
+		mm.mesh = mesh
+
+		for i in entries.size():
+			var e: Dictionary = entries[i]
+			var p: Array = e["pos"]
+			var s: float = e.get("scale", 1.0)
+			var basis := Basis(Vector3.UP, e["rot_y"]).scaled(Vector3(s, s, s))
+			mm.set_instance_transform(i, Transform3D(basis, Vector3(p[0], p[1], p[2])))
+
+		var mmi := MultiMeshInstance3D.new()
+		mmi.multimesh = mm
+		parent_node.add_child(mmi)
+
+
+# Loads a PackedScene and extracts the first Mesh found in its node tree.
+static func _extract_mesh(path: String) -> Mesh:
+	var packed := load(path) as PackedScene
+	if packed == null:
+		return null
+	var inst := packed.instantiate()
+	var mesh := _find_mesh_in(inst)
+	inst.free()
+	return mesh
+
+
+static func _find_mesh_in(node: Node) -> Mesh:
+	if node is MeshInstance3D:
+		return (node as MeshInstance3D).mesh
+	for child in node.get_children():
+		var m := _find_mesh_in(child)
+		if m != null:
+			return m
+	return null
 
 
 # Returns [{path, pos:[x,y,z], rot_y}, ...] in parent_node local space.
@@ -171,6 +308,7 @@ static func scatter_dry_run(area: Node3D, parent_node: Node3D) -> Array:
 				"pos": [local_pos.x, local_pos.y, local_pos.z],
 				"rot_y": rng.randf() * TAU,
 				"scale": asset_def.get("scale", 1.0),
+				"multimesh": asset_def.get("multimesh", false),
 			})
 			break  # one asset per slot
 
