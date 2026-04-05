@@ -45,12 +45,24 @@ func _ready() -> void:
 	_survival = _player.survival
 	_camera_pivot = _player.camera_pivot
 	_body_mesh = _player.character_model
-	# Reparent weapon_holder under character_model so it follows body rotation
+	_attach_weapon_to_hand()
+
+
+func _attach_weapon_to_hand() -> void:
+	var skeleton: Skeleton3D = _body_mesh.get_node_or_null("Armature/Skeleton3D") as Skeleton3D
 	var wh: Node3D = _player.weapon_holder
-	var saved := wh.global_transform
-	wh.reparent(_body_mesh)
-	wh.global_transform = saved
-	wh.position.x = -wh.position.x
+	if skeleton == null or skeleton.find_bone("hand_r") < 0:
+		# Fallback: parent to body mesh
+		var saved := wh.global_transform
+		wh.reparent(_body_mesh)
+		wh.global_transform = saved
+		return
+	var attach := BoneAttachment3D.new()
+	attach.name = "WeaponBoneAttach"
+	attach.bone_name = "hand_r"
+	skeleton.add_child(attach)
+	wh.reparent(attach)
+	wh.transform = Transform3D.IDENTITY
 
 
 func _physics_process(delta: float) -> void:
@@ -70,7 +82,7 @@ func _handle_god_movement(delta: float) -> void:
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	var direction := Vector3.ZERO
 	if input_dir != Vector2.ZERO:
-		var cb := _camera_pivot.global_transform.basis
+		var cb: Basis = _camera_pivot.global_transform.basis
 		var fwd := Vector3(-cb.z.x, 0, -cb.z.z).normalized()
 		var right := Vector3(cb.x.x, 0, cb.x.z).normalized()
 		direction = (right * input_dir.x - fwd * input_dir.y).normalized()
@@ -132,7 +144,7 @@ func _handle_movement(delta: float) -> void:
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	var direction := Vector3.ZERO
 	if input_dir != Vector2.ZERO:
-		var cb := _camera_pivot.global_transform.basis
+		var cb: Basis = _camera_pivot.global_transform.basis
 		var fwd := Vector3(-cb.z.x, 0, -cb.z.z).normalized()
 		var right := Vector3(cb.x.x, 0, cb.x.z).normalized()
 		direction = (right * input_dir.x - fwd * input_dir.y).normalized()
@@ -202,7 +214,7 @@ func _trigger_dodge(action: String) -> void:
 	var combat: Node = _player.get_node_or_null("PlayerCombat")
 	if combat == null or not combat._try_dodge():
 		return
-	var cb := _camera_pivot.global_transform.basis
+	var cb: Basis = _camera_pivot.global_transform.basis
 	var fwd := Vector3(-cb.z.x, 0, -cb.z.z).normalized()
 	var right := Vector3(cb.x.x, 0, cb.x.z).normalized()
 	var impulse := Vector3.ZERO
