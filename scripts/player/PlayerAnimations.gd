@@ -4,9 +4,10 @@
 class_name PlayerAnimations
 extends Node
 
-# Map our state names to UAL animation paths (library "ual")
-# Note: Godot strips _Loop suffix on animation_library import
+# Map our state names to UAL/UAL2 animation paths.
+# Note: Godot strips _Loop suffix on animation_library import.
 const ANIM_MAP := {
+	# UAL1 — locomotion
 	"idle":         "ual/Idle",
 	"run":          "ual/Walk",
 	"sprint":       "ual/Sprint",
@@ -15,9 +16,26 @@ const ANIM_MAP := {
 	"crouch_walk":  "ual/Crouch_Fwd",
 	"swim":         "ual/Swim_Fwd",
 	"swim_idle":    "ual/Swim_Idle",
+	"carry":        "ual2/Walk_Carry",
+	"slide":        "ual2/Slide_Start",
+	# UAL1 — combat
 	"attack":       "ual/Sword_Attack",
+	"sword_idle":   "ual/Sword_Idle",
 	"hit":          "ual/Hit_Chest",
 	"death":        "ual/Death01",
+	# UAL2 — combat
+	"block":        "ual2/Sword_Block",
+	"attack_a":     "ual2/Sword_Regular_A",
+	"attack_b":     "ual2/Sword_Regular_B",
+	"attack_c":     "ual2/Sword_Regular_C",
+	"attack_combo": "ual2/Sword_Regular_Combo",
+	"hit_knockback":"ual2/Hit_Knockback",
+	"punch":        "ual2/Melee_Hook",
+	# UAL2 — interaction
+	"consume":      "ual2/Consume",
+	"chop":         "ual2/TreeChopping",
+	"chest_open":   "ual2/Chest_Open",
+	"climb":        "ual2/ClimbUp_1m_RM",
 }
 
 var _player: CharacterBody3D
@@ -37,8 +55,9 @@ func _setup() -> void:
 		push_warning("PlayerAnimations: no AnimationPlayer found in CharacterModel")
 		return
 
-	# UAL loop animations should loop; one-shots (attack, hit, death) stay as-is
-	const LOOP_KEYS := ["idle", "run", "sprint", "jump", "crouch_idle", "crouch_walk", "swim", "swim_idle"]
+	# UAL loop animations should loop; one-shots stay as-is
+	const LOOP_KEYS := ["idle", "run", "sprint", "jump", "crouch_idle", "crouch_walk",
+		"swim", "swim_idle", "carry", "sword_idle", "chop"]
 	for anim_key in LOOP_KEYS:
 		var full_name: String = ANIM_MAP[anim_key]
 		if _anim_player.has_animation(full_name):
