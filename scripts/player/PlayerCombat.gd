@@ -159,11 +159,9 @@ func _calculate_melee_damage(weapon: Dictionary) -> float:
 
 
 func _get_melee_target(weapon_reach: float) -> Node:
-	var camera: Camera3D = _player.camera
-	var space: PhysicsDirectSpaceState3D = _player.get_world_3d().direct_space_state
-	var origin: Vector3 = camera.global_position
-	var range: float = SPRING_ARM_LENGTH + weapon_reach
-	var end: Vector3 = origin + (-camera.global_transform.basis.z * range)
+	var space := _player.get_world_3d().direct_space_state
+	var fwd   := _player_forward()
+	var end   := _player.global_position + Vector3.UP * 1.0 + fwd * weapon_reach
 
 	var sphere := SphereShape3D.new()
 	sphere.radius = 0.4
@@ -175,8 +173,14 @@ func _get_melee_target(weapon_reach: float) -> Node:
 	var hits: Array = space.intersect_shape(sq, 1)
 	if not hits.is_empty():
 		return hits[0].get("collider")
-
 	return null
+
+
+## Horizontal forward direction from the camera pivot (what the player is facing),
+## independent of camera elevation or spring-arm offset.
+func _player_forward() -> Vector3:
+	var cb := _player.camera_pivot.global_transform.basis
+	return Vector3(-cb.z.x, 0.0, -cb.z.z).normalized()
 
 
 func _deal_damage(target: Node, damage: float) -> void:

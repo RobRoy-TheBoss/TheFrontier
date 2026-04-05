@@ -39,10 +39,6 @@ spring_length = 4.0
 [node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D" unique_id=1134558226]
 current = true
 
-[node name="InteractionRay" type="RayCast3D" parent="CameraPivot/SpringArm3D/Camera3D" unique_id=1818023298]
-target_position = Vector3(0, 0, -6.5)
-collide_with_areas = true
-
 [node name="ScanRay" type="RayCast3D" parent="CameraPivot/SpringArm3D/Camera3D" unique_id=1645778384]
 target_position = Vector3(0, 0, -10)
 

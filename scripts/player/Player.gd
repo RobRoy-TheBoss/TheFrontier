@@ -17,7 +17,6 @@ const ZOOM_STEP := 0.4
 @onready var survival: PlayerSurvival = $PlayerSurvival
 @onready var inventory: PlayerInventory = $PlayerInventory
 @onready var combat: PlayerCombat = $PlayerCombat
-@onready var interaction_ray: RayCast3D = $CameraPivot/SpringArm3D/Camera3D/InteractionRay
 @onready var ability_system: AbilitySystem = $AbilitySystem
 @onready var camp_deployer: CampDeployer = $CampDeployer
 @onready var surveying_tool: SurveyingTool = $SurveyingTool
@@ -33,8 +32,7 @@ var target_lock: PlayerTargetLock = null
 func _ready() -> void:
 	add_to_group("player")
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	interaction_ray.add_exception(self)
-	_give_starting_items()
+_give_starting_items()
 	health.player_died.connect(_on_player_died)
 	inventory.inventory_changed.connect(_update_weapon_display)
 	_update_weapon_display()
@@ -113,17 +111,18 @@ func _process(delta: float) -> void:
 
 
 func _try_interact() -> void:
-	var hud := get_tree().get_first_node_in_group("hud")
-	if not interaction_ray.is_colliding():
-		if hud: hud.show_message("interact: no collision", 2.0)
+	var hud  := get_tree().get_first_node_in_group("hud")
+	var cb   := camera_pivot.global_transform.basis
+	var fwd  := Vector3(-cb.z.x, 0.0, -cb.z.z).normalized()
+	var origin := global_position + Vector3.UP * 1.0
+	var query  := PhysicsRayQueryParameters3D.create(origin, origin + fwd * INTERACTION_DISTANCE)
+	query.exclude = [self]
+	var result := get_world_3d().direct_space_state.intersect_ray(query)
+	if result.is_empty():
+		if hud: hud.show_message("interact: nothing ahead", 2.0)
 		return
-	var collider := interaction_ray.get_collider()
+	var collider: Node = result.get("collider")
 	if collider == null:
-		if hud: hud.show_message("interact: collider null", 2.0)
-		return
-	var dist := global_position.distance_to(interaction_ray.get_collision_point())
-	if dist > INTERACTION_DISTANCE:
-		if hud: hud.show_message("interact: too far (%.1f)" % dist, 2.0)
 		return
 	var target: Node = collider if collider.has_method("interact") else collider.get_parent()
 	if target and target.has_method("interact"):
@@ -420,4 +419,4 @@ func apply_save_data(data: Dictionary) -> void:
 
 func _adjust_zoom(delta: float) -> void:
 	spring_arm.spring_length = clamp(spring_arm.spring_length + delta, ZOOM_MIN, ZOOM_MAX)
-	interaction_ray.target_position.z = -(spring_arm.spring_length + INTERACTION_DISTANCE)
+
