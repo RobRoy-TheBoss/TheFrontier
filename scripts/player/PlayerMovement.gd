@@ -26,9 +26,8 @@ var god_mode: bool:
 
 # Double-tap dodge detection
 const DOUBLE_TAP_WINDOW := 0.3
-const DODGE_SPEED := 16.0
-const DODGE_HOP := 1.5
-const DODGE_DURATION := 0.15
+const DODGE_SPEED := 10.0
+const DODGE_DURATION := 0.5  # Matches PlayerCombat.DODGE_DURATION
 var _last_tap_time: Dictionary = {
 	"move_forward": -1.0, "move_backward": -1.0,
 	"move_left": -1.0, "move_right": -1.0
@@ -63,7 +62,8 @@ func _attach_weapon_to_hand() -> void:
 	skeleton.add_child(attach)
 	wh.reparent(attach)
 	wh.transform = Transform3D.IDENTITY
-	wh.rotation_degrees.y = 180.0
+	wh.rotation_degrees = Vector3(-90.0, 0.0, 0)
+	wh.position = Vector3(-0.05, 0.1, 0.2)
 
 
 func _physics_process(delta: float) -> void:
@@ -108,16 +108,13 @@ func _handle_movement(delta: float) -> void:
 	# Tick dodge timer
 	if _dodge_timer > 0.0:
 		_dodge_timer -= delta
-		if _player.is_on_floor():
-			var floor_normal := _player.get_floor_normal()
-			var slide_dir := _dodge_direction.slide(floor_normal).normalized()
-			_player.velocity.x = slide_dir.x * DODGE_SPEED
-			_player.velocity.z = slide_dir.z * DODGE_SPEED
-			_player.velocity.y = slide_dir.y * DODGE_SPEED
-		else:
-			_player.velocity.x = _dodge_direction.x * DODGE_SPEED
-			_player.velocity.z = _dodge_direction.z * DODGE_SPEED
+		var floor_normal := _player.get_floor_normal() if _player.is_on_floor() else Vector3.UP
+		var slide_dir := _dodge_direction.slide(floor_normal).normalized()
+		_player.velocity.x = slide_dir.x * DODGE_SPEED
+		_player.velocity.z = slide_dir.z * DODGE_SPEED
+		if not _player.is_on_floor():
 			_player.velocity.y -= GRAVITY * delta
+		_body_mesh.rotation.y = atan2(_dodge_direction.x, _dodge_direction.z)
 		_player.move_and_slide()
 		return
 
@@ -132,11 +129,13 @@ func _handle_movement(delta: float) -> void:
 		if _is_crouching:
 			_is_sprinting = false
 
-	# Sprint (Shift held)
-	_is_sprinting = Input.is_action_pressed("sprint") and not _is_crouching
+	# Double-tap sprint
+	_update_double_tap_sprint()
 
-	# Double-tap dodge
-	_update_double_tap_dodge()
+	# Spacebar dodge
+	if Input.is_action_just_pressed("dodge") and not _is_crouching:
+		_trigger_dodge_from_input()
+
 	if _dodge_timer > 0.0:
 		_player.move_and_slide()
 		return
@@ -182,9 +181,15 @@ func _handle_movement(delta: float) -> void:
 	# Injury movement speed
 	speed *= _health.get_movement_speed_multiplier()
 
-	if direction != Vector3.ZERO:
-		# Rotate body to face movement direction only while moving
+	var combat: PlayerCombat = _player.get_node_or_null("PlayerCombat") as PlayerCombat
+	var is_attacking: bool = combat != null and combat.attack_cooldown > 0.0
+
+	if is_attacking:
 		_body_mesh.rotation.y = _camera_pivot.rotation.y + PI
+		_player.velocity.x = move_toward(_player.velocity.x, 0, speed)
+		_player.velocity.z = move_toward(_player.velocity.z, 0, speed)
+	elif direction != Vector3.ZERO:
+		_body_mesh.rotation.y = atan2(direction.x, direction.z)
 		_player.velocity.x = direction.x * speed
 		_player.velocity.z = direction.z * speed
 		# Fatigue drain from movement
@@ -197,37 +202,50 @@ func _handle_movement(delta: float) -> void:
 	_player.move_and_slide()
 
 
-func _update_double_tap_dodge() -> void:
+func _update_double_tap_sprint() -> void:
 	if _is_crouching:
+		_is_sprinting = false
 		return
 	var now := Time.get_ticks_msec() / 1000.0
 	for action in _dodge_actions:
 		if Input.is_action_just_pressed(action):
 			var last: float = _last_tap_time[action]
 			if last >= 0.0 and (now - last) <= DOUBLE_TAP_WINDOW:
-				_trigger_dodge(action)
+				_is_sprinting = true
 			_last_tap_time[action] = now
+	# Stop sprinting when no movement input
+	if Input.get_vector("move_left", "move_right", "move_forward", "move_backward") == Vector2.ZERO:
+		_is_sprinting = false
 
 
-func _trigger_dodge(action: String) -> void:
+func _trigger_dodge_from_input() -> void:
+	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+	var cb: Basis = _camera_pivot.global_transform.basis
+	var fwd := Vector3(-cb.z.x, 0, -cb.z.z).normalized()
+	var right := Vector3(cb.x.x, 0, cb.x.z).normalized()
+	var impulse: Vector3
+	if input_dir != Vector2.ZERO:
+		impulse = (right * input_dir.x - fwd * input_dir.y).normalized()
+	else:
+		impulse = -fwd  # Default: dodge backward
+	_trigger_dodge_direction(impulse)
+
+
+func _trigger_dodge_direction(impulse: Vector3) -> void:
 	if not _player.is_on_floor() or _dodge_timer > 0.0:
 		return
 	var combat: Node = _player.get_node_or_null("PlayerCombat")
 	if combat == null or not combat._try_dodge():
 		return
-	var cb: Basis = _camera_pivot.global_transform.basis
-	var fwd := Vector3(-cb.z.x, 0, -cb.z.z).normalized()
-	var right := Vector3(cb.x.x, 0, cb.x.z).normalized()
-	var impulse := Vector3.ZERO
-	match action:
-		"move_forward":  impulse = fwd
-		"move_backward": impulse = -fwd
-		"move_left":     impulse = -right
-		"move_right":    impulse = right
 	_dodge_direction = impulse
-	_player.velocity = impulse * DODGE_SPEED
-	_player.velocity.y = DODGE_HOP
+	_body_mesh.rotation.y = atan2(impulse.x, impulse.z)
+	_player.velocity.x = impulse.x * DODGE_SPEED
+	_player.velocity.z = impulse.z * DODGE_SPEED
+	# No vertical hop — ground roll stays grounded
 	_dodge_timer = DODGE_DURATION
+	var anim: Node = _player.get_node_or_null("PlayerAnimations")
+	if anim:
+		anim.play_once("roll")
 
 
 func set_road_speed_bonus(bonus: float) -> void:

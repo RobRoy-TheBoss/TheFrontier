@@ -10,14 +10,6 @@ var _skeleton: Skeleton3D
 # slot -> { item_id, nodes }
 var _slot_meshes: Dictionary = {}
 
-# Base mesh nodes to hide when covered by outfit pieces
-# Maps armor slot -> base mesh node name(s) under Armature
-const BASE_MESH_COVERED_BY := {
-	"chest": ["SuperHero_Male"],
-	"legs":  ["SuperHero_Male"],
-	"hands": ["SuperHero_Male"],
-	"feet":  ["SuperHero_Male"],
-}
 
 
 func _ready() -> void:
@@ -27,6 +19,7 @@ func _ready() -> void:
 	if _skeleton == null:
 		push_warning("PlayerArmorDisplay: Skeleton3D not found at Armature/Skeleton3D")
 		return
+
 	_player.inventory.inventory_changed.connect(_refresh)
 	_refresh()
 
@@ -78,6 +71,7 @@ func _attach_slot(slot: String, item_id: String, mesh_path: String) -> void:
 		if parent:
 			parent.remove_child(mi)
 		mi.name = "ArmorMesh_%s" % slot
+		mi.scale = Vector3(1.05, 1.05, 1.05)
 		_skeleton.add_child(mi)
 		mi.skeleton = NodePath("..")
 		attached.append(mi)
@@ -95,23 +89,8 @@ func _clear_slot(slot: String) -> void:
 	_slot_meshes.erase(slot)
 
 
-func _update_base_mesh_visibility(equipped: Dictionary) -> void:
-	# Collect which base mesh node names are covered by at least one outfit piece
-	var covered: Dictionary = {}
-	for slot in BASE_MESH_COVERED_BY:
-		if equipped.has(slot) and not equipped[slot].is_empty():
-			var item_id: String = equipped[slot].get("item_id", "")
-			if not GameData.get_armor(item_id).get("mesh_path", "").is_empty():
-				for mesh_name in BASE_MESH_COVERED_BY[slot]:
-					covered[mesh_name] = true
-
-	# Show/hide base mesh nodes on Armature (sibling of Skeleton3D)
-	var armature: Node3D = _player.character_model.get_node_or_null("Armature") as Node3D
-	if armature == null:
-		return
-	for child in armature.get_children():
-		if child is MeshInstance3D:
-			(child as MeshInstance3D).visible = not covered.has(child.name)
+func _update_base_mesh_visibility(_equipped: Dictionary) -> void:
+	pass
 
 
 func _collect_skinned_meshes(node: Node, result: Array) -> void:

@@ -97,8 +97,7 @@ func _handle_input(delta: float) -> void:
 		_health.drain_stamina(GameData.survival_params.get("stamina", {}).get("block_drain_per_second", 8.0) * delta)
 	else:
 		is_blocking = false
-	if Input.is_action_just_pressed("dodge"):
-		_try_dodge()
+	# Dodge input handled by PlayerMovement (which calls _try_dodge() directly)
 
 
 func _try_attack() -> void:

@@ -39,9 +39,6 @@ func _ready() -> void:
 	var anim_node: Node = preload("res://scripts/player/PlayerAnimations.gd").new()
 	anim_node.name = "PlayerAnimations"
 	add_child(anim_node)
-	var armor_display: Node = preload("res://scripts/player/PlayerArmorDisplay.gd").new()
-	armor_display.name = "PlayerArmorDisplay"
-	add_child(armor_display)
 	target_lock = PlayerTargetLock.new()
 	target_lock.name = "PlayerTargetLock"
 	add_child(target_lock)
@@ -336,7 +333,7 @@ func _give_starting_items() -> void:
 	inventory.equip_to_weapon_slot("short_spear", 0)
 	inventory.equip_to_weapon_slot("arming_sword", 1)
 	# Starting armor: Peasant set (light)
-	for armor_id: String in ["light_chest", "light_legs", "light_hands", "light_head", "light_feet"]:
+	for armor_id: String in ["light_chest", "light_legs", "light_hands", "light_feet"]:
 		inventory.add_item(armor_id, 1)
 		inventory.equip(armor_id, "auto")
 

@@ -18,6 +18,7 @@ const ANIM_MAP := {
 	"swim_idle":    "ual/Swim_Idle",
 	"carry":        "ual2/Walk_Carry",
 	"slide":        "ual2/Slide_Start",
+	"roll":         "ual/Roll",
 	# UAL1 — combat
 	"attack":       "ual/Sword_Attack",
 	"sword_idle":   "ual/Sword_Idle",
@@ -41,6 +42,7 @@ const ANIM_MAP := {
 var _player: CharacterBody3D
 var _anim_player: AnimationPlayer
 var _current: String = ""
+var _one_shot_playing: bool = false
 
 
 func _ready() -> void:
@@ -91,15 +93,20 @@ func play_once(key: String) -> void:
 	if _anim_player == null:
 		return
 	if not ANIM_MAP.has(key):
+		push_warning("PlayerAnimations: unknown key '%s'" % key)
 		return
 	var full_name: String = ANIM_MAP[key]
-	if _anim_player.has_animation(full_name):
-		_anim_player.play(full_name)
-		_current = key
-		# Return to idle when done
-		await _anim_player.animation_finished
-		if _current == key:
-			_play("idle")
+	if not _anim_player.has_animation(full_name):
+		push_warning("PlayerAnimations: animation not found '%s'" % full_name)
+		return
+	_one_shot_playing = true
+	_anim_player.speed_scale = ANIM_SPEED.get(key, 1.0)
+	_anim_player.play(full_name)
+	_current = key
+	await _anim_player.animation_finished
+	_one_shot_playing = false
+	if _current == key:
+		_play("idle")
 
 
 func _process(_delta: float) -> void:
@@ -107,7 +114,7 @@ func _process(_delta: float) -> void:
 		return
 
 	# Don't override one-shot animations in progress
-	if _current in ["attack", "hit", "death"]:
+	if _one_shot_playing:
 		return
 
 	var movement: PlayerMovement = _player.get_node_or_null("PlayerMovement")
