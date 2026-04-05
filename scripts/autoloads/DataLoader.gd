@@ -24,6 +24,7 @@ var runes: Dictionary = {}
 var items: Dictionary = {}
 var injuries: Dictionary = {}
 var weapons: Dictionary = {}
+var armor: Dictionary = {}
 var seasons: Dictionary = {}       # keyed by "id" string
 var _seasons_ordered: Array = []   # preserves original array order for index lookup
 var survival: Dictionary = {}
@@ -122,6 +123,10 @@ func _load_all() -> void:
 	for w in _load_json_array("weapons.json"):
 		weapons[w["id"]] = w
 
+	# Armor (dict root with armor_pieces array)
+	for a in _load_json("armor/armor.json").get("armor_pieces", []):
+		armor[a["id"]] = a
+
 	# Seasons (array root)
 	_seasons_ordered = _load_json_array("seasons.json")
 	for s in _seasons_ordered:
@@ -201,6 +206,10 @@ func get_item(id: String) -> Dictionary:
 
 func get_weapon(id: String) -> Dictionary:
 	return weapons.get(id, {})
+
+
+func get_armor(id: String) -> Dictionary:
+	return armor.get(id, {})
 
 
 func get_rune(id: String) -> Dictionary:

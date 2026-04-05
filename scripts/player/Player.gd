@@ -39,6 +39,9 @@ func _ready() -> void:
 	var anim_node: Node = preload("res://scripts/player/PlayerAnimations.gd").new()
 	anim_node.name = "PlayerAnimations"
 	add_child(anim_node)
+	var armor_display: Node = preload("res://scripts/player/PlayerArmorDisplay.gd").new()
+	armor_display.name = "PlayerArmorDisplay"
+	add_child(armor_display)
 	target_lock = PlayerTargetLock.new()
 	target_lock.name = "PlayerTargetLock"
 	add_child(target_lock)
