@@ -104,6 +104,9 @@ func _handle_input(delta: float) -> void:
 func _try_attack() -> void:
 	if attack_cooldown > 0.0 or is_dodging:
 		return
+	var anim: PlayerAnimations = _player.get_node_or_null("PlayerAnimations")
+	if anim:
+		anim.play_once("attack")
 	var weapon: Dictionary = get_equipped_weapon()
 	if weapon.is_empty():
 		_melee_unarmed()
@@ -179,7 +182,7 @@ func _get_melee_target(weapon_reach: float) -> Node:
 ## Horizontal forward direction from the camera pivot (what the player is facing),
 ## independent of camera elevation or spring-arm offset.
 func _player_forward() -> Vector3:
-	var cb := _player.camera_pivot.global_transform.basis
+	var cb: Basis = _player.camera_pivot.global_transform.basis
 	return Vector3(-cb.z.x, 0.0, -cb.z.z).normalized()
 
 
