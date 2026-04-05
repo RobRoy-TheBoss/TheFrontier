@@ -489,7 +489,7 @@
     "description": "Yellow mineral. Required for black powder."
   },
   {
-    "id": "map_item",
+    "id": "map",
     "name": "Map",
     "type": "map",
     "weight": 0.2,

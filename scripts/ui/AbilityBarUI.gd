@@ -11,6 +11,9 @@ const MAX_SLOTS := 8
 
 var _slots: Array = []  # Array of { discipline_id, ability_id }
 var _ability_system: AbilitySystem = null
+var _player_combat: PlayerCombat = null
+var _attack_overlay: ColorRect = null
+var _attack_weapon_label: Label = null
 
 # Input actions for ability slots
 const SLOT_ACTIONS := [
@@ -27,8 +30,12 @@ func _ready() -> void:
 		channel_bar.visible = false
 	await get_tree().process_frame
 	var player := get_tree().get_first_node_in_group("player")
-	if player and player.has_node("AbilitySystem"):
-		_ability_system = player.get_node("AbilitySystem")
+	if player:
+		if player.has_node("AbilitySystem"):
+			_ability_system = player.get_node("AbilitySystem")
+		if player.has_node("PlayerCombat"):
+			_player_combat = player.get_node("PlayerCombat")
+			player.inventory.inventory_changed.connect(_update_attack_slot_label)
 		_ability_system.ability_channel_started.connect(_on_channel_started)
 		_ability_system.ability_channel_completed.connect(_on_channel_complete)
 		_ability_system.ability_channel_interrupted.connect(_on_channel_interrupted)
@@ -46,8 +53,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			_activate_slot(i)
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	_update_cooldown_overlays()
+	_update_attack_slot_cooldown()
 
 
 func _activate_slot(index: int) -> void:
@@ -72,6 +80,9 @@ func _rebuild_slots() -> void:
 		return
 	for child in slot_container.get_children():
 		child.queue_free()
+	_attack_overlay = null
+	_attack_weapon_label = null
+	_build_attack_slot()
 
 	for i in range(MAX_SLOTS):
 		var slot_panel := PanelContainer.new()
@@ -172,6 +183,56 @@ func _auto_assign_new_ability(disc_id: String, ability_id: String) -> void:
 		if _slots[i].is_empty():
 			assign_ability_to_slot(i, disc_id, ability_id)
 			return
+
+
+func _build_attack_slot() -> void:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(60, 60)
+	var vbox := VBoxContainer.new()
+	var key_lbl := Label.new()
+	key_lbl.text = "LMB"
+	key_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	key_lbl.add_theme_color_override("font_color", Color.GRAY)
+	key_lbl.add_theme_font_size_override("font_size", 8)
+	_attack_weapon_label = Label.new()
+	_attack_weapon_label.name = "WeaponLabel"
+	_attack_weapon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_attack_weapon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_attack_weapon_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_attack_weapon_label.add_theme_font_size_override("font_size", 9)
+	vbox.add_child(key_lbl)
+	vbox.add_child(_attack_weapon_label)
+	panel.add_child(vbox)
+	_attack_overlay = ColorRect.new()
+	_attack_overlay.name = "AttackCooldownOverlay"
+	_attack_overlay.color = Color(0, 0, 0, 0.6)
+	_attack_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_attack_overlay.visible = false
+	panel.add_child(_attack_overlay)
+	slot_container.add_child(panel)
+	_update_attack_slot_label()
+
+
+func _update_attack_slot_label() -> void:
+	if _attack_weapon_label == null:
+		return
+	if _player_combat == null:
+		_attack_weapon_label.text = "Attack"
+		return
+	var weapon: Dictionary = _player_combat.get_equipped_weapon()
+	_attack_weapon_label.text = weapon.get("name", "Unarmed") if not weapon.is_empty() else "Unarmed"
+
+
+func _update_attack_slot_cooldown() -> void:
+	if _attack_overlay == null or _player_combat == null:
+		return
+	var frac: float = _player_combat.get_attack_cooldown_frac()
+	if frac <= 0.0:
+		_attack_overlay.visible = false
+		return
+	_attack_overlay.visible = true
+	# Scale from top — frac=1 fully covered, frac=0 gone
+	_attack_overlay.scale = Vector2(1.0, frac)
 
 
 func _get_ability_display_name(disc_id: String, ability_id: String) -> String:

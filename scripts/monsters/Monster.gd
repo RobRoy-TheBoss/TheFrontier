@@ -3,7 +3,7 @@
 ## combat, loot, and XP trigger reporting.
 extends CharacterBody3D
 
-enum State { IDLE, PATROL, ALERT, CHASE, ATTACK, FLEE, DESPAWN, DEAD }
+enum State { IDLE, PATROL, ALERT, CHASE, WINDUP, ATTACK, RECOVER, SEEK_LAND, SEEK_WATER, FLEE, DESPAWN, DEAD }
 
 @export var monster_id: String = "prowler"
 @export var static_mode: bool = false  # If true: no AI, no movement, no attacks
@@ -15,7 +15,12 @@ var _target: Node = null
 var _health: float = 0.0
 var _max_health: float = 0.0
 var _alert_timer: float = 0.0
-var _attack_cooldown: float = 0.0
+var _attack_cooldown: float = 0.0   # global stagger/flinch blocker
+var _attack_cooldowns: Dictionary = {}  # attack name → remaining cooldown
+var _current_attack: Dictionary = {}    # attack selected at windup start
+var _windup_timer: float = 0.0
+var _recovery_timer: float = 0.0
+var _charge_timer: float = 0.0  # ambush burst speed on first aggro
 var _patrol_timer: float = 0.0
 var _patrol_target: Vector3 = Vector3.ZERO
 var _has_detected_player: bool = false
@@ -27,8 +32,16 @@ var _bleed_timer: float = 0.0
 var _deathmark_active: bool = false
 var _deathmark_cripple_count: int = 0
 var _mesh_material: StandardMaterial3D = null
+var _mesh_albedo_original: Color = Color.WHITE
+var _ind_decal: Decal = null
+var _ind_decal_full_size: Vector3 = Vector3.ONE
+var _ind_fill_axis: String = "xz"  # "xz" = radius/arc/circle, "x" = line
 
 const GRAVITY := 9.8
+const DEFAULT_WINDUP := 0.6
+const WATER_LEVEL := 8.5           # must match HexAssetScatterer.WATER_LEVEL
+const SEEK_LAND_MARGIN := 2.0      # terrestrial: must be this far above water
+const AMPHIBIOUS_PATROL_ABOVE := 5.0  # amphibious: patrol up to this many metres above waterline
 
 signal died(monster_id: String, position: Vector3)
 
@@ -43,12 +56,49 @@ func _ready() -> void:
 	_stats = _data.get("stats", {})
 	_max_health = _stats.get("max_health", 60.0)
 	_health = _max_health
+	var facing_label := get_node_or_null("FacingLabel") as Label3D
+	if facing_label:
+		facing_label.text = ">:("
+		var lo: Array = _data.get("label_offset", [])
+		if lo.size() == 3:
+			facing_label.position = Vector3(float(lo[0]), float(lo[1]), float(lo[2]))
+		var lr: Array = _data.get("label_rotation_deg", [])
+		if lr.size() == 3:
+			facing_label.rotation_degrees = Vector3(float(lr[0]), float(lr[1]), float(lr[2]))
+	var name_label := get_node_or_null("NameLabel") as Label3D
+	if name_label:
+		name_label.text = _data.get("name", monster_id)
 	var mesh: MeshInstance3D = get_node_or_null("MeshInstance3D")
 	if mesh:
-		var mat := mesh.get_surface_override_material(0)
-		if mat:
-			_mesh_material = mat.duplicate() as StandardMaterial3D
+		# Swap mesh geometry if specified in data
+		var mesh_type: String = _data.get("mesh_type", "")
+		match mesh_type:
+			"cylinder":
+				var cyl := CylinderMesh.new()
+				cyl.top_radius    = float(_data.get("mesh_radius", 0.5))
+				cyl.bottom_radius = cyl.top_radius
+				cyl.height        = float(_data.get("mesh_height", 1.0))
+				mesh.mesh = cyl
+		var rot: Array = _data.get("mesh_rotation_deg", [])
+		if rot.size() == 3:
+			mesh.rotation_degrees = Vector3(float(rot[0]), float(rot[1]), float(rot[2]))
+		var mpos: Array = _data.get("mesh_position", [])
+		if mpos.size() == 3:
+			mesh.position = Vector3(float(mpos[0]), float(mpos[1]), float(mpos[2]))
+		# Build material — use mesh_color if provided, else fall back to scene default
+		var mc: Array = _data.get("mesh_color", [])
+		if mc.size() >= 3:
+			_mesh_material = StandardMaterial3D.new()
+			_mesh_material.albedo_color = Color(float(mc[0]), float(mc[1]), float(mc[2]),
+					float(mc[3]) if mc.size() >= 4 else 1.0)
 			mesh.set_surface_override_material(0, _mesh_material)
+		else:
+			var mat := mesh.get_surface_override_material(0)
+			if mat:
+				_mesh_material = mat.duplicate() as StandardMaterial3D
+				mesh.set_surface_override_material(0, _mesh_material)
+		if _mesh_material:
+			_mesh_albedo_original = _mesh_material.albedo_color
 
 
 func _physics_process(delta: float) -> void:
@@ -70,6 +120,19 @@ func _tick_timers(delta: float) -> void:
 			_state = State.PATROL
 	if _cripple_timer > 0.0:
 		_cripple_timer -= delta
+	if _windup_timer > 0.0:
+		_windup_timer -= delta
+		_update_telegraph_visual()
+		if _windup_timer <= 0.0:
+			_finish_windup()
+	if _recovery_timer > 0.0:
+		_recovery_timer -= delta
+		if _recovery_timer <= 0.0 and _state == State.RECOVER:
+			_state = State.CHASE
+	if _charge_timer > 0.0:
+		_charge_timer -= delta
+	for atk_name in _attack_cooldowns:
+		_attack_cooldowns[atk_name] = maxf(0.0, _attack_cooldowns[atk_name] - delta)
 
 
 func _run_ai(delta: float) -> void:
@@ -83,6 +146,30 @@ func _run_ai(delta: float) -> void:
 	var detection_range: float = _stats.get("detection_range", 20.0)
 	var aggro_range: float = _stats.get("aggro_range", 15.0)
 
+	# Territory overrides
+	var territory: String = _data.get("territory", "")
+	var in_combat := _state in [State.CHASE, State.WINDUP, State.ATTACK, State.RECOVER]
+	match territory:
+		"terrestrial":
+			# At full health: never enter water. Damaged: chase freely into water.
+			var at_full_health: bool = _health >= _max_health
+			if (at_full_health or not in_combat) and global_position.y < WATER_LEVEL + SEEK_LAND_MARGIN:
+				_state = State.SEEK_LAND
+				_seek_land(delta)
+				return
+		"aquatic":
+			# Never leaves water, even when provoked
+			if global_position.y > WATER_LEVEL:
+				_state = State.SEEK_WATER
+				_seek_water(delta)
+				return
+		"amphibious":
+			# Chases freely on land when provoked; returns to waterline when idle
+			if not in_combat and global_position.y > WATER_LEVEL + AMPHIBIOUS_PATROL_ABOVE:
+				_state = State.SEEK_WATER
+				_seek_water(delta)
+				return
+
 	# Detection
 	var player_health: PlayerHealth = player.get("health") as PlayerHealth
 	if player_health and player_health.is_dead:
@@ -93,16 +180,24 @@ func _run_ai(delta: float) -> void:
 		if _can_see_player(player):
 			_has_detected_player = true
 			_target = player
-			if _state not in [State.CHASE, State.ATTACK]:
-				_state = State.CHASE
+			if _state not in [State.CHASE, State.WINDUP, State.ATTACK, State.RECOVER]:
+				# Terrestrial at full health won't initiate on a player in water
+				var player_in_water: bool = player.global_position.y <= WATER_LEVEL
+				var at_full_health: bool = _health >= _max_health
+				if not (territory == "terrestrial" and player_in_water and at_full_health):
+					_state = State.CHASE
+					if _data.get("behavior_type", "") == "ambush":
+						_charge_timer = _data.get("charge_duration", 1.5)
 
 	match _state:
 		State.IDLE:
-			_patrol_timer -= delta
-			if _patrol_timer <= 0.0:
-				_pick_patrol_point()
-				_patrol_timer = randf_range(3.0, 8.0)
-				_state = State.PATROL
+			# Ambush monsters stay still and wait — no patrol
+			if _data.get("behavior_type", "") != "ambush":
+				_patrol_timer -= delta
+				if _patrol_timer <= 0.0:
+					_pick_patrol_point()
+					_patrol_timer = randf_range(3.0, 8.0)
+					_state = State.PATROL
 		State.PATROL:
 			_move_toward(_patrol_target, delta)
 			if global_position.distance_to(_patrol_target) < 1.0:
@@ -116,16 +211,28 @@ func _run_ai(delta: float) -> void:
 				_target = null
 				return
 			_move_toward(_target.global_position, delta)
-			if dist_to_player <= 2.0 and _attack_cooldown <= 0.0:
-				_state = State.ATTACK
+			if _attack_cooldown <= 0.0:
+				var atk := _pick_attack(dist_to_player)
+				if not atk.is_empty():
+					_current_attack = atk
+					_state = State.WINDUP
+					_windup_timer = atk.get("windup_duration", DEFAULT_WINDUP)
+					# Lock facing at windup start — won't track player during telegraph
+					var dir: Vector3 = _target.global_position - global_position
+					dir.y = 0.0
+					if dir.length() > 0.01:
+						look_at(global_position + dir.normalized(), Vector3.UP)
+					_start_telegraph_visual()
+		State.WINDUP:
+			# Freeze movement and facing — committed to the attack angle
+			velocity.x = 0.0
+			velocity.z = 0.0
 		State.ATTACK:
-			if _target == null:
-				_state = State.IDLE
-				return
-			_telegraph_attack()
-			_perform_attack(_target)
-			_attack_cooldown = 1.0 / _stats.get("attack_speed", 1.0)
-			_state = State.CHASE
+			pass  # Handled in _finish_windup
+		State.RECOVER:
+			# Post-attack freeze — can't move or start new attacks
+			velocity.x = 0.0
+			velocity.z = 0.0
 
 
 func _can_see_player(player: Node) -> bool:
@@ -138,14 +245,80 @@ func _can_see_player(player: Node) -> bool:
 	return result.is_empty() or result.get("collider") == player
 
 
+func _seek_land(delta: float) -> void:
+	# Sample terrain height in 8 directions and move toward the highest one.
+	var space := get_world_3d().direct_space_state
+	var best_dir := Vector3.ZERO
+	var best_y := -INF
+	var probe_dist := 8.0
+	for i in range(8):
+		var angle := TAU * float(i) / 8.0
+		var dir := Vector3(sin(angle), 0.0, cos(angle))
+		var probe_xz := global_position + dir * probe_dist
+		var ray := PhysicsRayQueryParameters3D.create(
+			Vector3(probe_xz.x, global_position.y + 60.0, probe_xz.z),
+			Vector3(probe_xz.x, global_position.y - 20.0, probe_xz.z)
+		)
+		ray.collision_mask = 1
+		ray.exclude = [self]
+		var hit := space.intersect_ray(ray)
+		var terrain_y: float = hit["position"].y if not hit.is_empty() else global_position.y
+		if terrain_y > best_y:
+			best_y = terrain_y
+			best_dir = dir
+	if best_dir != Vector3.ZERO:
+		_move_toward(global_position + best_dir, delta)
+	# Exit SEEK_LAND once safely above waterline
+	if global_position.y >= WATER_LEVEL + SEEK_LAND_MARGIN:
+		_state = State.IDLE
+
+
+func _seek_water(delta: float) -> void:
+	# Sample terrain height in 8 directions and move toward the lowest — toward water.
+	var space := get_world_3d().direct_space_state
+	var best_dir := Vector3.ZERO
+	var best_y := INF
+	var probe_dist := 8.0
+	for i in range(8):
+		var angle := TAU * float(i) / 8.0
+		var dir := Vector3(sin(angle), 0.0, cos(angle))
+		var probe_xz := global_position + dir * probe_dist
+		var ray := PhysicsRayQueryParameters3D.create(
+			Vector3(probe_xz.x, global_position.y + 60.0, probe_xz.z),
+			Vector3(probe_xz.x, global_position.y - 20.0, probe_xz.z)
+		)
+		ray.collision_mask = 1
+		ray.exclude = [self]
+		var hit := space.intersect_ray(ray)
+		var terrain_y: float = hit["position"].y if not hit.is_empty() else global_position.y
+		if terrain_y < best_y:
+			best_y = terrain_y
+			best_dir = dir
+	if best_dir != Vector3.ZERO:
+		_move_toward(global_position + best_dir, delta)
+	# Aquatic: exit when back in water. Amphibious: exit when within patrol zone.
+	var territory: String = _data.get("territory", "")
+	var at_water := global_position.y <= WATER_LEVEL
+	var in_patrol_zone := global_position.y <= WATER_LEVEL + AMPHIBIOUS_PATROL_ABOVE
+	if (territory == "aquatic" and at_water) or (territory == "amphibious" and in_patrol_zone):
+		_state = State.IDLE
+
+
 func _move_toward(target_pos: Vector3, delta: float) -> void:
 	if _cripple_timer > 0.0:
 		return
-	var direction := (target_pos - global_position).normalized()
+	var direction := (target_pos - global_position)
 	direction.y = 0
+	var dir_len := direction.length()
+	if dir_len < 0.01:
+		return
+	direction = direction / dir_len
 	var speed: float = _stats.get("move_speed", 4.5)
+	if _charge_timer > 0.0:
+		speed *= _data.get("charge_speed_multiplier", 2.0)
 	velocity.x = direction.x * speed
 	velocity.z = direction.z * speed
+	look_at(global_position + direction, Vector3.UP)
 
 
 func _apply_gravity(delta: float) -> void:
@@ -155,10 +328,219 @@ func _apply_gravity(delta: float) -> void:
 		velocity.y = 0.0
 
 
-func _telegraph_attack() -> void:
-	# Plays telegraph animation — monsters must telegraph per MEL-043
-	# Animation node: $AnimationPlayer.play("telegraph")
-	pass
+func _start_telegraph_visual() -> void:
+	_show_attack_indicator()
+
+
+func _update_telegraph_visual() -> void:
+	if _windup_timer <= 0.0 or _ind_decal == null:
+		return
+	var duration: float = _current_attack.get("windup_duration", DEFAULT_WINDUP)
+	var t := clampf(1.0 - (_windup_timer / duration), 0.001, 1.0)
+	if _ind_fill_axis == "x":
+		_ind_decal.size = Vector3(_ind_decal_full_size.x * t, _ind_decal_full_size.y, _ind_decal_full_size.z)
+	else:
+		_ind_decal.size = Vector3(_ind_decal_full_size.x * t, _ind_decal_full_size.y, _ind_decal_full_size.z * t)
+
+
+func _finish_windup() -> void:
+	_hide_attack_indicator()
+	if _mesh_material:
+		_mesh_material.albedo_color = _mesh_albedo_original
+	if _state == State.WINDUP:
+		_state = State.ATTACK
+		if _target != null:
+			if _check_attack_shape(_target):
+				_perform_attack(_target)
+		var atk_name: String = _current_attack.get("name", "attack")
+		var cd: float = _current_attack.get("cooldown", 1.0 / _stats.get("attack_speed", 1.0))
+		_attack_cooldowns[atk_name] = cd
+		var recovery: float = _data.get("recovery_time", 0.4)
+		_recovery_timer = recovery
+		_state = State.RECOVER
+
+
+func _show_attack_indicator() -> void:
+	_hide_attack_indicator()
+	var shape: Dictionary = _current_attack.get("shape", {})
+	var type: String = shape.get("type", "radius")
+	_ind_fill_axis = "x" if type == "line" else "xz"
+
+	var tex := _build_telegraph_texture(shape)
+	if tex == null:
+		return
+
+	_ind_decal = Decal.new()
+	_ind_decal.texture_albedo = tex
+	_ind_decal.albedo_mix = 1.0
+	_ind_decal.cull_mask = 1 << 2  # layer 3 only — terrain meshes only
+
+	# Forward direction on the XZ plane (for line/arc orientation)
+	var fwd := -global_transform.basis.z
+	fwd.y = 0.0
+	if fwd.length() > 0.001:
+		fwd = fwd.normalized()
+
+	# Basis keeps only the Y rotation so the decal always projects straight down
+	var y_rot_basis := Basis(Vector3.UP, global_rotation.y)
+	# Centre the decal 5 m above the monster's feet.
+	# size.y = 16 → box reaches from 3 m underground to 13 m above, handling steep slopes.
+	var origin := global_position + Vector3.UP * 5.0
+
+	match type:
+		"radius":
+			var r: float = shape.get("range", 2.5)
+			_ind_decal_full_size = Vector3(r * 2.0, 16.0, r * 2.0)
+		"circle":
+			var r: float = shape.get("radius", 1.5)
+			_ind_decal_full_size = Vector3(r * 2.0, 16.0, r * 2.0)
+		"arc":
+			var r: float = shape.get("range", 2.5)
+			_ind_decal_full_size = Vector3(r * 2.0, 16.0, r * 2.0)
+		"line":
+			var length: float = shape.get("length", 3.0)
+			var width: float = shape.get("width", 0.8)
+			_ind_decal_full_size = Vector3(width, 16.0, length)
+			origin += fwd * length * 0.5
+
+	# Start near-zero and animate to full in _update_telegraph_visual
+	if _ind_fill_axis == "x":
+		_ind_decal.size = Vector3(0.001, _ind_decal_full_size.y, _ind_decal_full_size.z)
+	else:
+		_ind_decal.size = Vector3(0.001, _ind_decal_full_size.y, 0.001)
+
+	# Add to scene root so the decal is not inside the monster's own geometry
+	get_tree().current_scene.add_child(_ind_decal)
+	_ind_decal.global_transform = Transform3D(y_rot_basis, origin)
+
+
+func _hide_attack_indicator() -> void:
+	if _ind_decal != null:
+		_ind_decal.queue_free()
+		_ind_decal = null
+
+
+# -- Texture builders ---------------------------------------------------------
+
+const _IND_FILL_COL := Color(0.85, 0.0, 0.0, 0.65)
+const _IND_EDGE_COL := Color(1.0, 0.5, 0.0, 1.0)
+const _IND_EDGE_FRAC := 0.88  # outer 12% of radius = edge ring
+
+
+func _build_telegraph_texture(shape: Dictionary) -> ImageTexture:
+	const SZ := 256
+	var type: String = shape.get("type", "radius")
+	var img: Image
+	match type:
+		"radius":
+			img = _ind_disc_image(SZ)
+		"circle":
+			img = _ind_disc_image(SZ)
+		"arc":
+			img = _ind_arc_image(SZ, deg_to_rad(shape.get("half_angle_deg", 60.0)))
+		"line":
+			img = _ind_rect_image(SZ)
+		_:
+			return null
+	return ImageTexture.create_from_image(img)
+
+
+func _ind_disc_image(sz: int) -> Image:
+	var img := Image.create(sz, sz, false, Image.FORMAT_RGBA8)
+	var h := sz * 0.5
+	for py in range(sz):
+		for px in range(sz):
+			var d := Vector2(px - h, py - h).length() / h
+			if d > 1.0:
+				continue
+			img.set_pixel(px, py, _IND_EDGE_COL if d >= _IND_EDGE_FRAC else _IND_FILL_COL)
+	return img
+
+
+func _ind_arc_image(sz: int, half_angle: float) -> Image:
+	# Texture UV: U=0.5,V=0.5 = monster origin; V decreases toward forward (-Z world).
+	# Decal local axes: +X = world +X, +Z = world +Z, so V increases with world +Z (backward).
+	# Forward (-Z) = low V direction.
+	var img := Image.create(sz, sz, false, Image.FORMAT_RGBA8)
+	var h := sz * 0.5
+	var cos_half := cos(half_angle)
+	var edge_ang_cos := cos(half_angle - deg_to_rad(3.5))
+	for py in range(sz):
+		for px in range(sz):
+			var dx := (px - h) / h
+			var dz := (py - h) / h  # positive = world +Z = backward
+			var d := sqrt(dx * dx + dz * dz)
+			if d < 0.001 or d > 1.0:
+				continue
+			# Angle from forward (-Z): cos = -dz/d
+			var cos_a := -dz / d
+			if cos_a < cos_half:
+				continue
+			var on_outer := d >= _IND_EDGE_FRAC
+			var on_radial := cos_a <= edge_ang_cos  # near either side edge
+			img.set_pixel(px, py, _IND_EDGE_COL if (on_outer or on_radial) else _IND_FILL_COL)
+	return img
+
+
+func _ind_rect_image(sz: int) -> Image:
+	var img := Image.create(sz, sz, false, Image.FORMAT_RGBA8)
+	const BORDER := 12
+	for py in range(sz):
+		for px in range(sz):
+			var on_edge := px < BORDER or px >= sz - BORDER or py < BORDER or py >= sz - BORDER
+			img.set_pixel(px, py, _IND_EDGE_COL if on_edge else _IND_FILL_COL)
+	return img
+
+
+func _pick_attack(dist: float) -> Dictionary:
+	var available: Array = []
+	for atk in _data.get("attacks", []):
+		var shape: Dictionary = atk.get("shape", {})
+		var atk_range: float = shape.get("range", shape.get("length", 2.5))
+		if dist > atk_range:
+			continue
+		var atk_name: String = atk.get("name", "attack")
+		if _attack_cooldowns.get(atk_name, 0.0) > 0.0:
+			continue
+		available.append(atk)
+	if available.is_empty():
+		return {}
+	return available[randi() % available.size()]
+
+
+func _check_attack_shape(target: Node) -> bool:
+	var to_target: Vector3 = target.global_position - global_position
+	to_target.y = 0.0
+	var dist := to_target.length()
+	var shape: Dictionary = _current_attack.get("shape", {})
+	var type: String = shape.get("type", "radius")
+
+	match type:
+		"radius":
+			return dist <= shape.get("range", 2.5)
+		"arc":
+			if dist > shape.get("range", 2.5):
+				return false
+			if dist < 0.01:
+				return true
+			var forward := -global_transform.basis.z
+			forward.y = 0.0
+			forward = forward.normalized()
+			var half_angle := deg_to_rad(shape.get("half_angle_deg", 60.0))
+			return forward.dot(to_target.normalized()) >= cos(half_angle)
+		"line":
+			var forward := -global_transform.basis.z
+			forward.y = 0.0
+			forward = forward.normalized()
+			var fwd_dist := forward.dot(to_target)
+			if fwd_dist < 0.0 or fwd_dist > shape.get("length", 3.0):
+				return false
+			return (to_target - forward * fwd_dist).length() <= shape.get("width", 0.8)
+		"circle":
+			# Pounce: circle centered at a world position set by the special attack
+			var center: Vector3 = shape.get("center", global_position)
+			return target.global_position.distance_to(center) <= shape.get("radius", 1.5)
+	return false
 
 
 func _perform_attack(target: Node) -> void:
@@ -169,7 +551,7 @@ func _perform_attack(target: Node) -> void:
 		return
 
 	var damage: float = _stats.get("damage", 10.0)
-	# Apply deathmark bonus
+	damage *= _current_attack.get("damage_multiplier", 1.0)
 	if _deathmark_active:
 		damage *= 1.30
 
@@ -208,8 +590,38 @@ func _perform_aoe(attack_data: Dictionary) -> void:
 
 
 func _pick_patrol_point() -> void:
-	var offset := Vector3(randf_range(-8, 8), 0, randf_range(-8, 8))
+	var territory: String = _data.get("territory", "")
+	if territory == "aquatic" or territory == "amphibious":
+		_pick_patrol_point_near_water()
+		return
+	var offset := Vector3(randf_range(-40, 40), 0, randf_range(-40, 40))
 	_patrol_target = global_position + offset
+
+
+func _pick_patrol_point_near_water() -> void:
+	# Find a patrol point where terrain sits within the waterline band.
+	var territory: String = _data.get("territory", "")
+	var min_y := WATER_LEVEL - 6.0
+	var max_y := WATER_LEVEL + (0.0 if territory == "aquatic" else AMPHIBIOUS_PATROL_ABOVE)
+	var space := get_world_3d().direct_space_state
+	for _attempt in range(12):
+		var offset := Vector3(randf_range(-40, 40), 0, randf_range(-40, 40))
+		var probe_xz := global_position + offset
+		var ray := PhysicsRayQueryParameters3D.create(
+			Vector3(probe_xz.x, global_position.y + 80.0, probe_xz.z),
+			Vector3(probe_xz.x, global_position.y - 30.0, probe_xz.z)
+		)
+		ray.collision_mask = 1
+		ray.exclude = [self]
+		var hit := space.intersect_ray(ray)
+		if hit.is_empty():
+			continue
+		var terrain_y: float = hit["position"].y
+		if terrain_y >= min_y and terrain_y <= max_y:
+			_patrol_target = hit["position"] + Vector3(0.0, 0.1, 0.0)
+			return
+	# Fallback: stay near current position
+	_patrol_target = global_position + Vector3(randf_range(-10, 10), 0, randf_range(-10, 10))
 
 
 func take_damage(amount: float, attacker: Node = null) -> void:
@@ -226,16 +638,20 @@ func take_damage(amount: float, attacker: Node = null) -> void:
 
 	_flash_hit()
 
-	if attacker != null and _state == State.IDLE:
+	var provokable := _state in [State.IDLE, State.PATROL, State.SEEK_LAND, State.SEEK_WATER]
+	if attacker != null and provokable:
 		_target = attacker
 		_state = State.CHASE
 		_has_detected_player = true
+		if _data.get("behavior_type", "") == "ambush":
+			_charge_timer = _data.get("charge_duration", 1.5)
 
 	if _health <= 0.0:
 		_die()
 
 
 func _die() -> void:
+	_hide_attack_indicator()
 	_state = State.DEAD
 	_has_detected_player = false
 	died.emit(monster_id, global_position)
@@ -351,7 +767,10 @@ func is_apex() -> bool:
 func _flash_hit() -> void:
 	if _mesh_material == null:
 		return
-	var original: Color = _mesh_material.albedo_color
 	_mesh_material.albedo_color = Color.WHITE
 	await get_tree().create_timer(0.1).timeout
-	_mesh_material.albedo_color = original
+	# Restore telegraph color if still winding up, otherwise restore base color
+	if _state == State.WINDUP and _windup_timer > 0.0:
+		_update_telegraph_visual()
+	else:
+		_mesh_material.albedo_color = _mesh_albedo_original

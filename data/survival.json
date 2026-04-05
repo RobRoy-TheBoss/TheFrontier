@@ -2,7 +2,6 @@
   "base_health_regen": 0.5,
   "base_stamina_regen": 15.0,
   "max_carry": 50.0,
-  "sprint_stamina_drain": 12.0,
   "rest_multiplier": 4.0,
   "injury_threshold": 0.35,
   "health": {
@@ -14,10 +13,10 @@
   },
   "stamina": {
     "base_max": 100,
-    "regen_rate_idle": 15.0,
-    "regen_rate_moving": 5.0,
+    "regen_rate_idle": 22.0,
+    "regen_rate_moving": 8.0,
     "regen_rate_sprinting": 0.0,
-    "sprint_drain_per_second": 12.0,
+    "sprint_drain_per_second": 8.0,
     "dodge_cost": 10.0,
     "block_drain_per_second": 8.0,
     "attack_cost_one_handed": 15.0,

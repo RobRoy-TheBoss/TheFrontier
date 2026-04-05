@@ -11,6 +11,8 @@ const DATA_PATH := "res://data/"
 # --- Raw data stores (id -> Dictionary for O(1) lookup) ---
 var monsters: Dictionary = {}
 var spawn_tables: Dictionary = {}
+var hex_templates: Dictionary = {}          # template_id → template
+var hex_template_by_mesh: Dictionary = {}   # mesh filename (lowercase) → template
 var resources: Dictionary = {}
 var areas: Dictionary = {}
 var settlement_tiers: Dictionary = {}
@@ -22,6 +24,7 @@ var runes: Dictionary = {}
 var items: Dictionary = {}
 var injuries: Dictionary = {}
 var weapons: Dictionary = {}
+var armor: Dictionary = {}
 var seasons: Dictionary = {}       # keyed by "id" string
 var _seasons_ordered: Array = []   # preserves original array order for index lookup
 var survival: Dictionary = {}
@@ -47,13 +50,24 @@ func _load_all() -> void:
 	for s in _load_json_array("spawn_tables.json"):
 		spawn_tables[s["id"]] = s
 
+	# Hex templates — also build mesh-name → template lookup
+	for t in _load_json_array("hex_templates.json"):
+		hex_templates[t["template_id"]] = t
+		for mesh_name in t.get("meshes", []):
+			hex_template_by_mesh[mesh_name.to_lower()] = t
+
 	# Resources (array root)
 	for r in _load_json_array("resources.json"):
 		resources[r["id"]] = r
 
-	# Areas (array root)
+	# Areas (sparse overlay keyed by "col_row")
 	for a in _load_json_array("areas.json"):
-		areas[a["id"]] = a
+		var key: String = "%d_%d" % [int(a["col"]), int(a["row"])]
+		a["_key"] = key
+		areas[key] = a
+		# Also index by human id if present, for settlement lookups
+		if a.has("id"):
+			areas[a["id"]] = a
 
 	# Settlement tiers (array root — store as {"tiers": [...]} for compatibility)
 	var tiers_array: Array = _load_json_array("settlement_tiers.json")
@@ -108,6 +122,10 @@ func _load_all() -> void:
 	# Weapons (array root)
 	for w in _load_json_array("weapons.json"):
 		weapons[w["id"]] = w
+
+	# Armor (dict root with armor_pieces array)
+	for a in _load_json("armor/armor.json").get("armor_pieces", []):
+		armor[a["id"]] = a
 
 	# Seasons (array root)
 	_seasons_ordered = _load_json_array("seasons.json")
@@ -190,6 +208,10 @@ func get_weapon(id: String) -> Dictionary:
 	return weapons.get(id, {})
 
 
+func get_armor(id: String) -> Dictionary:
+	return armor.get(id, {})
+
+
 func get_rune(id: String) -> Dictionary:
 	return runes.get(id, {})
 
@@ -249,6 +271,10 @@ func get_season_by_index(index: int) -> Dictionary:
 
 func get_spawn_table(id: String) -> Dictionary:
 	return spawn_tables.get(id, {})
+
+
+func get_hex_template_for_mesh(mesh_filename: String) -> Dictionary:
+	return hex_template_by_mesh.get(mesh_filename.to_lower(), {})
 
 
 func get_resource(id: String) -> Dictionary:

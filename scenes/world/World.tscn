@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://dngsxkv1uk1vc"]
 
-[ext_resource type="Script" uid="uid://btgfmh61oylxl" path="res://scripts/world/MonsterSpawner.gd" id="3"]
 [ext_resource type="Script" uid="uid://dnsvktpma82hw" path="res://scripts/world/Bed.gd" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/world/HomeChest.tscn" id="5"]
 [ext_resource type="Script" uid="uid://ccqr8dgbxpdv8" path="res://scripts/world/HexMapLoader.gd" id="8"]
-[ext_resource type="Material" path="res://assets/materials/water_depth.tres" id="9"]
+[ext_resource type="Material" uid="uid://n8fqywxh1i1w" path="res://assets/materials/water_depth.tres" id="9"]
+[ext_resource type="Script" uid="uid://d0pkkhmfqnlx5" path="res://scripts/ui/MapTileBaker.gd" id="10"]
 
 [sub_resource type="PlaneMesh" id="Mesh_water"]
 size = Vector2(6000, 6000)
@@ -65,11 +65,9 @@ shape = SubResource("Shape_marker")
 
 [node name="HexMapLoader" type="Node3D" parent="." unique_id=100000001]
 script = ExtResource("8")
-bake_all_areas = true
 
-[node name="DummySpawner" type="Node3D" parent="." unique_id=1669365370]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.8, -8)
-script = ExtResource("3")
+[node name="MapTileBaker" type="Node" parent="." unique_id=100000002]
+script = ExtResource("10")
 
 [node name="Bed" type="StaticBody3D" parent="." unique_id=509243823]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 10.5, -3)

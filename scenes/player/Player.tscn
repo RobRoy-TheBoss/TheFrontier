@@ -10,7 +10,7 @@
 [ext_resource type="Script" uid="uid://crn4pwnsecmsd" path="res://scripts/world/CampDeployer.gd" id="8"]
 [ext_resource type="Script" uid="uid://d0po2qyhcey3v" path="res://scripts/navigation/SurveyingTool.gd" id="9"]
 [ext_resource type="Script" uid="uid://g6oqugp6rx3t" path="res://scripts/navigation/FieldJournal.gd" id="10"]
-[ext_resource type="PackedScene" uid="uid://b8r4y566qep7d" path="res://scenes/player/Player2.tscn" id="11_5stf6"]
+[ext_resource type="PackedScene" uid="uid://b8r4y566qep7d" path="res://scenes/player/PlayerModel.tscn" id="11_5stf6"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.4
@@ -24,11 +24,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_1")
 
 [node name="CharacterModel" parent="." unique_id=1535554774 instance=ExtResource("11_5stf6")]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
 
 [node name="WeaponHolder" type="Node3D" parent="." unique_id=603924340]
 transform = Transform3D(1, 0, 0, 0, 0.966, 0.259, 0, -0.259, 0.966, 0.32, 0.78, -0.1)
-visible = false
 
 [node name="CameraPivot" type="Node3D" parent="." unique_id=2093667547]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
@@ -39,10 +38,6 @@ spring_length = 4.0
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D" unique_id=1134558226]
 current = true
-
-[node name="InteractionRay" type="RayCast3D" parent="CameraPivot/SpringArm3D/Camera3D" unique_id=1818023298]
-target_position = Vector3(0, 0, -6.5)
-collide_with_areas = true
 
 [node name="ScanRay" type="RayCast3D" parent="CameraPivot/SpringArm3D/Camera3D" unique_id=1645778384]
 target_position = Vector3(0, 0, -10)

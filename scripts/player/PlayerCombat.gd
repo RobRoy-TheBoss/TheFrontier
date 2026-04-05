@@ -97,14 +97,16 @@ func _handle_input(delta: float) -> void:
 		_health.drain_stamina(GameData.survival_params.get("stamina", {}).get("block_drain_per_second", 8.0) * delta)
 	else:
 		is_blocking = false
-	if Input.is_action_just_pressed("dodge"):
-		_try_dodge()
+	# Dodge input handled by PlayerMovement (which calls _try_dodge() directly)
 
 
 func _try_attack() -> void:
 	if attack_cooldown > 0.0 or is_dodging:
 		return
-	var weapon: Dictionary = _get_equipped_weapon()
+	var anim: PlayerAnimations = _player.get_node_or_null("PlayerAnimations")
+	if anim:
+		anim.play_once("attack")
+	var weapon: Dictionary = get_equipped_weapon()
 	if weapon.is_empty():
 		_melee_unarmed()
 		return
@@ -159,18 +161,28 @@ func _calculate_melee_damage(weapon: Dictionary) -> float:
 
 
 func _get_melee_target(weapon_reach: float) -> Node:
-	var camera: Camera3D = _player.camera
-	var space: PhysicsDirectSpaceState3D = _player.get_world_3d().direct_space_state
-	var origin: Vector3 = camera.global_position
-	var range: float = SPRING_ARM_LENGTH + weapon_reach
-	var end: Vector3 = origin + (-camera.global_transform.basis.z * range)
-	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, end)
-	query.exclude = [_player]
-	query.collision_mask = 0b10  # Monster layer
-	var result: Dictionary = space.intersect_ray(query)
-	if result.is_empty():
-		return null
-	return result.get("collider")
+	var space := _player.get_world_3d().direct_space_state
+	var fwd   := _player_forward()
+	var end   := _player.global_position + Vector3.UP * 1.0 + fwd * weapon_reach
+
+	var sphere := SphereShape3D.new()
+	sphere.radius = 0.4
+	var sq := PhysicsShapeQueryParameters3D.new()
+	sq.shape = sphere
+	sq.transform = Transform3D(Basis.IDENTITY, end)
+	sq.exclude = [_player.get_rid()]
+	sq.collision_mask = 0b10
+	var hits: Array = space.intersect_shape(sq, 1)
+	if not hits.is_empty():
+		return hits[0].get("collider")
+	return null
+
+
+## Horizontal forward direction from the camera pivot (what the player is facing),
+## independent of camera elevation or spring-arm offset.
+func _player_forward() -> Vector3:
+	var cb: Basis = _player.camera_pivot.global_transform.basis
+	return Vector3(-cb.z.x, 0.0, -cb.z.z).normalized()
 
 
 func _deal_damage(target: Node, damage: float) -> void:
@@ -188,7 +200,7 @@ func _start_bow_draw(weapon: Dictionary) -> void:
 
 func _release_bow() -> void:
 	is_drawing_bow = false
-	var weapon: Dictionary = _get_equipped_weapon()
+	var weapon: Dictionary = get_equipped_weapon()
 	if weapon.is_empty():
 		return
 	var arrow_id: String = "arrow"
@@ -281,7 +293,7 @@ func _try_fire(weapon: Dictionary) -> void:
 
 func _complete_reload_step() -> void:
 	reload_steps_remaining -= 1
-	var weapon: Dictionary = _get_equipped_weapon()
+	var weapon: Dictionary = get_equipped_weapon()
 	var step_time: float = weapon.get("reload_time_per_step", 1.2)
 	if DisciplineManager.has_passive("quick_load"):
 		var eff: Dictionary = DisciplineManager.get_passive_effect("quick_load")
@@ -347,7 +359,7 @@ func open_riposte_window(attacker: Node, base_window: float) -> void:
 func _execute_riposte(target: Node) -> void:
 	if not DisciplineManager.is_ability_unlocked("swordsman", "riposte"):
 		return
-	var weapon: Dictionary = _get_equipped_weapon()
+	var weapon: Dictionary = get_equipped_weapon()
 	var base_damage: float = weapon.get("damage", 10.0) if not weapon.is_empty() else 10.0
 	var eff: Dictionary = DisciplineManager.get_passive_effect("riposte") if DisciplineManager.has_passive("riposte") else {}
 	var damage: float = base_damage * eff.get("damage_multiplier", 2.0)
@@ -377,7 +389,7 @@ func _execute_riposte(target: Node) -> void:
 func _execute_flurry(target: Node) -> void:
 	if not _health.try_consume_stamina(45.0):
 		return
-	var weapon: Dictionary = _get_equipped_weapon()
+	var weapon: Dictionary = get_equipped_weapon()
 	var base_damage: float = weapon.get("damage", 10.0) if not weapon.is_empty() else 10.0
 	for i in range(3):
 		if target.has_method("take_damage"):
@@ -405,12 +417,20 @@ func is_invulnerable_dodge() -> bool:
 	return is_dodging and dodge_timer > (DODGE_DURATION - DODGE_INVULN_WINDOW)
 
 
+var _attack_cooldown_max: float = 0.0
+
+func get_attack_cooldown_frac() -> float:
+	if _attack_cooldown_max <= 0.0:
+		return 0.0
+	return attack_cooldown / _attack_cooldown_max
+
 func _set_attack_cooldown(base_cooldown: float) -> void:
 	var mult: float = _health.get_attack_cooldown_multiplier()
 	attack_cooldown = base_cooldown * mult
+	_attack_cooldown_max = attack_cooldown
 
 
-func _get_equipped_weapon() -> Dictionary:
+func get_equipped_weapon() -> Dictionary:
 	var active: Dictionary = _inventory.get_active_weapon()
 	if active.is_empty():
 		return {}

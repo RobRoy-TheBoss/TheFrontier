@@ -1,12 +1,52 @@
 [
   {
-    "template_id": "default",
-    "biome_type": "forest",
-    "scene_path": "scenes/forest.tscn"
+    "template_id": "coastal",
+    "biome_type": "coastal",
+    "meshes": ["Costal2.glb", "Costal3.glb", "Costal3A.glb"],
+    "spawn_entries": [
+      { "monster_id": "prowler",        "weight": 35 },
+      { "monster_id": "shelled_crawler","weight": 25 },
+      { "monster_id": "plague_swarm",   "weight": 25 },
+      { "monster_id": "bog_lurker",     "weight": 15 }
+    ]
   },
   {
-    "template_id": "desert",
-    "biome_type": "desert",
-    "scene_path": "scenes/desert.tscn"
+    "template_id": "hills",
+    "biome_type": "hills",
+    "meshes": ["Hills2A.glb", "Hills2B.glb", "Hills2C.glb"],
+    "spawn_entries": [
+      { "monster_id": "prowler",        "weight": 40 },
+      { "monster_id": "shelled_crawler","weight": 30 },
+      { "monster_id": "bonewalker",     "weight": 20 },
+      { "monster_id": "ridge_stalker",  "weight": 10 }
+    ]
+  },
+  {
+    "template_id": "mountain",
+    "biome_type": "mountain",
+    "meshes": ["Mountain1A.glb", "Plateau1A.glb"],
+    "spawn_entries": [
+      { "monster_id": "stone_sentinel", "weight": 35 },
+      { "monster_id": "ridge_stalker",  "weight": 30 },
+      { "monster_id": "bonewalker",     "weight": 25 },
+      { "monster_id": "shelled_crawler","weight": 10 }
+    ]
+  },
+  {
+    "template_id": "river",
+    "biome_type": "river",
+    "meshes": [
+      "River0A.glb",
+      "River1.glb",  "River1A.glb",
+      "River2.glb",  "River2A.glb", "River2B.glb",
+      "River3.glb",  "River3A.glb", "River3B.glb", "River3C.glb",
+      "River3c.glb"
+    ],
+    "spawn_entries": [
+      { "monster_id": "bog_lurker",   "weight": 50 },
+      { "monster_id": "plague_swarm", "weight": 30 },
+      { "monster_id": "prowler",      "weight": 15 },
+      { "monster_id": "bonewalker",   "weight":  5 }
+    ]
   }
 ]

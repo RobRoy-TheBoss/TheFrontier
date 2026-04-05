@@ -53,7 +53,7 @@ func get_weapon(id: String) -> Dictionary:
 
 
 func get_armor(id: String) -> Dictionary:
-	return {}
+	return DataLoader.get_armor(id)
 
 
 func get_rune(id: String) -> Dictionary:

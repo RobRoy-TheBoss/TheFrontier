@@ -1,4 +1,5 @@
 {
+  "_outfit_base": "res://assets/models/Modular Character Outfits - Fantasy[Standard]/Modular Character Outfits - Fantasy[Standard]/Exports/glTF (Godot-Unreal)/Modular Parts/",
   "armor_pieces": [
     {
       "id": "light_chest",
@@ -11,7 +12,8 @@
       "durability": 80,
       "temperature_modifier": 2.0,
       "value": 40,
-      "min_settlement_tier": "trading_post"
+      "min_settlement_tier": "trading_post",
+      "mesh_path": "res://assets/models/Modular Character Outfits - Fantasy[Standard]/Modular Character Outfits - Fantasy[Standard]/Exports/glTF (Godot-Unreal)/Modular Parts/Male_Peasant_Body.gltf"
     },
     {
       "id": "light_legs",
@@ -24,7 +26,8 @@
       "durability": 80,
       "temperature_modifier": 1.0,
       "value": 30,
-      "min_settlement_tier": "trading_post"
+      "min_settlement_tier": "trading_post",
+      "mesh_path": "res://assets/models/Modular Character Outfits - Fantasy[Standard]/Modular Character Outfits - Fantasy[Standard]/Exports/glTF (Godot-Unreal)/Modular Parts/Male_Peasant_Legs.gltf"
     },
     {
       "id": "light_hands",
@@ -37,7 +40,8 @@
       "durability": 60,
       "temperature_modifier": 1.5,
       "value": 15,
-      "min_settlement_tier": "trading_post"
+      "min_settlement_tier": "trading_post",
+      "mesh_path": "res://assets/models/Modular Character Outfits - Fantasy[Standard]/Modular Character Outfits - Fantasy[Standard]/Exports/glTF (Godot-Unreal)/Modular Parts/Male_Peasant_Arms.gltf"
     },
     {
       "id": "light_head",
@@ -63,7 +67,8 @@
       "durability": 70,
       "temperature_modifier": 2.0,
       "value": 25,
-      "min_settlement_tier": "trading_post"
+      "min_settlement_tier": "trading_post",
+      "mesh_path": "res://assets/models/Modular Character Outfits - Fantasy[Standard]/Modular Character Outfits - Fantasy[Standard]/Exports/glTF (Godot-Unreal)/Modular Parts/Male_Peasant_Feet.gltf"
     },
     {
       "id": "medium_chest",
@@ -76,7 +81,8 @@
       "durability": 120,
       "temperature_modifier": 4.0,
       "value": 100,
-      "min_settlement_tier": "village"
+      "min_settlement_tier": "village",
+      "mesh_path": "res://assets/models/Modular Character Outfits - Fantasy[Standard]/Modular Character Outfits - Fantasy[Standard]/Exports/glTF (Godot-Unreal)/Modular Parts/Male_Ranger_Body.gltf"
     },
     {
       "id": "medium_legs",
@@ -89,7 +95,8 @@
       "durability": 120,
       "temperature_modifier": 2.5,
       "value": 75,
-      "min_settlement_tier": "village"
+      "min_settlement_tier": "village",
+      "mesh_path": "res://assets/models/Modular Character Outfits - Fantasy[Standard]/Modular Character Outfits - Fantasy[Standard]/Exports/glTF (Godot-Unreal)/Modular Parts/Male_Ranger_Legs.gltf"
     },
     {
       "id": "medium_hands",
@@ -102,7 +109,8 @@
       "durability": 100,
       "temperature_modifier": 3.0,
       "value": 45,
-      "min_settlement_tier": "village"
+      "min_settlement_tier": "village",
+      "mesh_path": "res://assets/models/Modular Character Outfits - Fantasy[Standard]/Modular Character Outfits - Fantasy[Standard]/Exports/glTF (Godot-Unreal)/Modular Parts/Male_Ranger_Arms.gltf"
     },
     {
       "id": "medium_head",
@@ -115,7 +123,8 @@
       "durability": 120,
       "temperature_modifier": 3.0,
       "value": 60,
-      "min_settlement_tier": "village"
+      "min_settlement_tier": "village",
+      "mesh_path": "res://assets/models/Modular Character Outfits - Fantasy[Standard]/Modular Character Outfits - Fantasy[Standard]/Exports/glTF (Godot-Unreal)/Modular Parts/Male_Ranger_Head_Hood.gltf"
     },
     {
       "id": "medium_feet",
@@ -128,7 +137,8 @@
       "durability": 110,
       "temperature_modifier": 3.5,
       "value": 50,
-      "min_settlement_tier": "village"
+      "min_settlement_tier": "village",
+      "mesh_path": "res://assets/models/Modular Character Outfits - Fantasy[Standard]/Modular Character Outfits - Fantasy[Standard]/Exports/glTF (Godot-Unreal)/Modular Parts/Male_Ranger_Feet_Boots.gltf"
     },
     {
       "id": "heavy_chest",

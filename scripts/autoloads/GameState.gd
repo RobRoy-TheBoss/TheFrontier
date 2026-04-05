@@ -22,7 +22,7 @@ var weather_transition_timer: float = 0.0
 var weather_duration: float = 600.0  # seconds
 
 # World
-var current_area_id: String = "crestport_bay"
+var current_area_id: String = "0_0"
 var current_region_id: String = "eastern_frontier"
 var player_position: Vector3 = Vector3.ZERO
 

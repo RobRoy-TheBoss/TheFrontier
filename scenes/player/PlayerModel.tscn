@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://b8r4y566qep7d"]
+
+[ext_resource type="PackedScene" uid="uid://b4pmrxnhnn36c" path="res://assets/models/Universal Base Characters[Standard]/Universal Base Characters[Standard]/Base Characters/Godot - UE/Superhero_Male_FullBody.gltf" id="1_ubc"]
+[ext_resource type="AnimationLibrary" uid="uid://b5lwb7dloup1p" path="res://assets/models/Universal Animation Library[Standard]/Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb" id="2_ual"]
+[ext_resource type="AnimationLibrary" uid="uid://dt4t4b8fr21ja" path="res://assets/models/Universal Animation Library 2[Standard]/Universal Animation Library 2[Standard]/Unreal-Godot/UAL2_Standard.glb" id="3_ual2"]
+
+[node name="CharacterModel" unique_id=1535554774 instance=ExtResource("1_ubc")]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1225516598]
+root_node = NodePath("..")
+libraries/ual = ExtResource("2_ual")
+libraries/ual2 = ExtResource("3_ual2")

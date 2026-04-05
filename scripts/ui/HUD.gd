@@ -10,15 +10,17 @@ extends Control
 @onready var status_container: HBoxContainer = $StatusEffects
 @onready var reload_indicator: Control = $ReloadIndicator
 @onready var reload_bar: ProgressBar = $ReloadIndicator/ReloadBar
-@onready var crosshair: Control = $Crosshair
 
 var _player: Node = null
 var _player_health: PlayerHealth = null
 var _player_combat: PlayerCombat = null
+var _compass_bar: Control = null
+var _target_lock: PlayerTargetLock = null
 
 
 func _ready() -> void:
 	add_to_group("hud")
+	_setup_heading_label()
 	await get_tree().process_frame
 	_player = get_tree().get_first_node_in_group("player")
 	if _player:
@@ -31,6 +33,9 @@ func _ready() -> void:
 		_player_combat.reload_step_completed.connect(_on_reload_step)
 		_player_combat.reload_completed.connect(_on_reload_complete)
 		_player.inventory.inventory_changed.connect(_update_weapon_display)
+		_player.inventory.inventory_changed.connect(_update_compass_visibility)
+		_update_compass_visibility()
+		_target_lock = _player.target_lock
 	SaveManager.save_completed.connect(_on_save_completed)
 	SaveManager.save_failed.connect(_on_save_failed)
 	_debug_setup()  # DEBUG — remove with the block below
@@ -38,11 +43,44 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_update_compass()
+	queue_redraw()
 	if _debug_area_label:
 		_debug_area_label.text = "[AREA] %s" % GameState.current_area_id
 	if _debug_pos_label and _player:
 		var p: Vector3 = _player.global_position
 		_debug_pos_label.text = "[POS] %.1f, %.1f, %.1f" % [p.x, p.y, p.z]
+
+
+func _draw() -> void:
+	if _target_lock == null or not _target_lock.is_locked():
+		return
+	var target: Node = _target_lock.locked_target
+	if not is_instance_valid(target):
+		return
+	var cam: Camera3D = _player.camera
+	var world_pos: Vector3 = target.global_position + Vector3.UP * 1.0
+	if cam.is_position_behind(world_pos):
+		return
+	_draw_lock_bracket(cam.unproject_position(world_pos))
+
+
+func _draw_lock_bracket(c: Vector2) -> void:
+	const SZ   := 22.0   # half-size of bracket box
+	const ARM  :=  8.0   # length of each corner arm
+	const T    :=  2.0   # line thickness
+	const COL  := Color(1.0, 0.85, 0.1, 0.92)
+	# Top-left
+	draw_rect(Rect2(c.x - SZ,         c.y - SZ,         ARM, T  ), COL)
+	draw_rect(Rect2(c.x - SZ,         c.y - SZ,         T,   ARM), COL)
+	# Top-right
+	draw_rect(Rect2(c.x + SZ - ARM,   c.y - SZ,         ARM, T  ), COL)
+	draw_rect(Rect2(c.x + SZ - T,     c.y - SZ,         T,   ARM), COL)
+	# Bottom-left
+	draw_rect(Rect2(c.x - SZ,         c.y + SZ - T,     ARM, T  ), COL)
+	draw_rect(Rect2(c.x - SZ,         c.y + SZ - ARM,   T,   ARM), COL)
+	# Bottom-right
+	draw_rect(Rect2(c.x + SZ - ARM,   c.y + SZ - T,     ARM, T  ), COL)
+	draw_rect(Rect2(c.x + SZ - T,     c.y + SZ - ARM,   T,   ARM), COL)
 
 
 func _on_health_changed(current: float, maximum: float) -> void:
@@ -58,11 +96,41 @@ func _on_stamina_changed(current: float, maximum: float) -> void:
 		stamina_bar.value = current
 
 
+func _setup_heading_label() -> void:
+	_compass_bar = Control.new()
+	_compass_bar.name = "CompassBar"
+	_compass_bar.set_script(load("res://scripts/ui/CompassBar.gd"))
+	_compass_bar.anchor_left   = 1.0 / 3.0
+	_compass_bar.anchor_right  = 2.0 / 3.0
+	_compass_bar.anchor_top    = 0.0
+	_compass_bar.anchor_bottom = 0.0
+	_compass_bar.offset_left   = 0.0
+	_compass_bar.offset_right  = 0.0
+	_compass_bar.offset_top    = 0.0
+	_compass_bar.offset_bottom = 48.0
+	_compass_bar.visible = false
+	add_child(_compass_bar)
+
+
 func _update_compass() -> void:
 	if _player == null or compass_needle == null:
 		return
-	var player_rot_y: float = _player.rotation.y
-	compass_needle.rotation = -player_rot_y
+	var rot_y: float = _player.camera_pivot.rotation.y
+	compass_needle.rotation = -rot_y
+	_update_heading()
+
+
+func _update_heading() -> void:
+	if _compass_bar == null or not _compass_bar.visible:
+		return
+	_compass_bar.heading_deg = fposmod(rad_to_deg(-_player.camera_pivot.rotation.y), 360.0)
+	_compass_bar.queue_redraw()
+
+
+func _update_compass_visibility() -> void:
+	if _compass_bar == null or _player == null:
+		return
+	_compass_bar.visible = _player.inventory.has_item("compass")
 
 
 func _update_weapon_display() -> void:
