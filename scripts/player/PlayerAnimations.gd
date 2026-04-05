@@ -37,12 +37,6 @@ func _setup() -> void:
 		push_warning("PlayerAnimations: no AnimationPlayer found in CharacterModel")
 		return
 
-	# Point root at Armature so UAL tracks can find Skeleton3D beneath it.
-	# The editor resets root_node to ".." on save, so we set it here instead.
-	var armature: Node = _player.character_model.get_node_or_null("Armature")
-	if armature:
-		_anim_player.root_node = _anim_player.get_path_to(armature)
-
 	# UAL loop animations should loop; one-shots (attack, hit, death) stay as-is
 	const LOOP_KEYS := ["idle", "run", "sprint", "jump", "crouch_idle", "crouch_walk", "swim", "swim_idle"]
 	for anim_key in LOOP_KEYS:

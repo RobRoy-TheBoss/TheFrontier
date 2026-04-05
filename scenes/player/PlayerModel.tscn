@@ -6,5 +6,5 @@
 [node name="CharacterModel" unique_id=1535554774 instance=ExtResource("1_ubc")]
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1225516598]
-root_node = NodePath("Armature")
+root_node = NodePath("..")
 libraries/ual = ExtResource("2_ual")
