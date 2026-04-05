@@ -39,6 +39,8 @@ func add_item(item_id: String, count: int) -> bool:
 	if item_def.is_empty():
 		item_def = DataLoader.get_weapon(item_id)
 	if item_def.is_empty():
+		item_def = DataLoader.get_armor(item_id)
+	if item_def.is_empty():
 		push_warning("[PlayerInventory] Unknown item: " + item_id)
 		return false
 
@@ -232,6 +234,8 @@ func _get_any_item_def(item_id: String) -> Dictionary:
 	var def := DataLoader.get_item(item_id)
 	if def.is_empty():
 		def = DataLoader.get_weapon(item_id)
+	if def.is_empty():
+		def = DataLoader.get_armor(item_id)
 	if def.is_empty():
 		def = DataLoader.get_rune(item_id)
 	return def
