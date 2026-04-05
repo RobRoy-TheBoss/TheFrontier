@@ -5,15 +5,16 @@ class_name PlayerAnimations
 extends Node
 
 # Map our state names to UAL animation paths (library "ual")
+# Note: Godot strips _Loop suffix on animation_library import
 const ANIM_MAP := {
-	"idle":         "ual/Idle_Loop",
-	"run":          "ual/Walk_Loop",
-	"sprint":       "ual/Sprint_Loop",
-	"jump":         "ual/Jump_Loop",
-	"crouch_idle":  "ual/Crouch_Idle_Loop",
-	"crouch_walk":  "ual/Crouch_Fwd_Loop",
-	"swim":         "ual/Swim_Fwd_Loop",
-	"swim_idle":    "ual/Swim_Idle_Loop",
+	"idle":         "ual/Idle",
+	"run":          "ual/Walk",
+	"sprint":       "ual/Sprint",
+	"jump":         "ual/Jump",
+	"crouch_idle":  "ual/Crouch_Idle",
+	"crouch_walk":  "ual/Crouch_Fwd",
+	"swim":         "ual/Swim_Fwd",
+	"swim_idle":    "ual/Swim_Idle",
 	"attack":       "ual/Sword_Attack",
 	"hit":          "ual/Hit_Chest",
 	"death":        "ual/Death01",
@@ -35,6 +36,12 @@ func _setup() -> void:
 	if _anim_player == null:
 		push_warning("PlayerAnimations: no AnimationPlayer found in CharacterModel")
 		return
+
+	# Point root at Armature so UAL tracks can find Skeleton3D beneath it.
+	# The editor resets root_node to ".." on save, so we set it here instead.
+	var armature: Node = _player.character_model.get_node_or_null("Armature")
+	if armature:
+		_anim_player.root_node = _anim_player.get_path_to(armature)
 
 	# UAL loop animations should loop; one-shots (attack, hit, death) stay as-is
 	const LOOP_KEYS := ["idle", "run", "sprint", "jump", "crouch_idle", "crouch_walk", "swim", "swim_idle"]
