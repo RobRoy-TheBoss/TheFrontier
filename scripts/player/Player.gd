@@ -32,7 +32,7 @@ var target_lock: PlayerTargetLock = null
 func _ready() -> void:
 	add_to_group("player")
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-_give_starting_items()
+	_give_starting_items()
 	health.player_died.connect(_on_player_died)
 	inventory.inventory_changed.connect(_update_weapon_display)
 	_update_weapon_display()
@@ -112,7 +112,7 @@ func _process(delta: float) -> void:
 
 func _try_interact() -> void:
 	var hud  := get_tree().get_first_node_in_group("hud")
-	var cb   := camera_pivot.global_transform.basis
+	var cb: Basis = camera_pivot.global_transform.basis
 	var fwd  := Vector3(-cb.z.x, 0.0, -cb.z.z).normalized()
 	var origin := global_position + Vector3.UP * 1.0
 	var query  := PhysicsRayQueryParameters3D.create(origin, origin + fwd * INTERACTION_DISTANCE)
@@ -332,6 +332,10 @@ func _give_starting_items() -> void:
 	inventory.add_item("arming_sword", 1)
 	inventory.equip_to_weapon_slot("short_spear", 0)
 	inventory.equip_to_weapon_slot("arming_sword", 1)
+	# Starting armor: Peasant set (light)
+	for armor_id: String in ["light_chest", "light_legs", "light_hands", "light_head", "light_feet"]:
+		inventory.add_item(armor_id, 1)
+		inventory.equip(armor_id, "auto")
 
 
 func add_item_to_inventory(item_id: String, count: int) -> void:
@@ -419,4 +423,3 @@ func apply_save_data(data: Dictionary) -> void:
 
 func _adjust_zoom(delta: float) -> void:
 	spring_arm.spring_length = clamp(spring_arm.spring_length + delta, ZOOM_MIN, ZOOM_MAX)
-
